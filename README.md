@@ -1,6 +1,8 @@
 # SkyrimSoulsRE
 
-This project uses [JSON for Modern C++](https://github.com/nlohmann/json)
+This project uses [JSON for Modern C++](https://github.com/nlohmann/json).
+
+This project requires [HookShareSSE](https://github.com/SniffleMan/HookShareSSE) to function.
 
 ## Settings
 Setting | Description
