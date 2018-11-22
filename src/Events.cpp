@@ -37,14 +37,13 @@ namespace SkyrimSoulsRE
 		if (menu) {
 			if (menu->PausesGame()) {
 				menu->flags = Flag(menu->flags & ~Flag::kFlag_PauseGame);
+				if (mm->GameIsPaused()) {
+					mm->numPauseGame--;
+				}
 			}
 			if (menu->StopsDrawingWorld()) {
 				menu->flags = Flag(menu->flags & ~Flag::kFlag_StopDrawingWorld);
 			}
-		}
-
-		if (mm->GameIsPaused()) {
-			mm->numPauseGame = 0;
 		}
 
 		if (a_event->menuName == strHolder->barterMenu) {
@@ -78,8 +77,6 @@ namespace SkyrimSoulsRE
 				_whiteList.emplace_back(strHolder->barterMenu);
 			} else if (menu == "containerMenu") {
 				_whiteList.emplace_back(strHolder->containerMenu);
-			} else if (menu == "journalMenu") {
-				_whiteList.emplace_back(strHolder->journalMenu);
 			} else if (menu == "favoritesMenu") {
 				_whiteList.emplace_back(strHolder->favoritesMenu);
 			} else if (menu == "tutorialMenu") {
@@ -104,8 +101,10 @@ namespace SkyrimSoulsRE
 	}
 
 
-	std::vector<BSFixedString> MenuOpenCloseEventHandler::_whiteList;
-	UInt32 MenuOpenCloseEventHandler::_numPauseGame = 0;
+	std::vector<BSFixedString>	MenuOpenCloseEventHandler::_whiteList;
+	UInt32						MenuOpenCloseEventHandler::_numPauseGame = 0;
+	UInt32						MenuOpenCloseEventHandler::_numPauseGameBuffer = 0;
+	bool						MenuOpenCloseEventHandler::_cleanUp = false;
 
 
 	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;

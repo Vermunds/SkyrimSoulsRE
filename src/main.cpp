@@ -1,6 +1,7 @@
 ﻿#include "common/IDebugLog.h"  // IDebugLog
-#include "skse64/PluginAPI.h"  // PluginHandle, SKSEMessagingInterface, SKSETaskInterface, SKSEInterface, PluginInfo
+#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/skse_version.h"  // RUNTIME_VERSION
+#include "skse64/PluginAPI.h"  // PluginHandle, SKSEMessagingInterface, SKSETaskInterface, SKSEInterface, PluginInfo
 
 #include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
@@ -40,7 +41,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
 		g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady);
 		break;
-	case SKSEMessagingInterface::kMessage_InputLoaded:
+	case SKSEMessagingInterface::kMessage_DataLoaded:
 	{
 		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 		mm->MenuOpenCloseEventDispatcher()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);

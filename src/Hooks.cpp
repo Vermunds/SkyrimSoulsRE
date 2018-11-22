@@ -1,11 +1,13 @@
 #include "Hooks.h"
 
+#include "skse64_common/BranchTrampoline.h"  // g_trampoline
 #include "skse64/GameInput.h"  // InputEvent
 
 #include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
 
 #include "HookShare.h"  // _RegisterHook_t
 
+#include "RE/BGSSaveLoadManager.h"  // BGSSaveLoadManager
 #include "RE/PlayerInputHandler.h"  // PlayerInputHandler
 
 
@@ -28,6 +30,8 @@ namespace Hooks
 	{
 		using HookShare::Hook;
 
+		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_FirstPersonState);
+		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_ThirdPersonState);
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_Favorites);
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_Movement);
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_Look);
@@ -41,6 +45,5 @@ namespace Hooks
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_AttackBlock);
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_Run);
 		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_Sneak);
-		a_register(_PlayerInputHandler_CanProcess, Hook::kHook_TogglePOV);
 	}
 }

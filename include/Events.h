@@ -20,8 +20,10 @@ namespace SkyrimSoulsRE
 	private:
 		bool IsInWhiteList(BSFixedString& a_name);
 
-		static std::vector<BSFixedString> _whiteList;
-		static UInt32 _numPauseGame;
+		static std::vector<BSFixedString>	_whiteList;
+		static UInt32						_numPauseGame;
+		static UInt32						_numPauseGameBuffer;
+		static bool							_cleanUp;
 	};
 
 
