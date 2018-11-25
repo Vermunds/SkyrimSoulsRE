@@ -30,18 +30,9 @@ namespace SkyrimSoulsRE
 
 		if (a_event->isOpening) {
 			if (a_event->menuName == strHolder->barterMenu) {
-				RE::IMenu* dialogueMenu = mm->GetMenu(strHolder->dialogueMenu);
-				if (dialogueMenu) {
-					dialogueMenu->view->SetVisible(false);
-				}
+				uiManager->AddMessage(strHolder->dialogueMenu, UIMessage::kMessage_Close, 0);
 			}
 		} else {
-			if (a_event->menuName == strHolder->barterMenu) {
-				RE::IMenu* dialogueMenu = mm->GetMenu(strHolder->dialogueMenu);
-				if (dialogueMenu) {
-					dialogueMenu->view->SetVisible(true);
-				}
-			}
 			return EventResult::kEvent_Continue;
 		}
 
