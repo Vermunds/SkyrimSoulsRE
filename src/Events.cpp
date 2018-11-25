@@ -1,36 +1,48 @@
 #include "Events.h"
 
-#include "skse64/GameEvents.h"  // EventResult, MenuOpenCloseEvent, EventDispatcher
-#include "skse64/GameTypes.h"  // BSFixedString
-
 #include <vector>  // vector
 
 #include "Settings.h"
 
+#include "RE/BSFixedString.h"  // BSFixedString
+#include "RE/BSTEvent.h"  // EventResult, BSTEventSource
 #include "RE/IMenu.h"  // IMenu
 #include "RE/MenuManager.h"  // MenuManager
+#include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
 #include "RE/UIManager.h"  // UIManager
+#include "RE/UIStringHolder.h"  // UIStringHolder
 
 
 namespace SkyrimSoulsRE
 {
-	EventResult MenuOpenCloseEventHandler::ReceiveEvent(MenuOpenCloseEvent* a_event, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher)
+	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
 	{
+		using RE::EventResult;
 		typedef RE::IMenu::Flag Flag;
 
-		static RE::MenuManager*	mm = RE::MenuManager::GetSingleton();
-		static UIStringHolder*	strHolder = UIStringHolder::GetSingleton();
-		static RE::UIManager*	uiManager = RE::UIManager::GetSingleton();
+		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
+		static RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
+		static RE::UIManager*		uiManager = RE::UIManager::GetSingleton();
 
 		if (!a_event || !IsInWhiteList(a_event->menuName)) {
-			return kEvent_Continue;
+			return EventResult::kEvent_Continue;
 		}
 
-		if (a_event->opening) {
-			++_numPauseGame;
+		if (a_event->isOpening) {
+			if (a_event->menuName == strHolder->barterMenu) {
+				RE::IMenu* dialogueMenu = mm->GetMenu(strHolder->dialogueMenu);
+				if (dialogueMenu) {
+					dialogueMenu->view->SetVisible(false);
+				}
+			}
 		} else {
-			--_numPauseGame;
-			return kEvent_Continue;
+			if (a_event->menuName == strHolder->barterMenu) {
+				RE::IMenu* dialogueMenu = mm->GetMenu(strHolder->dialogueMenu);
+				if (dialogueMenu) {
+					dialogueMenu->view->SetVisible(true);
+				}
+			}
+			return EventResult::kEvent_Continue;
 		}
 
 		RE::IMenu* menu = mm->GetMenu(a_event->menuName);
@@ -46,23 +58,13 @@ namespace SkyrimSoulsRE
 			}
 		}
 
-		if (a_event->menuName == strHolder->barterMenu) {
-			uiManager->AddMessage(strHolder->dialogueMenu, UIMessage::kMessage_Close, 0);
-		}
-
-		return kEvent_Continue;
-	}
-
-
-	bool MenuOpenCloseEventHandler::BlockInput()
-	{
-		return _numPauseGame > 0;
+		return EventResult::kEvent_Continue;
 	}
 
 
 	void MenuOpenCloseEventHandler::Init()
 	{
-		static UIStringHolder* strHolder = UIStringHolder::GetSingleton();
+		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
 		bool unpauseTween = false;
 
@@ -77,6 +79,8 @@ namespace SkyrimSoulsRE
 				_whiteList.emplace_back(strHolder->barterMenu);
 			} else if (menu == "containerMenu") {
 				_whiteList.emplace_back(strHolder->containerMenu);
+			} else if (menu == "journalMenu") {
+				_whiteList.emplace_back(strHolder->journalMenu);
 			} else if (menu == "favoritesMenu") {
 				_whiteList.emplace_back(strHolder->favoritesMenu);
 			} else if (menu == "tutorialMenu") {
@@ -90,7 +94,20 @@ namespace SkyrimSoulsRE
 	}
 
 
-	bool MenuOpenCloseEventHandler::IsInWhiteList(BSFixedString& a_name)
+	bool MenuOpenCloseEventHandler::BlockInput(const char* a_exclude)
+	{
+		static RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+
+		for (auto& menuName : _whiteList) {
+			if (mm->GetMovieView(menuName) && std::strcmp(a_exclude, menuName) != 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	bool MenuOpenCloseEventHandler::IsInWhiteList(RE::BSFixedString& a_name)
 	{
 		for (auto& menu : _whiteList) {
 			if (menu == a_name) {
@@ -101,10 +118,7 @@ namespace SkyrimSoulsRE
 	}
 
 
-	std::vector<BSFixedString>	MenuOpenCloseEventHandler::_whiteList;
-	UInt32						MenuOpenCloseEventHandler::_numPauseGame = 0;
-	UInt32						MenuOpenCloseEventHandler::_numPauseGameBuffer = 0;
-	bool						MenuOpenCloseEventHandler::_cleanUp = false;
+	std::vector<RE::BSFixedString> MenuOpenCloseEventHandler::_whiteList;
 
 
 	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;

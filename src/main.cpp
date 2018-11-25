@@ -25,7 +25,7 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 	_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
 	Hooks::InstallHooks(_RegisterHook);
 	SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
-	_MESSAGE("[MESSAGE] Menu open/close whitelist initialized\n");
+	_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
 }
 
 
@@ -44,7 +44,7 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	case SKSEMessagingInterface::kMessage_DataLoaded:
 	{
 		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-		mm->MenuOpenCloseEventDispatcher()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);
+		mm->GetMenuOpenCloseEventSource()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);
 		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
 		break;
 	}
@@ -72,6 +72,13 @@ extern "C" {
 			return false;
 		} else if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
 			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
+			return false;
+		}
+
+		if (g_branchTrampoline.Create(1024 * 8)) {
+			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
+		} else {
+			_FATALERROR("[FATAL ERROR] Branch trampoline creation failed!\n");
 			return false;
 		}
 

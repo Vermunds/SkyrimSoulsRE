@@ -1,29 +1,27 @@
 #pragma once
 
-#include "skse64/GameEvents.h"  // BSTEventSink, MenuOpenCloseEvent, EventResult, EventDispatcher
-#include "skse64/GameMenus.h"  // UIStringHolder
-#include "skse64/GameTypes.h"  // BSFixedString
-
 #include <vector>  // vector
+
+#include "RE/BSFixedString.h"  // BSFixedString
+#include "RE/BSTEvent.h"  // BSTEventSink, EventResult, BSTEventSource
+#include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
 
 
 namespace SkyrimSoulsRE
 {
-	class MenuOpenCloseEventHandler : public BSTEventSink<MenuOpenCloseEvent>
+	class MenuOpenCloseEventHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
-		virtual EventResult ReceiveEvent(MenuOpenCloseEvent* a_event, EventDispatcher<MenuOpenCloseEvent>* a_dispatcher) override;
+		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
 
-		static bool BlockInput();
 		static void Init();
 
-	private:
-		bool IsInWhiteList(BSFixedString& a_name);
+		static bool BlockInput(const char* a_exclude);
 
-		static std::vector<BSFixedString>	_whiteList;
-		static UInt32						_numPauseGame;
-		static UInt32						_numPauseGameBuffer;
-		static bool							_cleanUp;
+	private:
+		bool IsInWhiteList(RE::BSFixedString& a_name);
+
+		static std::vector<RE::BSFixedString>	_whiteList;
 	};
 
 
