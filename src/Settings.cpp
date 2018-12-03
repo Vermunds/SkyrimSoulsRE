@@ -34,32 +34,32 @@ namespace SkyrimSoulsRE
 				case json::value_t::array:
 				{
 					json jArr = it.value();
-					setting->Assign(jArr);
+					setting->assign(jArr);
 					break;
 				}
 				case json::value_t::string:
 				{
 					std::string str = it.value();
-					setting->Assign(str);
+					setting->assign(str);
 					break;
 				}
 				case json::value_t::boolean:
 				{
 					bool b = it.value();
-					setting->Assign(b);
+					setting->assign(b);
 					break;
 				}
 				case json::value_t::number_integer:
 				case json::value_t::number_unsigned:
 				{
 					int num = it.value();
-					setting->Assign(num);
+					setting->assign(num);
 					break;
 				}
 				case json::value_t::number_float:
 				{
 					float num = it.value();
-					setting->Assign(num);
+					setting->assign(num);
 					break;
 				}
 				default:
@@ -82,13 +82,13 @@ namespace SkyrimSoulsRE
 	{
 		_DMESSAGE("=== SETTINGS DUMP BEGIN ===");
 		for (auto& setting : settings) {
-			setting->Dump();
+			setting->dump();
 		}
 		_DMESSAGE("=== SETTINGS DUMP END ===");
 	}
 
 
-	aSetting	Settings::unpausedMenus("unpausedMenus", { "inventoryMenu", "magicMenu", "barterMenu", "containerMenu", "journalMenu", "favoritesMenu", "tutorialMenu" });
+	aSetting<std::string>	Settings::unpausedMenus("unpausedMenus", false, { "magicMenu", "barterMenu", "containerMenu", "journalMenu", "favoritesMenu", "tutorialMenu" });
 
-	const char*	Settings::FILE_NAME = "Data\\SKSE\\Plugins\\SkyrimSoulsRE.json";
+	const char*				Settings::FILE_NAME = "Data\\SKSE\\Plugins\\SkyrimSoulsRE.json";
 }

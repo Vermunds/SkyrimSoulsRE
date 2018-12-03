@@ -20,14 +20,6 @@
 
 namespace Hooks
 {
-	// Some other thread owns it when doing a manual saved in an unpaused menu
-	// It's important to let the LeaveCriticalSection call go through, even though this might fail, otherwise the game will hang
-	void Hook_Abstract_EnterCriticalSection(__int64 a_this)
-	{
-		TryEnterCriticalSection((LPCRITICAL_SECTION)(a_this + 0x2790));
-	}
-
-
 	template <Menu menu>
 	HookShare::ReturnType _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 	{
@@ -108,9 +100,6 @@ namespace Hooks
 		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_AttackBlock);
 		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Run);
 		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Sneak);
-
-		RelocAddr<uintptr_t> HookTarget_Abstract_EnterCriticalSection_Enter(0x005C0900 + 0x25);
-		g_branchTrampoline.Write5Call(HookTarget_Abstract_EnterCriticalSection_Enter, GetFnAddr(Hook_Abstract_EnterCriticalSection));
 
 		FavoritesMenuEx::InstallHook();
 	}

@@ -63,15 +63,13 @@ namespace SkyrimSoulsRE
 			if (menu == "inventoryMenu") {
 				_whiteList.emplace_back(strHolder->inventoryMenu);
 				unpauseTween = true;
-			} else if (menu == "magicMenu") {
+			} if (menu == "magicMenu") {
 				_whiteList.emplace_back(strHolder->magicMenu);
 				unpauseTween = true;
 			} else if (menu == "barterMenu") {
 				_whiteList.emplace_back(strHolder->barterMenu);
 			} else if (menu == "containerMenu") {
 				_whiteList.emplace_back(strHolder->containerMenu);
-			} else if (menu == "journalMenu") {
-				_whiteList.emplace_back(strHolder->journalMenu);
 			} else if (menu == "favoritesMenu") {
 				_whiteList.emplace_back(strHolder->favoritesMenu);
 			} else if (menu == "tutorialMenu") {

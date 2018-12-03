@@ -8,6 +8,7 @@
 #include "Events.h"  // g_menuOpenCloseEventHandler
 #include "Hooks.h"  // InstallHooks()
 #include "Settings.h"  // loadSettings
+#include "version.h"
 
 #include "HookShare.h"  // _RegisterHook_t
 
@@ -22,10 +23,16 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
 	using HookShare::_RegisterHook_t;
 
-	_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
-	Hooks::InstallHooks(_RegisterHook);
-	SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
-	_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
+	if (a_msg->type == HOOK_SHARE_API_VERSION_MAJOR) {
+		_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
+		Hooks::InstallHooks(_RegisterHook);
+		_MESSAGE("[MESSAGE] Hooks registered");
+
+		SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
+		_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
+	} else {
+		_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+	}
 }
 
 
@@ -39,7 +46,11 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
-		g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady);
+		if (g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady)) {
+			_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
+		} else {
+			_FATALERROR("[FATAL ERROR] HookShareSSE not loaded!\n");
+		}
 		break;
 	case SKSEMessagingInterface::kMessage_DataLoaded:
 	{
@@ -59,7 +70,7 @@ extern "C" {
 		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
 		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
 
-		_MESSAGE("SkyrimSoulsRE");
+		_MESSAGE("SkyrimSoulsRE v%s", SKYRIMSOULSRE_VERSION_VERSTRING);
 
 		a_info->infoVersion = PluginInfo::kInfoVersion;
 		a_info->name = "SkyrimSoulsRE";
@@ -70,7 +81,9 @@ extern "C" {
 		if (a_skse->isEditor) {
 			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
 			return false;
-		} else if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
+		}
+
+		if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_53) {
 			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
 			return false;
 		}
@@ -88,6 +101,8 @@ extern "C" {
 
 	bool SKSEPlugin_Load(const SKSEInterface* a_skse)
 	{
+		_MESSAGE("[MESSAGE] SkyrimSoulsRE loaded");
+
 		g_messaging = (SKSEMessagingInterface*)a_skse->QueryInterface(kInterface_Messaging);
 		if (g_messaging->RegisterListener(g_pluginHandle, "SKSE", MessageHandler)) {
 			_MESSAGE("[MESSAGE] Messaging interface registration successful");
@@ -102,8 +117,6 @@ extern "C" {
 			_FATALERROR("[FATAL ERROR] Loading settings failed!\n");
 			return false;
 		}
-
-		_MESSAGE("[MESSAGE] SkyrimSoulsRE loaded");
 
 		return true;
 	}

@@ -1,4 +1,4 @@
-#include "version.h"
+#include "include\version.h"
 #include <winres.h>
 
 1 VERSIONINFO
