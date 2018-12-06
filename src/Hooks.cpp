@@ -57,7 +57,7 @@ namespace Hooks
 
 		static void InstallHook()
 		{
-			RelocPtr<_CanProcess_t> vtbl_CanProcess(RE::FAVORITES_MENU_VTBL_META + 0x60);
+			RelocPtr<_CanProcess_t> vtbl_CanProcess(RE::FAVORITES_MENU_VTBL + (0x8 * 0x8) + 0x10 + (0x1 * 0x8));
 			orig_CanProcess = *vtbl_CanProcess;
 			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&Hook_CanProcess));
 		}
