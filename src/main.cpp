@@ -8,9 +8,9 @@
 #include "Events.h"  // g_menuOpenCloseEventHandler
 #include "Hooks.h"  // InstallHooks()
 #include "Settings.h"  // loadSettings
-#include "version.h"
+#include "version.h"  // SKYRIMSOULSRE_VERSION_VERSTRING
 
-#include "HookShare.h"  // _RegisterHook_t
+#include "HookShare.h"  // _RegisterForCanProcess_t
 
 #include "RE/MenuManager.h"  // MenuManager
 
@@ -21,17 +21,20 @@ static SKSEMessagingInterface* g_messaging = 0;
 
 void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
-	using HookShare::_RegisterHook_t;
+	using HookShare::_RegisterForCanProcess_t;
 
-	if (a_msg->type == HOOK_SHARE_API_VERSION_MAJOR) {
-		_RegisterHook_t* _RegisterHook = static_cast<_RegisterHook_t*>(a_msg->data);
-		Hooks::InstallHooks(_RegisterHook);
-		_MESSAGE("[MESSAGE] Hooks registered");
+	switch (a_msg->type) {
+	case HookShare::kType_CanProcess:
+		if (a_msg->dataLen == HOOK_SHARE_API_VERSION_MAJOR) {
+			_RegisterForCanProcess_t* _RegisterForCanProcess = static_cast<_RegisterForCanProcess_t*>(a_msg->data);
+			Hooks::InstallHooks(_RegisterForCanProcess);
+			_MESSAGE("[MESSAGE] Hooks registered");
 
-		SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
-		_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
-	} else {
-		_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+			SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
+			_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
+		} else {
+			_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+		}
 	}
 }
 

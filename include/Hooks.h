@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HookShare.h"  // _RegisterHook_t
+#include "HookShare.h"  // _RegisterForCanProcess_t
 
 
 namespace Hooks
@@ -14,5 +14,5 @@ namespace Hooks
 
 	const char* GetMenuName(Menu a_menu);
 
-	void InstallHooks(HookShare::_RegisterHook_t* a_register);
+	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register);
 }

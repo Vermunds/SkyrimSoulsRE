@@ -25,7 +25,7 @@ namespace SkyrimSoulsRE
 		static RE::UIManager*		uiManager = RE::UIManager::GetSingleton();
 
 		if (!a_event || !IsInWhiteList(a_event->menuName)) {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		if (a_event->isOpening) {
@@ -33,23 +33,23 @@ namespace SkyrimSoulsRE
 				uiManager->AddMessage(strHolder->dialogueMenu, UIMessage::kMessage_Close, 0);
 			}
 		} else {
-			return EventResult::kEvent_Continue;
+			return EventResult::kContinue;
 		}
 
 		RE::IMenu* menu = mm->GetMenu(a_event->menuName);
 		if (menu) {
 			if (menu->PausesGame()) {
-				menu->flags = Flag(menu->flags & ~Flag::kFlag_PauseGame);
+				menu->flags &= ~Flag::kPauseGame;
 				if (mm->GameIsPaused()) {
 					mm->numPauseGame--;
 				}
 			}
 			if (menu->StopsDrawingWorld()) {
-				menu->flags = Flag(menu->flags & ~Flag::kFlag_StopDrawingWorld);
+				menu->flags &= ~Flag::kStopDrawingWorld;
 			}
 		}
 
-		return EventResult::kEvent_Continue;
+		return EventResult::kContinue;
 	}
 
 

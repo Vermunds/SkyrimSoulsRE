@@ -27,9 +27,9 @@ namespace Hooks
 		using HookShare::ReturnType;
 
 		if (MenuOpenCloseEventHandler::BlockInput(GetMenuName(menu))) {
-			return ReturnType::kReturnType_False;
+			return ReturnType::kFalse;
 		} else {
-			return ReturnType::kReturnType_Continue;
+			return ReturnType::kContinue;
 		}
 	}
 
@@ -47,7 +47,7 @@ namespace Hooks
 		{
 			typedef RE::InputEvent::EventType EventType;
 
-			if (a_event && a_event->eventType == EventType::kEventType_Button) {
+			if (a_event && a_event->eventType == EventType::kButton) {
 				return true;
 			} else {
 				return (this->*orig_CanProcess)(a_event);
@@ -81,25 +81,25 @@ namespace Hooks
 	}
 
 
-	void InstallHooks(HookShare::_RegisterHook_t* a_register)
+	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_FirstPersonState);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_ThirdPersonState);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_Favorites>, Hook::kHook_Favorites);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Movement);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Look);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Sprint);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_ReadyWeapon);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_AutoMove);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_ToggleRun);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Activate);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Jump);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Shout);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_AttackBlock);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Run);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kHook_Sneak);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kFirstPersonState);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kThirdPersonState);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_Favorites>, Hook::kFavorites);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kMovement);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kLook);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kSprint);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kReadyWeapon);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kAutoMove);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kToggleRun);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kActivate);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kJump);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kShout);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kAttackBlock);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kRun);
+		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kSneak);
 
 		FavoritesMenuEx::InstallHook();
 	}
