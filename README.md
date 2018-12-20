@@ -1,8 +1,14 @@
 # SkyrimSoulsRE
 
-This project uses [JSON for Modern C++](https://github.com/nlohmann/json).
+## Build Dependencies
+* [SKSE64](https://skse.silverlock.org/)
+* [Json2Settings](https://github.com/SniffleMan/Json2Settings)
+* [HookShareSSE](https://github.com/SniffleMan/HookShareSSE)
+* [CommonLibSSE](https://github.com/SniffleMan/CommonLibSSE)
 
-This project requires [HookShareSSE](https://github.com/SniffleMan/HookShareSSE) to function.
+## End User Dependencies
+* [SKSE64](https://skse.silverlock.org/)
+* [HookShareSSE](https://github.com/SniffleMan/HookShareSSE)
 
 ## Settings
 Setting | Description
