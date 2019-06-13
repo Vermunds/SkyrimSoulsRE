@@ -5,6 +5,7 @@
 
 namespace Hooks
 {
+
 	enum Menu
 	{
 		kMenu_None,
@@ -14,5 +15,5 @@ namespace Hooks
 
 	const char* GetMenuName(Menu a_menu);
 
-	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register);
+	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register);
 }

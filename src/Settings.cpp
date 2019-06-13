@@ -12,5 +12,5 @@ namespace SkyrimSoulsRE
 	}
 
 
-	aSetting<std::string>	Settings::unpausedMenus("unpausedMenus", false, { "magicMenu", "barterMenu", "containerMenu", "journalMenu", "favoritesMenu", "tutorialMenu" });
+	aSetting<std::string>	Settings::unpausedMenus("unpausedMenus", false, { "inventoryMenu", "magicMenu", "barterMenu", "containerMenu",  "favoritesMenu", "tutorialMenu", "lockpickingMenu", "bookMenu", "messageBoxMenu", "trainingMenu" });
 }

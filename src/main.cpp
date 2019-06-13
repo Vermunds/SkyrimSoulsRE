@@ -21,19 +21,19 @@ static SKSEMessagingInterface* g_messaging = 0;
 
 void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
-	using HookShare::_RegisterForCanProcess_t;
+	using HookShare::RegisterForCanProcess_t;
 
 	switch (a_msg->type) {
 	case HookShare::kType_CanProcess:
-		if (a_msg->dataLen == HOOK_SHARE_API_VERSION_MAJOR) {
-			_RegisterForCanProcess_t* _RegisterForCanProcess = static_cast<_RegisterForCanProcess_t*>(a_msg->data);
+		if (a_msg->dataLen == HookShare::kAPIVersionMajor) {
+			RegisterForCanProcess_t* _RegisterForCanProcess = static_cast<RegisterForCanProcess_t*>(a_msg->data);
 			Hooks::InstallHooks(_RegisterForCanProcess);
 			_MESSAGE("[MESSAGE] Hooks registered");
 
 			SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
 			_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
 		} else {
-			_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HOOK_SHARE_API_VERSION_MAJOR, a_msg->type);
+			_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
 		}
 	}
 }
@@ -51,7 +51,8 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
 		if (g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady)) {
 			_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
-		} else {
+		}
+		else {
 			_FATALERROR("[FATAL ERROR] HookShareSSE not loaded!\n");
 		}
 		break;
@@ -86,7 +87,7 @@ extern "C" {
 			return false;
 		}
 
-		if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_62) {
+		if (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_73) {
 			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
 			return false;
 		}

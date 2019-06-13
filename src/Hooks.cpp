@@ -17,55 +17,94 @@
 #include "RE/UISaveLoadManager.h"  // UISaveLoadManager
 #include "RE/UIStringHolder.h"  // UIStringHolder
 
-
 namespace Hooks
 {
+	RelocAddr <uintptr_t *> FavoritesMenu_Hook = 0x8781D5; //1.5.73
+	RelocAddr <uintptr_t *> BookMenu_Hook = 0x85764E; //1.5.73
+	RelocAddr <uintptr_t *> LockpickingMenu_Hook = 0x8963E0; //1.5.73
+	RelocAddr <uintptr_t *> TweenMenu_Hook = 0x8D0C85; //1.5.73
+	RelocAddr <uintptr_t *> Papyrus_Hook = 0x9B8750; //1.5.73
+	RelocAddr <uintptr_t *> IsInMenuMode_original = 0x2F26B75; //1.5.73
+
 	template <Menu menu>
-	HookShare::ReturnType _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+	HookShare::result_type _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 	{
 		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
-		using HookShare::ReturnType;
+		using HookShare::result_type;
 
 		if (MenuOpenCloseEventHandler::BlockInput(GetMenuName(menu))) {
-			return ReturnType::kFalse;
+			return result_type::kFalse;
 		} else {
-			return ReturnType::kContinue;
+			return result_type::kContinue;
 		}
 	}
 
-
-	class FavoritesMenuEx :
-		public RE::IMenu,
-		public RE::MenuEventHandler
+	class FavoritesMenuEx
 	{
 	public:
-		typedef bool(FavoritesMenuEx::*_CanProcess_t)(RE::InputEvent* a_event);
-		static _CanProcess_t orig_CanProcess;
-
-
-		bool Hook_CanProcess(RE::InputEvent* a_event)
-		{
-			typedef RE::InputEvent::EventType EventType;
-
-			if (a_event && a_event->eventType == EventType::kButton) {
-				return true;
-			} else {
-				return (this->*orig_CanProcess)(a_event);
-			}
-		}
-
-
 		static void InstallHook()
 		{
-			RelocPtr<_CanProcess_t> vtbl_CanProcess(RE::FAVORITES_MENU_VTBL + (0x8 * 0x8) + 0x10 + (0x1 * 0x8));
-			orig_CanProcess = *vtbl_CanProcess;
-			SafeWrite64(vtbl_CanProcess.GetUIntPtr(), GetFnAddr(&Hook_CanProcess));
+			//Fix for hotkeys
+			SafeWrite16(FavoritesMenu_Hook.GetUIntPtr(), 0x9090);
+		}
+	};
+
+	class BookMenuEx
+	{
+	public:
+		static void InstallHook()
+		{
+			//Fix for book menu not appearing
+			SafeWrite16(BookMenu_Hook.GetUIntPtr(), 0x9090);
+		}
+	};
+
+	class LockpickingMenuEx
+	{
+	public:
+		static void InstallHook()
+		{
+			//Fix for lockpicking menu not appearing
+			SafeWrite16(LockpickingMenu_Hook.GetUIntPtr(), 0x9090);
 		}
 	};
 
 
-	FavoritesMenuEx::_CanProcess_t FavoritesMenuEx::orig_CanProcess;
+	class TweenMenuEx
+	{
+	public:
+		static void InstallHook()
+		{
+			//Fix for camera movement
+			UInt8 codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+			SafeWriteBuf(TweenMenu_Hook.GetUIntPtr(), codes, sizeof(codes));
+		}
+	};
 
+	class PapyrusEx
+	{
+	public:
+		static bool * isInMenuMode_1;
+		static bool * isInMenuMode_2;
+
+		static bool IsInMenuMode()
+		{
+			if (*isInMenuMode_1 || *isInMenuMode_2 || SkyrimSoulsRE::unpausedMenuCount) {
+				return true;
+			}
+			return false;
+		}
+
+		static void InstallHook() {
+			//IsInMenuMode hook
+			isInMenuMode_1 = reinterpret_cast<bool*>(IsInMenuMode_original.GetUIntPtr());
+			isInMenuMode_2 = reinterpret_cast<bool*>(IsInMenuMode_original.GetUIntPtr() + 0x1);
+			g_branchTrampoline.Write5Branch(Papyrus_Hook.GetUIntPtr(), (uintptr_t)IsInMenuMode);
+			SafeWrite16(Papyrus_Hook.GetUIntPtr() + 0x5, 0x9090);
+		}
+	};
+	bool * PapyrusEx::isInMenuMode_1 = nullptr;
+	bool * PapyrusEx::isInMenuMode_2 = nullptr;
 
 	const char* GetMenuName(Menu a_menu)
 	{
@@ -73,34 +112,37 @@ namespace Hooks
 
 		switch (a_menu) {
 		case kMenu_Favorites:
-			return strHolder->favoritesMenu;
+			return strHolder->favoritesMenu.c_str();
 		case kMenu_None:
 		default:
 			return "";
 		}
 	}
 
-
-	void InstallHooks(HookShare::_RegisterForCanProcess_t* a_register)
+	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kFirstPersonState);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kThirdPersonState);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_Favorites>, Hook::kFavorites);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kMovement);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kLook);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kSprint);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kReadyWeapon);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kAutoMove);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kToggleRun);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kActivate);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kJump);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kShout);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kAttackBlock);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kRun);
-		a_register(_PlayerInputHandler_CanProcess<kMenu_None>, Hook::kSneak);
+		a_register(Hook::kFirstPersonState, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kThirdPersonState, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kFavorites, _PlayerInputHandler_CanProcess<kMenu_Favorites>);
+		a_register(Hook::kMovement, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kLook, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kSprint, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kReadyWeapon, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kAutoMove, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kToggleRun, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kActivate, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kJump, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kShout, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kAttackBlock, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kRun, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess<kMenu_None>);
 
 		FavoritesMenuEx::InstallHook();
+		BookMenuEx::InstallHook();
+		LockpickingMenuEx::InstallHook();
+		TweenMenuEx::InstallHook();
+		PapyrusEx::InstallHook();
 	}
 }

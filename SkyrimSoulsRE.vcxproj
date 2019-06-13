@@ -15,7 +15,7 @@
     <ProjectGuid>{96B487ED-A8E0-43D0-8F88-EC4F3C24E61D}</ProjectGuid>
     <RootNamespace>SkyrimSoulsRE</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -120,28 +120,11 @@
     <PostBuildEvent>
       <Message>
       </Message>
-      <Command>copy "$(TargetPath)" "D:\Games\SteamLibrary\steamapps\common\Skyrim Special Edition\Data\SKSE\Plugins\$(TargetFileName)" /Y</Command>
+      <Command>copy "$(TargetPath)" "C:\Mod Organizer\mods\SkyrimSoulsRE\SKSE\Plugins\$(TargetFileName)" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="exports.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\common\common_vc14.vcxproj">
-      <Project>{d4c128a1-73dc-4941-a453-ce55af239ba8}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
-      <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Json2Settings\Json2Settings.vcxproj">
-      <Project>{61c39244-9610-428f-9066-18fad0bc3990}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\skse64\skse64.vcxproj">
-      <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
-      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hooks.cpp" />
@@ -159,6 +142,23 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\common_vc14.vcxproj">
+      <Project>{472e19ab-def0-42df-819b-18722e8dc822}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
+      <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\HookShareSSE\HookShareSSE.vcxproj">
+      <Project>{a4613869-e3c4-4282-b2ff-c072603fdd3f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\skse64\skse64.vcxproj">
+      <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
+      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
