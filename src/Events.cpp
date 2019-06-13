@@ -12,8 +12,6 @@
 #include "RE/UIManager.h"  // UIManager
 #include "RE/UIStringHolder.h"  // UIStringHolder
 
-#pragma optimize("", off)
-
 namespace SkyrimSoulsRE
 {
 	UInt8 unpausedMenuCount = 0;
@@ -119,11 +117,7 @@ namespace SkyrimSoulsRE
 				_whiteList.emplace_back(strHolder->bookMenu);
 			} else if (menu == "lockpickingMenu") {
 				_whiteList.emplace_back(strHolder->lockpickingMenu);
-			} /*else if (menu == "sleepWaitMenu") {
-				_whiteList.emplace_back(strHolder->sleepWaitMenu);
-			} else if (menu == "journalMenu") {
-				_whiteList.emplace_back(strHolder->journalMenu);
-			}*/ else if (menu == "messageBoxMenu") {
+			} else if (menu == "messageBoxMenu") {
 				_whiteList.emplace_back(strHolder->messageBoxMenu);
 			} else if (menu == "trainingMenu") {
 				_whiteList.emplace_back(strHolder->trainingMenu);
