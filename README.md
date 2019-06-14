@@ -1,4 +1,5 @@
 # SkyrimSoulsRE
+Head to the [releases tab](https://github.com/Vermunds/SkyrimSoulsRE/releases) to download the mod.
 
 ## Build Dependencies
 * [SKSE64](https://skse.silverlock.org/)
@@ -13,4 +14,4 @@
 ## Settings
 Setting | Description
 --- | ---
-`unpausedMenus` | Defines the menus to be unpaused. Valid inputs are: `"inventoryMenu"`, `"magicMenu"`, `"barterMenu"`, `"containerMenu"`, `"journalMenu"`, `"favoritesMenu"`, and `"tutorialMenu"`. `unpausedMenus` is an array, so multiple inputs are acceptable.
+`unpausedMenus` | Defines the menus to be unpaused. Valid inputs are: `"inventoryMenu"`, `"magicMenu"`, `"barterMenu"`, `"containerMenu"`, `"journalMenu"`, `"favoritesMenu"`, `"tutorialMenu"`, `"lockpickingMenu"`, `"bookMenu"`,	`"messageBoxMenu"` and `"trainingMenu"`. `unpausedMenus` is an array, so multiple inputs are acceptable.
