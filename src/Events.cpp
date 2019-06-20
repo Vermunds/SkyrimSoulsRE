@@ -25,51 +25,49 @@ namespace SkyrimSoulsRE
 		static RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
 		static RE::UIManager*		uiManager = RE::UIManager::GetSingleton();
 
+		RE::BSFixedString lootMenuStr = "LootMenu";
+
 		RE::IMenu* menu = mm->GetMenu(a_event->menuName);
 		if (menu && menu->menuDepth == 0 && (a_event->menuName != strHolder->tweenMenu)) {
 			menu->menuDepth++;
 		}
 
+		if (IsInWhiteList(a_event->menuName)) {
+			(a_event->isOpening) ? (unpausedMenuCount++) : (unpausedMenuCount--);
+		}
+
 		if (a_event->isOpening) {
-			if (a_event->menuName == strHolder->dialogueMenu) {
-				//Close tween and lockpicking menu if open
+			//Opening dialogue when an unpaused menu is open
+			if ((a_event->menuName == strHolder->dialogueMenu) && unpausedMenuCount) {
+				//Close tween menu if open
 				uiManager->AddMessage(strHolder->tweenMenu, RE::UIMessage::Message::kClose, 0);
-				uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
-			}
-			//Forcegreet fix
-			if ((a_event->menuName == strHolder->dialogueMenu) && (mm->IsMenuOpen(strHolder->barterMenu) || mm->IsMenuOpen(strHolder->giftMenu) || mm->IsMenuOpen(strHolder->containerMenu)
-				|| mm->IsMenuOpen(strHolder->inventoryMenu) || mm->IsMenuOpen(strHolder->magicMenu) || mm->IsMenuOpen(strHolder->trainingMenu) || mm->IsMenuOpen(strHolder->bookMenu)
-				|| mm->IsMenuOpen(strHolder->favoritesMenu))) {
 
 				RE::GFxMovieView* view = mm->GetMovieView(strHolder->dialogueMenu);
 				view->SetVisible(false);
 				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 0;
 			}
-			//Open menu from dialogue (barter, training, container, gift menu)
-			if (mm->IsMenuOpen(strHolder->dialogueMenu) && (a_event->menuName == strHolder->barterMenu || a_event->menuName == strHolder->giftMenu || a_event->menuName == strHolder->containerMenu
-				|| a_event->menuName == strHolder->trainingMenu)) {
+			//Opening unpaused menu when a dialogue is open
+			if (mm->IsMenuOpen(strHolder->dialogueMenu) && unpausedMenuCount) {
 
 				RE::GFxMovieView* view = mm->GetMovieView(strHolder->dialogueMenu);
 				view->SetVisible(false);
 				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 0;
 			}
-		} else {
-			//Closing menu on top of dialogue
-			if (mm->IsMenuOpen(strHolder->dialogueMenu) && (a_event->menuName == strHolder->barterMenu || a_event->menuName == strHolder->giftMenu || a_event->menuName == strHolder->containerMenu
-				|| a_event->menuName == strHolder->inventoryMenu || a_event->menuName == strHolder->magicMenu || a_event->menuName == strHolder->trainingMenu || a_event->menuName == strHolder->bookMenu
-				|| a_event->menuName == strHolder->favoritesMenu)) {
-
+		}
+		else {
+			//Closing menu when a dialogue is open
+			if (mm->IsMenuOpen(strHolder->dialogueMenu) && !unpausedMenuCount) {
 				RE::GFxMovieView* view = mm->GetMovieView(strHolder->dialogueMenu);
 				view->SetVisible(true);
-				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 3;
+				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 0;
 			}
 		}
 
-		if (IsInWhiteList(a_event->menuName)) {
-			if (a_event->isOpening) {
-				unpausedMenuCount++;
-			} else {
-				unpausedMenuCount--;
+		//Fix for QuickLoot
+		if (unpausedMenuCount) {
+			RE::IMenu* lootMenu = mm->GetMenu(lootMenuStr);
+			if (lootMenu) {
+				lootMenu->view->SetVisible(false);
 			}
 		}
 
