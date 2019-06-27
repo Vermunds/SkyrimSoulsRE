@@ -11,6 +11,5 @@ namespace SkyrimSoulsRE
 		return Json2Settings::Settings::loadSettings(a_dumpParse);
 	}
 
-
-	aSetting<std::string>	Settings::unpausedMenus("unpausedMenus", false, { "inventoryMenu", "magicMenu", "barterMenu", "containerMenu",  "favoritesMenu", "tutorialMenu", "lockpickingMenu", "bookMenu", "messageBoxMenu", "trainingMenu" });
+	aSetting<std::string>	Settings::unpausedMenus("unpausedMenus", false, { "tweenMenu", "inventoryMenu", "magicMenu", "barterMenu", "containerMenu",  "favoritesMenu", "tutorialMenu", "lockpickingMenu", "bookMenu", "messageBoxMenu", "trainingMenu", "journalMenu", "sleepWaitMenu"});
 }

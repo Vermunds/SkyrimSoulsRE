@@ -99,6 +99,15 @@ extern "C" {
 			return false;
 		}
 
+		if (g_localTrampoline.Create(1024 * 64, nullptr))
+		{
+			_MESSAGE("[MESSAGE] Codegen buffer creation successful");
+		}
+		else {
+			_FATALERROR("[FATAL ERROR] Codegen buffer creation failed!\n");
+			return false;
+		}
+
 		return true;
 	}
 

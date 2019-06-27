@@ -59,7 +59,7 @@ namespace SkyrimSoulsRE
 			if (mm->IsMenuOpen(strHolder->dialogueMenu) && !unpausedMenuCount) {
 				RE::GFxMovieView* view = mm->GetMovieView(strHolder->dialogueMenu);
 				view->SetVisible(true);
-				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 0;
+				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 3;
 			}
 		}
 
@@ -94,15 +94,13 @@ namespace SkyrimSoulsRE
 	{
 		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
-		bool unpauseTween = false;
-
 		for (auto& menu : Settings::unpausedMenus) {
-			if (menu == "inventoryMenu") {
+			if (menu == "tweenMenu") {
+				_whiteList.emplace_back(strHolder->tweenMenu);
+			} else if (menu == "inventoryMenu") {
 				_whiteList.emplace_back(strHolder->inventoryMenu);
-				unpauseTween = true;
-			} if (menu == "magicMenu") {
+			} else if (menu == "magicMenu") {
 				_whiteList.emplace_back(strHolder->magicMenu);
-				unpauseTween = true;
 			} else if (menu == "barterMenu") {
 				_whiteList.emplace_back(strHolder->barterMenu);
 			} else if (menu == "containerMenu") {
@@ -119,11 +117,11 @@ namespace SkyrimSoulsRE
 				_whiteList.emplace_back(strHolder->messageBoxMenu);
 			} else if (menu == "trainingMenu") {
 				_whiteList.emplace_back(strHolder->trainingMenu);
+			} else if (menu == "journalMenu") {
+				_whiteList.emplace_back(strHolder->journalMenu);
+			} else if (menu == "sleepWaitMenu") {
+				_whiteList.emplace_back(strHolder->sleepWaitMenu);
 			}
-		}
-
-		if (unpauseTween) {
-			_whiteList.emplace_back(strHolder->tweenMenu);
 		}
 	}
 
