@@ -9,15 +9,14 @@
 #include "Hooks.h"  // InstallHooks()
 #include "Settings.h"  // loadSettings
 #include "version.h"  // SKYRIMSOULSRE_VERSION_VERSTRING
+#include "Tasks.h"
 
 #include "HookShare.h"  // _RegisterForCanProcess_t
 
 #include "RE/MenuManager.h"  // MenuManager
 
-
 static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 static SKSEMessagingInterface* g_messaging = 0;
-
 
 void HooksReady(SKSEMessagingInterface::Message* a_msg)
 {
@@ -38,12 +37,10 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 	}
 }
 
-
 void PluginsLoaded(SKSEMessagingInterface::Message* a_msg)
 {
 	g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady);
 }
-
 
 void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 {
@@ -65,7 +62,6 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	}
 	}
 }
-
 
 extern "C" {
 	bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
@@ -111,7 +107,6 @@ extern "C" {
 		return true;
 	}
 
-
 	bool SKSEPlugin_Load(const SKSEInterface* a_skse)
 	{
 		_MESSAGE("[MESSAGE] SkyrimSoulsRE loaded");
@@ -128,6 +123,13 @@ extern "C" {
 			_MESSAGE("[MESSAGE] Loading settings was successful");
 		} else {
 			_FATALERROR("[FATAL ERROR] Loading settings failed!\n");
+			return false;
+		}
+
+		if (Tasks::g_task = (SKSETaskInterface *)a_skse->QueryInterface(kInterface_Task)) {
+			_MESSAGE("[MESSAGE] Task interface registration successful");
+		} else {
+			_FATALERROR("[FATAL ERROR] Task interface registration failed!\n");
 			return false;
 		}
 

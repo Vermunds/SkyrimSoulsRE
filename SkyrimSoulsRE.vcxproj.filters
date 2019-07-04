@@ -16,6 +16,9 @@
     <ClCompile Include="src\Utility.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tasks.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
@@ -45,6 +48,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Offsets.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Tasks.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

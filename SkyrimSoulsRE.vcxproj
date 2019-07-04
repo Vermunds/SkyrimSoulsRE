@@ -132,6 +132,7 @@
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\Utility.cpp" />
+    <ClCompile Include="src\Tasks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h" />
@@ -140,6 +141,7 @@
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="include\version.h" />
     <ClInclude Include="include\Offsets.h" />
+    <ClInclude Include="include\Tasks.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

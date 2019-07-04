@@ -24,75 +24,7 @@
 #include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
 #include "Offsets.h"
 #include "Settings.h" //unpausedMenus
-
-namespace SkyrimSoulsRE
-{
-	class EventDelayer
-	{
-
-		static EventDelayer* singleton;
-		const char * saveName = nullptr;
-		RE::FxDelegateArgs * sleepWaitArgs;
-		UInt32 sleepWaitTime;
-
-		void(*RequestSleepWait_Callback)(RE::FxDelegateArgs*);
-
-	public:
-		bool saveRequested = false;
-		bool sleepWaitRequested = false;
-
-		static EventDelayer* GetSingleton()
-		{
-			if (singleton) {
-				return singleton;
-			}
-			singleton = new EventDelayer();
-			return singleton;
-		}
-
-		void RequestSleepWait(RE::FxDelegateArgs * p_args) {
-			sleepWaitRequested = true;
-
-			this->sleepWaitTime = static_cast<UInt32>((p_args->operator[](0)).GetNumber());
-
-			RE::GFxValue responseID;
-			responseID.SetNumber(0);
-			RE::GFxValue time;
-			time.SetNumber(this->sleepWaitTime);
-
-			RE::FxDelegateArgs* args = new RE::FxDelegateArgs(responseID, p_args->GetHandler(), p_args->GetMovie(), &time, 1);
-			this->sleepWaitArgs = args;
-		}
-
-
-
-		void StartSleepWait() {
-			RequestSleepWait_Callback = reinterpret_cast<void(*)(RE::FxDelegateArgs*)>(Offsets::SleepWaitMenuStart_Hook.GetUIntPtr());
-			RequestSleepWait_Callback(this->sleepWaitArgs);
-			delete(sleepWaitArgs);
-		}
-
-		void RequestSave(const char * name) {
-			saveRequested = true;
-
-			if (name) {
-				const size_t len = strlen(name);
-				char * tmp = new char[len + 1];
-				strncpy(tmp, name, len);
-				tmp[len] = '\0';
-				saveName = tmp;
-			} else {
-				saveName = nullptr;
-			}
-		}
-
-		void Save() {
-			BGSSaveLoadManager* slm = BGSSaveLoadManager::GetSingleton();
-			slm->Save(saveName);
-		}
-	};
-	EventDelayer* EventDelayer::singleton = nullptr;
-}
+#include "Tasks.h" //SleepWaitDelegate, SaveGameDelegate, ServeTimeDelegate
 
 namespace Hooks
 {
@@ -156,18 +88,15 @@ namespace Hooks
 	{
 	public:
 
-		static bool delaySleepWait(RE::FxDelegateArgs * a_args) {
-			SkyrimSoulsRE::EventDelayer * eventDelayer = SkyrimSoulsRE::EventDelayer::GetSingleton();
-			if (eventDelayer->sleepWaitRequested) {
-				eventDelayer->sleepWaitRequested = false;
-				//Can wait now
+		static bool RegisterForSleepWait(RE::FxDelegateArgs * a_args) {
+			if (Tasks::SleepWaitDelegate::RegisterTask(a_args))
+			{
+				RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+				RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+				mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
+				mm->numPauseGame++;
 				return true;
 			}
-			RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
-			mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
-			mm->numPauseGame++;
-			eventDelayer->RequestSleepWait(a_args);
 			return false;
 		}
 
@@ -178,32 +107,19 @@ namespace Hooks
 
 			struct RequestSleepWait_Code : Xbyak::CodeGenerator
 			{
-				RequestSleepWait_Code(void * buf, UInt64 testAddress) : Xbyak::CodeGenerator(4096, buf)
+				RequestSleepWait_Code(void * buf, UInt64 a_registerForSleepWait) : Xbyak::CodeGenerator(4096, buf)
 				{
 					Xbyak::Label returnAddress;
-					Xbyak::Label delaySleepWaitAddress;
+					Xbyak::Label registerForSleepWaitAddress;
 					Xbyak::Label continueWait;
 
-					push(rax);
-					push(rcx);
-					push(rdx);
-					push(r8);
-					push(r9);
-					push(r10);
-					push(r11);
-					call(ptr[rip + delaySleepWaitAddress]);
-					pop(r11);
-					pop(r10);
-					pop(r9);
-					pop(r8);
-					pop(rdx);
-					pop(rcx);
-					cmp(al, 0x1);
+					sub(rsp, 0x20);
+					call(ptr[rip + registerForSleepWaitAddress]);
+					add(rsp, 0x20);
+					cmp(al, 0x0);
 					je(continueWait);
-					pop(rax);
 					ret();
 					L(continueWait);
-					pop(rax);
 
 					//overwritten code
 					mov(qword[rsp + 8], rbx);
@@ -211,18 +127,32 @@ namespace Hooks
 					jmp(ptr[rip + returnAddress]);
 
 					L(returnAddress);
-					dq(Offsets::SleepWaitMenuStart_Hook.GetUIntPtr() + 0x6);
+					dq(Offsets::StartSleepWait_Original.GetUIntPtr() + 0x6);
 
-					L(delaySleepWaitAddress);
-					dq(testAddress);
+					L(registerForSleepWaitAddress);
+					dq(a_registerForSleepWait);
 				}
 			};
 
 			void * codeBuf = g_localTrampoline.StartAlloc();
-			RequestSleepWait_Code code(codeBuf, uintptr_t(delaySleepWait));
+			RequestSleepWait_Code code(codeBuf, uintptr_t(RegisterForSleepWait));
 			g_localTrampoline.EndAlloc(code.getCurr());
 
-			g_branchTrampoline.Write6Branch(Offsets::SleepWaitMenuStart_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
+			g_branchTrampoline.Write6Branch(Offsets::StartSleepWait_Original.GetUIntPtr(), uintptr_t(code.getCode()));
+		}
+	};
+
+	class MessageBoxMenuEx
+	{
+	public:
+		static void RegisterForServeTime()
+		{
+			Tasks::ServeTimeDelegate::RegisterTask();
+		}
+
+		static void InstallHook() {
+			//Fix for serving time in jail
+			g_branchTrampoline.Write5Branch(Offsets::MessageBoxMenu_ServeTime_Hook.GetUIntPtr(), (uintptr_t)RegisterForServeTime);
 		}
 	};
 
@@ -242,10 +172,10 @@ namespace Hooks
 
 		static void InstallHook() {
 			//IsInMenuMode hook
-			isInMenuMode_1 = reinterpret_cast<bool*>(Offsets::IsInMenuMode_Hook.GetUIntPtr());
-			isInMenuMode_2 = reinterpret_cast<bool*>(Offsets::IsInMenuMode_Hook.GetUIntPtr() + 0x1);
-			g_branchTrampoline.Write5Branch(Offsets::Papyrus_Hook.GetUIntPtr(), (uintptr_t)IsInMenuMode);
-			SafeWrite16(Offsets::Papyrus_Hook.GetUIntPtr() + 0x5, 0x9090);
+			isInMenuMode_1 = reinterpret_cast<bool*>(Offsets::IsInMenuMode_Original.GetUIntPtr());
+			isInMenuMode_2 = reinterpret_cast<bool*>(Offsets::IsInMenuMode_Original.GetUIntPtr() + 0x1);
+			g_branchTrampoline.Write5Branch(Offsets::IsInMenuMode_Hook.GetUIntPtr(), (uintptr_t)IsInMenuMode);
+			SafeWrite16(Offsets::IsInMenuMode_Hook.GetUIntPtr() + 0x5, 0x9090);
 		}
 	};
 	bool * PapyrusEx::isInMenuMode_1 = nullptr;
@@ -257,49 +187,40 @@ namespace Hooks
 		//Saving from the Journal Menu causes the game to hang. (Quicksaves not affected)
 		//As a workaround we don't allow the JournalMenu to save, instead we register the attempt and save from elsewhere later.
 
-		static bool delaySave(int saveMode, const char * name) {
-			SkyrimSoulsRE::EventDelayer* eventDelayer = SkyrimSoulsRE::EventDelayer::GetSingleton();
+		static bool RegisterForSave(int saveMode, const char * name) {
 			if ((saveMode == BGSSaveLoadManager::kEvent_Save)) {
-				if (eventDelayer->saveRequested) {
-					eventDelayer->saveRequested = false;
-					//Saving was delayed, can save now
+				if (Tasks::SaveGameDelegate::RegisterTask(name))
+				{
 					return true;
 				}
-				//Delay saving
-				eventDelayer->RequestSave(name);
 				return false;
 			}
 			//continue saving
-			return true;
+			return false;
 		}
 
 		static void InstallHook() {
 			struct SaveHook_Code : Xbyak::CodeGenerator
 			{
-				SaveHook_Code(void * buf, UInt64 delaySaveAddress) : Xbyak::CodeGenerator(4096, buf)
+				SaveHook_Code(void * buf, UInt64 a_registerForSave) : Xbyak::CodeGenerator(4096, buf)
 				{
 					Xbyak::Label returnAddress;
 					Xbyak::Label continueSave;
-					Xbyak::Label delaySaveLabel;
+					Xbyak::Label registerForSaveAddress;
 
-					push(rax);
 					push(rcx);
 					push(rdx);
 					mov(rcx, rdx); //save mode
 					mov(rdx, r9); //save name
 					sub(rsp, 0x20); //parameter stack space 
-					call(ptr[rip + delaySaveLabel]);
+					call(ptr[rip + registerForSaveAddress]);
 					add(rsp, 0x20);
-					cmp(al, 0x1); //should delay save?
-					je(continueSave);
 					pop(rdx);
 					pop(rcx);
-					pop(rax);
+					cmp(al, 0x0); //should delay save?
+					je(continueSave);
 					ret(); //abort save
 					L(continueSave);
-					pop(rdx);
-					pop(rcx);
-					pop(rax);
 
 					//overwritten code:
 					mov(dword[rsp + 0x18], r8d);
@@ -309,78 +230,16 @@ namespace Hooks
 					L(returnAddress);
 					dq(Offsets::JournalMenu_Hook.GetUIntPtr() + 0x6);
 
-					L(delaySaveLabel);
-					dq(delaySaveAddress);
+					L(registerForSaveAddress);
+					dq(a_registerForSave);
 				}
 			};
 
 			void * codeBuf = g_localTrampoline.StartAlloc();
-			SaveHook_Code code(codeBuf, uintptr_t(delaySave));
+			SaveHook_Code code(codeBuf, uintptr_t(RegisterForSave));
 			g_localTrampoline.EndAlloc(code.getCurr());
 
 			g_branchTrampoline.Write6Branch(Offsets::JournalMenu_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
-		}
-	};
-
-	class EventDelayerEx
-	{
-	public:
-
-		//This function runs in every frame
-		static void statusCheck() {
-			SkyrimSoulsRE::EventDelayer* eventDelayer = SkyrimSoulsRE::EventDelayer::GetSingleton();
-			if (eventDelayer->saveRequested) {
-				eventDelayer->Save();
-			}
-			if (eventDelayer->sleepWaitRequested) {
-				eventDelayer->StartSleepWait();
-			}
-		}
-
-		static void InstallHook() {
-			struct SaveHook_Code : Xbyak::CodeGenerator
-			{
-				SaveHook_Code(void * buf, UInt64 statusCheckAddress) : Xbyak::CodeGenerator(4096, buf)
-				{
-					Xbyak::Label statusCheckLabel;
-					Xbyak::Label returnAddress;
-
-					push(rax);
-					push(rcx);
-					push(rdx);
-					push(r8);
-					push(r9);
-					push(r10);
-					push(r11);
-					call(ptr[rip + statusCheckLabel]);
-					pop(r11);
-					pop(r10);
-					pop(r9);
-					pop(r8);
-					pop(rdx);
-					pop(rcx);
-					pop(rax);
-
-					//overwritten code:
-					push(rbp);
-					push(rsi);
-					push(rdi);
-					push(r12);
-					jmp(ptr[rip + returnAddress]);
-
-					L(returnAddress);
-					dq(Offsets::EventDelayer_Hook.GetUIntPtr() + 0x6);
-
-					L(statusCheckLabel);
-					dq(statusCheckAddress);
-				}
-			};
-
-			void * codeBuf = g_localTrampoline.StartAlloc();
-			SaveHook_Code code(codeBuf, uintptr_t(statusCheck));
-			g_localTrampoline.EndAlloc(code.getCurr());
-
-			g_branchTrampoline.Write6Branch(Offsets::EventDelayer_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
 		}
 	};
 
@@ -430,10 +289,11 @@ namespace Hooks
 				JournalMenuEx::InstallHook();
 			} else if (menu == "sleepWaitMenu") {
 				SleepWaitMenuEx::InstallHook();
+			} else if (menu == "messageBoxMenu") {
+				MessageBoxMenuEx::InstallHook();
 			}
 		}
 
 		PapyrusEx::InstallHook();
-		EventDelayerEx::InstallHook();
 	}
 }
