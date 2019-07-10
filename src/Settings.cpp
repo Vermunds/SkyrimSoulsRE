@@ -92,7 +92,7 @@ namespace SkyrimSoulsRE
 		settingStore->AddSetting(new Setting("sleepWaitMenu", GetIniValue("UNPAUSED_MENUS", "bSleepWaitMenu", 1, iniFile)));
 		//settingStore->AddSetting(new Setting("mapMenu", GetIniValue("UNPAUSED_MENUS", "bMapMenu", 1, iniFile)));
 		//settingStore->AddSetting(new Setting("statsMenu", GetIniValue("UNPAUSED_MENUS", "bStatsMenu", 1, iniFile)));
-		//settingStore->AddSetting(new Setting("console", GetIniValue("UNPAUSED_MENUS", "bConsole", 1, iniFile)));
+		settingStore->AddSetting(new Setting("console", GetIniValue("UNPAUSED_MENUS", "bConsole", 1, iniFile)));
 
 		settingStore->AddSetting(new Setting("autoClose", GetIniValue("AUTOCLOSE", "bAutoCloseMenus", 1, iniFile)));
 		settingStore->AddSetting(new Setting("autoCloseDistance", GetIniValue("AUTOCLOSE", "iAutoCloseDistance", 250, iniFile)));

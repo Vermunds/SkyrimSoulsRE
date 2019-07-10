@@ -33,13 +33,12 @@
 namespace Hooks
 {
 
-	template <Menu menu>
 	HookShare::result_type _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
 	{
 		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
 		using HookShare::result_type;
 
-		if (MenuOpenCloseEventHandler::BlockInput(GetMenuName(menu))) {
+		if (MenuOpenCloseEventHandler::BlockInput()) {
 			return result_type::kFalse;
 		}
 		else {
@@ -374,38 +373,26 @@ namespace Hooks
 		}
 	};
 
-	const char* GetMenuName(Menu a_menu)
-	{
-		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-
-		switch (a_menu) {
-		case kMenu_Favorites:
-			return strHolder->favoritesMenu.c_str();
-		case kMenu_None:
-		default:
-			return "";
-		}
-	}
 
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
-		a_register(Hook::kFirstPersonState, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kThirdPersonState, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kFavorites, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kMovement, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kLook, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kSprint, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kReadyWeapon, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kAutoMove, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kToggleRun, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kActivate, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kJump, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kShout, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kAttackBlock, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kRun, _PlayerInputHandler_CanProcess<kMenu_None>);
-		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess<kMenu_None>);
+		a_register(Hook::kFirstPersonState, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kThirdPersonState, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kFavorites, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kLook, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kSprint, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kReadyWeapon, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kAutoMove, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kToggleRun, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kActivate, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kJump, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kShout, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kAttackBlock, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kRun, _PlayerInputHandler_CanProcess);
+		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess);
 
 		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
 
@@ -413,22 +400,22 @@ namespace Hooks
 			TweenMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("favoritesMenu")) {
-				FavoritesMenuEx::InstallHook();
+			FavoritesMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("bookMenu")) {
-				BookMenuEx::InstallHook();
+			BookMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("lockpickingMenu")) {
-				LockpickingMenuEx::InstallHook();
+			LockpickingMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("journalMenu")) {
-				JournalMenuEx::InstallHook();
+			JournalMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("sleepWaitMenu")) {
-				SleepWaitMenuEx::InstallHook();
+			SleepWaitMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("messageBoxMenu")) {
-				MessageBoxMenuEx::InstallHook();
+			MessageBoxMenuEx::InstallHook();
 		}
 
 		AutoCloseHandler::InstallHook();

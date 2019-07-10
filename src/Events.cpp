@@ -140,19 +140,25 @@ namespace SkyrimSoulsRE
 		if (settingStore->GetSetting("statsMenu")) {
 			_whiteList.emplace_back(strHolder->statsMenu);
 		}
+		*/
 		if (settingStore->GetSetting("console")) {
 			_whiteList.emplace_back(strHolder->console);
 		}
-		*/
+		
 	}
 
 
-	bool MenuOpenCloseEventHandler::BlockInput(const char* a_exclude)
+	bool MenuOpenCloseEventHandler::BlockInput()
 	{
 		static RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
 		for (auto& menuName : _whiteList) {
-			if (mm->GetMovieView(menuName) && std::strcmp(a_exclude, menuName.c_str()) != 0) {
+			if (mm->GetMovieView(menuName)) {
+				if (menuName == strHolder->console && !(mm->IsMenuOpen(strHolder->console)))
+				{
+					return false;
+				}
 				return true;
 			}
 		}

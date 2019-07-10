@@ -6,14 +6,5 @@
 namespace Hooks
 {
 
-	enum Menu
-	{
-		kMenu_None,
-		kMenu_Favorites
-	};
-
-
-	const char* GetMenuName(Menu a_menu);
-
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register);
 }

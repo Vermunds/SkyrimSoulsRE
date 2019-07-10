@@ -18,7 +18,7 @@ namespace SkyrimSoulsRE
 
 		static void Init();
 
-		static bool BlockInput(const char* a_exclude);
+		static bool BlockInput();
 
 	private:
 		bool IsInWhiteList(RE::BSFixedString& a_name);
