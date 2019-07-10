@@ -89,40 +89,61 @@ namespace SkyrimSoulsRE
 		return EventResult::kContinue;
 	}
 
-
 	void MenuOpenCloseEventHandler::Init()
 	{
 		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+		static SettingStore* settingStore = SettingStore::GetSingleton();
 
-		for (auto& menu : Settings::unpausedMenus) {
-			if (menu == "tweenMenu") {
-				_whiteList.emplace_back(strHolder->tweenMenu);
-			} else if (menu == "inventoryMenu") {
-				_whiteList.emplace_back(strHolder->inventoryMenu);
-			} else if (menu == "magicMenu") {
-				_whiteList.emplace_back(strHolder->magicMenu);
-			} else if (menu == "barterMenu") {
-				_whiteList.emplace_back(strHolder->barterMenu);
-			} else if (menu == "containerMenu") {
-				_whiteList.emplace_back(strHolder->containerMenu);
-			} else if (menu == "favoritesMenu") {
-				_whiteList.emplace_back(strHolder->favoritesMenu);
-			} else if (menu == "tutorialMenu") {
-				_whiteList.emplace_back(strHolder->tutorialMenu);
-			} else if (menu == "bookMenu") {
-				_whiteList.emplace_back(strHolder->bookMenu);
-			} else if (menu == "lockpickingMenu") {
-				_whiteList.emplace_back(strHolder->lockpickingMenu);
-			} else if (menu == "messageBoxMenu") {
-				_whiteList.emplace_back(strHolder->messageBoxMenu);
-			} else if (menu == "trainingMenu") {
-				_whiteList.emplace_back(strHolder->trainingMenu);
-			} else if (menu == "journalMenu") {
-				_whiteList.emplace_back(strHolder->journalMenu);
-			} else if (menu == "sleepWaitMenu") {
-				_whiteList.emplace_back(strHolder->sleepWaitMenu);
-			}
+		if (settingStore->GetSetting("tweenMenu")) {
+			_whiteList.emplace_back(strHolder->tweenMenu);
 		}
+		if (settingStore->GetSetting("inventoryMenu")){
+			_whiteList.emplace_back(strHolder->inventoryMenu);
+		}
+		if (settingStore->GetSetting("magicMenu")) {
+			_whiteList.emplace_back(strHolder->magicMenu);
+		}
+		if (settingStore->GetSetting("barterMenu")) {
+			_whiteList.emplace_back(strHolder->barterMenu);
+		}
+		if (settingStore->GetSetting("containerMenu")) {
+			_whiteList.emplace_back(strHolder->containerMenu);
+		}
+		if (settingStore->GetSetting("favoritesMenu")) {
+			_whiteList.emplace_back(strHolder->favoritesMenu);
+		}
+		if (settingStore->GetSetting("tutorialMenu")) {
+			_whiteList.emplace_back(strHolder->tutorialMenu);
+		}
+		if (settingStore->GetSetting("bookMenu")) {
+			_whiteList.emplace_back(strHolder->bookMenu);
+		}
+		if (settingStore->GetSetting("lockpickingMenu")) {
+			_whiteList.emplace_back(strHolder->lockpickingMenu);
+		}
+		if (settingStore->GetSetting("messageBoxMenu")) {
+			_whiteList.emplace_back(strHolder->messageBoxMenu);
+		}
+		if (settingStore->GetSetting("trainingMenu")) {
+			_whiteList.emplace_back(strHolder->trainingMenu);
+		}
+		if (settingStore->GetSetting("journalMenu")) {
+			_whiteList.emplace_back(strHolder->journalMenu);
+		}
+		if (settingStore->GetSetting("sleepWaitMenu")) {
+			_whiteList.emplace_back(strHolder->sleepWaitMenu);
+		}
+		/*
+		if (settingStore->GetSetting("mapMenu")) {
+			_whiteList.emplace_back(strHolder->mapMenu);
+		}
+		if (settingStore->GetSetting("statsMenu")) {
+			_whiteList.emplace_back(strHolder->statsMenu);
+		}
+		if (settingStore->GetSetting("console")) {
+			_whiteList.emplace_back(strHolder->console);
+		}
+		*/
 	}
 
 
@@ -149,9 +170,8 @@ namespace SkyrimSoulsRE
 		return false;
 	}
 
-
 	std::vector<RE::BSFixedString> MenuOpenCloseEventHandler::_whiteList;
 
-
 	MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
+
 }

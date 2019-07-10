@@ -15,6 +15,7 @@
 
 #include "RE/MenuManager.h"  // MenuManager
 
+
 static PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 static SKSEMessagingInterface* g_messaging = 0;
 
@@ -119,12 +120,8 @@ extern "C" {
 			return false;
 		}
 
-		if (SkyrimSoulsRE::Settings::loadSettings()) {
-			_MESSAGE("[MESSAGE] Loading settings was successful");
-		} else {
-			_FATALERROR("[FATAL ERROR] Loading settings failed!\n");
-			return false;
-		}
+		SkyrimSoulsRE::LoadSettings();
+		_MESSAGE("[MESSAGE] Settings successfully loaded.");
 
 		if (Tasks::g_task = (SKSETaskInterface *)a_skse->QueryInterface(kInterface_Task)) {
 			_MESSAGE("[MESSAGE] Task interface registration successful");

@@ -2,7 +2,7 @@
 
 #include "skse64_common/BranchTrampoline.h"  // g_trampoline
 #include "skse64_common/Relocation.h"  // RelocAddr, RelocPtr
-#include "skse64_common/SafeWrite.h"  // SafeWrite64
+#include "skse64_common/SafeWrite.h"  // SafeWrite
 
 #include "skse64/GameData.h" //BGSSaveLoadManager
 
@@ -20,6 +20,10 @@
 #include "RE/UIStringHolder.h"  // UIStringHolder
 #include "RE/FxDelegateArgs.h" //FxDelegateArgs
 #include "RE/GFxValue.h" //GFxValue
+#include "RE/TESObjectREFR.h" //RE::TESObjectREFR
+#include "RE/PlayerCharacter.h" //PlayerCharacter
+#include "RE/UIManager.h" //UIManager
+#include "RE/FormTypes.h" //FormType::ActorCharacter
 
 #include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
 #include "Offsets.h"
@@ -37,7 +41,8 @@ namespace Hooks
 
 		if (MenuOpenCloseEventHandler::BlockInput(GetMenuName(menu))) {
 			return result_type::kFalse;
-		} else {
+		}
+		else {
 			return result_type::kContinue;
 		}
 	}
@@ -65,6 +70,13 @@ namespace Hooks
 	class LockpickingMenuEx
 	{
 	public:
+
+		static RE::TESObjectREFR* GetLockpickingTarget()
+		{
+			RE::TESObjectREFRPtr* refptr = reinterpret_cast<RE::TESObjectREFRPtr*>(Offsets::LockpickingMenu_Target.GetUIntPtr());
+			return refptr->get();
+		}
+
 		static void InstallHook()
 		{
 			//Fix for lockpicking menu not appearing
@@ -84,6 +96,37 @@ namespace Hooks
 		}
 	};
 
+	class ContainerMenuEx
+	{
+	public:
+		enum ContainerMode
+		{
+			kMode_Loot = 0,
+			kMode_Steal = 1,
+			kMode_Pickpocket = 2,
+			kMode_FollowerTrade = 3
+		};
+
+		static ContainerMode GetContainerMode()
+		{
+			UInt8* mode = reinterpret_cast<UInt8*>(Offsets::ContainerMenu_Mode.GetUIntPtr());
+			return static_cast<ContainerMode>(*mode);
+		}
+
+		static RE::TESObjectREFR* GetContainerRef()
+		{
+
+			UInt32* handle = reinterpret_cast<UInt32*>(Offsets::ContainerMenu_Target.GetUIntPtr());
+			RE::TESObjectREFRPtr refptr = nullptr;
+			if (RE::TESObjectREFR::LookupByHandle(*handle, refptr))
+			{
+				RE::TESObjectREFR * ref = refptr.get();
+				return ref;
+			};
+			return nullptr;
+		}
+	};
+
 	class SleepWaitMenuEx
 	{
 	public:
@@ -91,8 +134,8 @@ namespace Hooks
 		static bool RegisterForSleepWait(RE::FxDelegateArgs * a_args) {
 			if (Tasks::SleepWaitDelegate::RegisterTask(a_args))
 			{
-				RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-				RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+				static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+				static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
 				mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
 				mm->numPauseGame++;
 				return true;
@@ -243,6 +286,94 @@ namespace Hooks
 		}
 	};
 
+	class AutoCloseHandler
+	{
+	public:
+		static void CheckShouldClose()
+		{
+			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+			static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+			static RE::PlayerCharacter * player = RE::PlayerCharacter::GetSingleton();
+			static RE::UIManager * uiManager = RE::UIManager::GetSingleton();
+			static SkyrimSoulsRE::SettingStore * settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+
+			if (mm->IsMenuOpen(strHolder->containerMenu) && settings->GetSetting("containerMenu"))
+			{
+				RE::TESObjectREFR * ref = ContainerMenuEx::GetContainerRef();
+
+				if (ref) {
+					if (ref->IsDisabled() || ref->IsMarkedForDeletion())
+					{
+						uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+					}
+
+					if (ref->Is(RE::FormType::ActorCharacter))
+					{
+						if (ContainerMenuEx::GetContainerMode() != ContainerMenuEx::ContainerMode::kMode_Loot && ref->IsDead(true))
+						{
+							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+						}
+					}
+
+					if (settings->GetSetting("autoClose"))
+					{
+						//sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+						float distance = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+						if (distance > settings->GetSetting("autoCloseDistance"))
+						{
+							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+						}
+					}
+				}
+			}
+			if (mm->IsMenuOpen(strHolder->lockpickingMenu) && settings->GetSetting("lockpickingMenu"))
+			{
+				RE::TESObjectREFR * ref = LockpickingMenuEx::GetLockpickingTarget();
+				if (ref)
+				{
+					if (ref->IsDisabled() || ref->IsMarkedForDeletion())
+					{
+						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+					}
+
+					if (settings->GetSetting("autoClose"))
+					{
+						float distance = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+						if (distance > settings->GetSetting("autoCloseDistance"))
+						{
+							uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+						}
+					}
+				}
+			}
+		}
+
+		static void InstallHook()
+		{
+			struct DrawNextFrame_Code : Xbyak::CodeGenerator
+			{
+				DrawNextFrame_Code(void * buf, UInt64 a_checkShouldClose) : Xbyak::CodeGenerator(4096, buf)
+				{
+					Xbyak::Label checkShouldCloseAddress;
+
+					call(ptr[rip + checkShouldCloseAddress]);
+					add(rsp, 0x50);
+					pop(rbx);
+					ret();
+
+					L(checkShouldCloseAddress);
+					dq(a_checkShouldClose);
+				}
+			};
+
+			void * codeBuf = g_localTrampoline.StartAlloc();
+			DrawNextFrame_Code code(codeBuf, uintptr_t(CheckShouldClose));
+			g_localTrampoline.EndAlloc(code.getCurr());
+
+			g_branchTrampoline.Write5Branch(Offsets::DrawNextFrame_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
+		}
+	};
+
 	const char* GetMenuName(Menu a_menu)
 	{
 		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
@@ -276,24 +407,31 @@ namespace Hooks
 		a_register(Hook::kRun, _PlayerInputHandler_CanProcess<kMenu_None>);
 		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess<kMenu_None>);
 
-		for (auto& menu : SkyrimSoulsRE::Settings::unpausedMenus) {
-			if (menu == "tweenMenu") {
-				TweenMenuEx::InstallHook();
-			} else if (menu == "favoritesMenu") {
+		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+
+		if (settings->GetSetting("tweenMenu")) {
+			TweenMenuEx::InstallHook();
+		}
+		if (settings->GetSetting("favoritesMenu")) {
 				FavoritesMenuEx::InstallHook();
-			} else if (menu == "bookMenu") {
+		}
+		if (settings->GetSetting("bookMenu")) {
 				BookMenuEx::InstallHook();
-			} else if (menu == "lockpickingMenu") {
+		}
+		if (settings->GetSetting("lockpickingMenu")) {
 				LockpickingMenuEx::InstallHook();
-			} else if (menu == "journalMenu") {
+		}
+		if (settings->GetSetting("journalMenu")) {
 				JournalMenuEx::InstallHook();
-			} else if (menu == "sleepWaitMenu") {
+		}
+		if (settings->GetSetting("sleepWaitMenu")) {
 				SleepWaitMenuEx::InstallHook();
-			} else if (menu == "messageBoxMenu") {
+		}
+		if (settings->GetSetting("messageBoxMenu")) {
 				MessageBoxMenuEx::InstallHook();
-			}
 		}
 
+		AutoCloseHandler::InstallHook();
 		PapyrusEx::InstallHook();
 	}
 }

@@ -28,4 +28,5 @@ namespace SkyrimSoulsRE
 
 
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
+
 }

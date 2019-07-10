@@ -1,5 +1,4 @@
 #include "skse64/PluginAPI.h" //SKSETaskInterface
-#include "skse64/GameAPI.h" //g_thePlayer
 #include "skse64/GameData.h" //BGSSaveLoadManager
 #include "skse64/gamethreads.h" //TaskDelegate
 
