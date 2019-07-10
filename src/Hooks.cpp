@@ -317,8 +317,11 @@ namespace Hooks
 					if (settings->GetSetting("autoClose"))
 					{
 						//sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
-						float distance = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
-						if (distance > settings->GetSetting("autoCloseDistance"))
+						//Assuming player height is 150 in-game units (should be close enough)
+						float distanceTop = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow((player->GetPositionZ() + 150) - ref->GetPositionZ(), 2));
+						float distanceBottom = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
+						if (distanceTop > maxDistance && distanceBottom > maxDistance)
 						{
 							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
 						}
@@ -337,8 +340,10 @@ namespace Hooks
 
 					if (settings->GetSetting("autoClose"))
 					{
-						float distance = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
-						if (distance > settings->GetSetting("autoCloseDistance"))
+						float distanceTop = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow((player->GetPositionZ() + 150) - ref->GetPositionZ(), 2));
+						float distanceBottom = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
+						if (distanceTop > maxDistance && distanceBottom > maxDistance)
 						{
 							uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 						}

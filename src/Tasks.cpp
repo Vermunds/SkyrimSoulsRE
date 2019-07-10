@@ -5,6 +5,9 @@
 #include "RE/FxDelegateArgs.h" //FxDelegateArgs
 #include "RE/TESForm.h" //TESForm::LookupByID
 #include "RE/Actor.h" //Actor
+#include "RE/MenuManager.h" //MenuManager
+#include "RE/UIStringHolder.h" //UIStringHolder
+#include "RE/IMenu.h" //IMenu
 
 #include "Tasks.h"
 #include "Offsets.h"
@@ -23,10 +26,28 @@ namespace Tasks
 
 	void SleepWaitDelegate::Run()
 	{
+		static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+		static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+
+		RE::FxDelegateArgs * args;
+
+		RE::IMenu * sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu);
+		if (sleepWaitMenu) {
+			SleepWaitDelegate * task = new SleepWaitDelegate();
+
+			RE::GFxValue responseID, time;
+			responseID.SetNumber(0);
+			time.SetNumber(sleepWaitTime);
+
+			args = new RE::FxDelegateArgs(responseID, sleepWaitMenu, sleepWaitMenu->view, &time, 1);
+		} else {
+			return;
+		}
+
 		RequestSleepWait_Original = reinterpret_cast<void(*)(RE::FxDelegateArgs*)>(Offsets::StartSleepWait_Original.GetUIntPtr());
-		RequestSleepWait_Original(this->args);
+		RequestSleepWait_Original(args);
 		sleepWaitInProgress = false;
-		delete(this->args);
+		delete(args);
 	}
 
 	void SleepWaitDelegate::Dispose()
@@ -38,16 +59,11 @@ namespace Tasks
 	{
 		if (!sleepWaitInProgress) {
 			sleepWaitInProgress = true;
+
 			SleepWaitDelegate * task = new SleepWaitDelegate();
-
-			double sleepWaitTime = static_cast<double>((p_args->operator[](0)).GetNumber());
-
-			RE::GFxValue responseID, time;
-			responseID.SetNumber(0);
-			time.SetNumber(sleepWaitTime);
-
-			task->args = new RE::FxDelegateArgs(responseID, p_args->GetHandler(), p_args->GetMovie(), &time, 1);
+			task->sleepWaitTime = static_cast<double>((p_args->operator[](0)).GetNumber());
 			g_task->AddTask(task);
+
 			return true;
 		}
 		return false;

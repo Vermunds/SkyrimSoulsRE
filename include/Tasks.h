@@ -13,7 +13,7 @@ namespace Tasks
 	{
 	public:
 		void(*RequestSleepWait_Original)(RE::FxDelegateArgs*);
-		RE::FxDelegateArgs * args;
+		double sleepWaitTime;
 
 		SleepWaitDelegate();
 		void Run() override;
