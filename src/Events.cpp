@@ -32,7 +32,8 @@ namespace SkyrimSoulsRE
 			menu->menuDepth++;
 		}
 
-		if (IsInWhiteList(a_event->menuName)) {
+		if (IsInWhiteList(a_event->menuName) && !(a_event->menuName == strHolder->console)) {
+			//console might cause an underflow for some reason so it's not going to be affected by this
 			(a_event->isOpening) ? (unpausedMenuCount++) : (unpausedMenuCount--);
 		}
 
@@ -88,6 +89,7 @@ namespace SkyrimSoulsRE
 		}
 		return EventResult::kContinue;
 	}
+
 
 	void MenuOpenCloseEventHandler::Init()
 	{

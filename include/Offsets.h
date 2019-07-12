@@ -7,7 +7,6 @@ namespace Offsets {
 	const RelocAddr <uintptr_t *> TweenMenu_Hook = 0x8D0C85; //1.5.80
 	const RelocAddr <uintptr_t *> MessageBoxMenu_ServeTime_Hook = 0x21A915; //1.5.80
 	const RelocAddr <uintptr_t *> JournalMenu_Hook = 0x586DE0; //1.5.80
-	const RelocAddr <uintptr_t *> SleepWaitMenuControls_Hook = 0x5B35B1; //1.5.80
 	const RelocAddr <uintptr_t *> StartSleepWait_Original = 0x8BDD60; //1.5.80
 	const RelocAddr <uintptr_t *> IsInMenuMode_Hook = 0x9B8750; //1.5.80
 
@@ -16,4 +15,7 @@ namespace Offsets {
 	const RelocAddr <uintptr_t *> ContainerMenu_Mode = 0x2F4C328; //1.5.80
 	const RelocAddr <uintptr_t *> ContainerMenu_Target = 0x2F4C3F0; //ContainerMenu_Mode + 0xC8 //1.5.80
 	const RelocAddr <uintptr_t *> DrawNextFrame_Hook = 0xECD489; //1.5.80
+
+	const RelocAddr <uintptr_t *> SleepWaitMenu_ProcessMessage_Hook = 0x16BB530; //1.5.80
+	const RelocAddr <uintptr_t *> SleepWaitMenu_ProcessMessage_Original = 0x8BD8C0; //1.5.80
 }

@@ -130,6 +130,18 @@ namespace Hooks
 	{
 	public:
 
+		//Should be non-static
+		static RE::IMenu::Result ProcessMessage(RE::IMenu* a_thisMenu, RE::UIMessage* a_message)
+		{
+			if (a_message->message == RE::UIMessage::Message::kScaleform)
+			{
+				return a_thisMenu->RE::IMenu::ProcessMessage(a_message);
+			}
+			RE::IMenu::Result(*ProcessMessage_Original)(RE::IMenu* a_thisMenu, RE::UIMessage* msg);
+			ProcessMessage_Original = reinterpret_cast<RE::IMenu::Result(*)(RE::IMenu*, RE::UIMessage*)>(Offsets::SleepWaitMenu_ProcessMessage_Original.GetUIntPtr());
+			return ProcessMessage_Original(a_thisMenu, a_message);
+		}
+
 		static bool RegisterForSleepWait(RE::FxDelegateArgs * a_args) {
 			if (Tasks::SleepWaitDelegate::RegisterTask(a_args))
 			{
@@ -145,7 +157,7 @@ namespace Hooks
 		static void InstallHook()
 		{
 			//fix for controls not working
-			SafeWrite16(Offsets::SleepWaitMenuControls_Hook.GetUIntPtr(), 0x9090);
+			SafeWrite64(Offsets::SleepWaitMenu_ProcessMessage_Hook.GetUIntPtr(), (uintptr_t)ProcessMessage);
 
 			struct RequestSleepWait_Code : Xbyak::CodeGenerator
 			{
