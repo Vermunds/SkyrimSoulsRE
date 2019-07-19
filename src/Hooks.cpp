@@ -30,6 +30,9 @@
 #include "Settings.h" //unpausedMenus
 #include "Tasks.h" //SleepWaitDelegate, SaveGameDelegate, ServeTimeDelegate
 
+#include <thread> //std::this_thread::sleep_for
+#include <chrono> //std::chrono::seconds
+
 namespace Hooks
 {
 
@@ -44,6 +47,17 @@ namespace Hooks
 		else {
 			return result_type::kContinue;
 		}
+	}
+
+	static float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
+	{
+		//Get distance from feet and head, return the smaller
+		float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + 150) - a_refPos.z, 2));
+		float distanceFeet = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow(a_playerPos.z - a_refPos.z, 2));
+		if (distanceHead < distanceFeet) {
+			return distanceHead;
+		}
+		return distanceFeet;
 	}
 
 	class FavoritesMenuEx
@@ -80,6 +94,30 @@ namespace Hooks
 		{
 			//Fix for lockpicking menu not appearing
 			SafeWrite16(Offsets::LockpickingMenu_Hook.GetUIntPtr(), 0x9090);
+		}
+	};
+
+	class InventoryMenuEx
+	{
+	public:
+		static void DropItem_Hook(RE::Actor* a_thisActor, RE::RefHandle& a_droppedItemHandle, RE::TESForm* a_item, RE::BaseExtraList* a_extraList, UInt32 a_count, UInt64 a_arg5, UInt64 a_arg6)
+		{
+			//Looks like some other thread moves it before the calculation is complete, resulting in the item being moved to the coc marker
+			//This is an ugly workaround, but it should work good enought
+
+			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+			mm->numPauseGame++;
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+			//arg5 and arg6 seems to be an UInt64 (a pointer maybe?)
+			a_thisActor->DropItem(a_droppedItemHandle, a_item, a_extraList, a_count, a_arg5, a_arg6);
+
+			mm->numPauseGame--;
+		}
+
+		static void InstallHook()
+		{
+			g_branchTrampoline.Write6Call(Offsets::InventoryMenu_DropItem_Hook.GetUIntPtr(), uintptr_t(DropItem_Hook));
 		}
 	};
 
@@ -123,6 +161,43 @@ namespace Hooks
 				return ref;
 			};
 			return nullptr;
+		}
+
+		static void UpdateEquipment_Hook(uintptr_t a_unk1, RE::PlayerCharacter* a_player)
+		{
+			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+			static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+			if (mm->IsMenuOpen(strHolder->containerMenu))
+			{
+				RE::TESObjectREFR* target = GetContainerRef();
+
+				if (target)
+				{
+					ContainerMode mode = GetContainerMode();
+					if (target->Is(RE::FormType::ActorCharacter) && mode == kMode_FollowerTrade)
+					{
+						RE::Actor * containerOwner = reinterpret_cast<RE::Actor*>(target);
+						Tasks::UpdateInventoryDelegate::RegisterTask(a_unk1, containerOwner);
+						return;
+					}
+				}
+			}
+
+			void(*UpdateInventory_Original)(uintptr_t, RE::Actor*);
+			UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::Actor*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
+			return UpdateInventory_Original(a_unk1, a_player);
+		}
+
+		static void InstallHook()
+		{
+			////Fix for trading with followers
+			g_branchTrampoline.Write5Branch(Offsets::ContainerMenu_TransferItem_Original.GetUIntPtr() + 0x105, (uintptr_t)UpdateEquipment_Hook);
+
+			//Fix for equipping directly from follower inventory (does not work properly, needs more testing)
+			g_branchTrampoline.Write5Call(Offsets::ContainerMenu_TransferItemEquip_Original.GetUIntPtr() + 0x14A, (uintptr_t)UpdateEquipment_Hook);
+
+			//Another call here
+			g_branchTrampoline.Write5Call(Offsets::Unk_UpdateInventory_Call.GetUIntPtr(), (uintptr_t)UpdateEquipment_Hook);
 		}
 	};
 
@@ -235,11 +310,13 @@ namespace Hooks
 	bool * PapyrusEx::isInMenuMode_1 = nullptr;
 	bool * PapyrusEx::isInMenuMode_2 = nullptr;
 
-	class JournalMenuEx
+	class SaveGameEx
 	{
 	public:
 		//Saving from the Journal Menu causes the game to hang. (Quicksaves not affected)
 		//As a workaround we don't allow the JournalMenu to save, instead we register the attempt and save from elsewhere later.
+
+		//Saving from console has the same issue
 
 		static bool RegisterForSave(int saveMode, const char * name) {
 			if ((saveMode == BGSSaveLoadManager::kEvent_Save)) {
@@ -300,6 +377,10 @@ namespace Hooks
 	class AutoCloseHandler
 	{
 	public:
+		//Initial position of player and the container
+		static bool tooFarWhenOpened;
+		static float initialDistance;
+
 		static void CheckShouldClose()
 		{
 			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
@@ -325,21 +406,44 @@ namespace Hooks
 							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
 						}
 					}
-
-					if (settings->GetSetting("autoClose"))
-					{
-						//sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
-						//Assuming player height is 150 in-game units (should be close enough)
-						float distanceTop = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow((player->GetPositionZ() + 150) - ref->GetPositionZ(), 2));
-						float distanceBottom = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+					if (settings->GetSetting("autoClose")) {
 						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
-						if (distanceTop > maxDistance && distanceBottom > maxDistance)
+						float currentDistance = GetDistance(player->pos, ref->pos);
+
+						if (SkyrimSoulsRE::justOpenedContainer)
 						{
-							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+							initialDistance = currentDistance;
+							SkyrimSoulsRE::justOpenedContainer = false;
+							
+							tooFarWhenOpened = (initialDistance > maxDistance) ? true : false;
+						}
+
+						if (tooFarWhenOpened)
+						{
+							//Check if the distance is increasing
+							if (currentDistance > (initialDistance + 50))
+							{
+								uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+							}
+							else if ((initialDistance - 50) > currentDistance) {
+								//Check if it's already in range
+								if (currentDistance < maxDistance)
+								{
+									tooFarWhenOpened = false;
+								}
+							}
+						}
+						else
+						{
+							if (currentDistance > maxDistance)
+							{
+								uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+							}
 						}
 					}
 				}
 			}
+
 			if (mm->IsMenuOpen(strHolder->lockpickingMenu) && settings->GetSetting("lockpickingMenu"))
 			{
 				RE::TESObjectREFR * ref = LockpickingMenuEx::GetLockpickingTarget();
@@ -389,6 +493,8 @@ namespace Hooks
 			g_branchTrampoline.Write5Branch(Offsets::DrawNextFrame_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
 		}
 	};
+	bool AutoCloseHandler::tooFarWhenOpened = false;
+	float AutoCloseHandler::initialDistance = 0.0;
 
 
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
@@ -425,14 +531,21 @@ namespace Hooks
 		if (settings->GetSetting("lockpickingMenu")) {
 			LockpickingMenuEx::InstallHook();
 		}
-		if (settings->GetSetting("journalMenu")) {
-			JournalMenuEx::InstallHook();
-		}
 		if (settings->GetSetting("sleepWaitMenu")) {
 			SleepWaitMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("messageBoxMenu")) {
 			MessageBoxMenuEx::InstallHook();
+		}
+		if (settings->GetSetting("containerMenu")) {
+			ContainerMenuEx::InstallHook();
+		}
+		if (settings->GetSetting("inventoryMenu")) {
+			InventoryMenuEx::InstallHook();
+		}
+
+		if (settings->GetSetting("journalMenu") || settings->GetSetting("console")) {
+			SaveGameEx::InstallHook();
 		}
 
 		AutoCloseHandler::InstallHook();

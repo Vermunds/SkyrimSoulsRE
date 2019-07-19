@@ -15,6 +15,8 @@
 namespace SkyrimSoulsRE
 {
 	UInt8 unpausedMenuCount = 0;
+	bool justOpenedContainer = false;
+	bool justOpenedLockpicking = false;
 
 	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
 	{
@@ -38,6 +40,17 @@ namespace SkyrimSoulsRE
 		}
 
 		if (a_event->isOpening) {
+
+			//Needed for auto-close
+			if (a_event->menuName == strHolder->containerMenu)
+			{
+				justOpenedContainer = true;
+			}
+			else if (a_event->menuName == strHolder->lockpickingMenu)
+			{
+				justOpenedLockpicking = true;
+			}
+
 			//Opening dialogue when an unpaused menu is open
 			if ((a_event->menuName == strHolder->dialogueMenu) && unpausedMenuCount) {
 				//Close tween menu if open
