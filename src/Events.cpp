@@ -39,6 +39,8 @@ namespace SkyrimSoulsRE
 			(a_event->isOpening) ? (unpausedMenuCount++) : (unpausedMenuCount--);
 		}
 
+		//_MESSAGE("Menu name: %s", a_event->menuName.c_str());
+
 		if (a_event->isOpening) {
 
 			//Needed for auto-close
@@ -109,6 +111,8 @@ namespace SkyrimSoulsRE
 		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 		static SettingStore* settingStore = SettingStore::GetSingleton();
 
+		RE::BSFixedString customMenu = "CustomMenu";
+
 		if (settingStore->GetSetting("tweenMenu")) {
 			_whiteList.emplace_back(strHolder->tweenMenu);
 		}
@@ -123,6 +127,9 @@ namespace SkyrimSoulsRE
 		}
 		if (settingStore->GetSetting("containerMenu")) {
 			_whiteList.emplace_back(strHolder->containerMenu);
+		}
+		if (settingStore->GetSetting("giftMenu")) {
+			_whiteList.emplace_back(strHolder->giftMenu);
 		}
 		if (settingStore->GetSetting("favoritesMenu")) {
 			_whiteList.emplace_back(strHolder->favoritesMenu);
@@ -158,6 +165,12 @@ namespace SkyrimSoulsRE
 		*/
 		if (settingStore->GetSetting("console")) {
 			_whiteList.emplace_back(strHolder->console);
+		}
+		if (settingStore->GetSetting("bethesdaModMenu")) {
+			_whiteList.emplace_back(strHolder->modManagerMenu);
+		}
+		if (settingStore->GetSetting("customMenu")) {
+			_whiteList.emplace_back(customMenu);
 		}
 		
 	}

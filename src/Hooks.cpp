@@ -378,8 +378,10 @@ namespace Hooks
 	{
 	public:
 		//Initial position of player and the container
-		static bool tooFarWhenOpened;
-		static float initialDistance;
+		static bool containerTooFarWhenOpened;
+		static bool lockpickingTooFarWhenOpened;
+		static float containerInitialDistance;
+		static float lockpickingInitialDistance;
 
 		static void CheckShouldClose()
 		{
@@ -412,24 +414,24 @@ namespace Hooks
 
 						if (SkyrimSoulsRE::justOpenedContainer)
 						{
-							initialDistance = currentDistance;
+							containerInitialDistance = currentDistance;
 							SkyrimSoulsRE::justOpenedContainer = false;
 							
-							tooFarWhenOpened = (initialDistance > maxDistance) ? true : false;
+							containerTooFarWhenOpened = (containerInitialDistance > maxDistance) ? true : false;
 						}
 
-						if (tooFarWhenOpened)
+						if (containerTooFarWhenOpened)
 						{
 							//Check if the distance is increasing
-							if (currentDistance > (initialDistance + 50))
+							if (currentDistance > (containerInitialDistance + 50))
 							{
 								uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
 							}
-							else if ((initialDistance - 50) > currentDistance) {
+							else if ((containerInitialDistance - 50) > currentDistance) {
 								//Check if it's already in range
 								if (currentDistance < maxDistance)
 								{
-									tooFarWhenOpened = false;
+									containerTooFarWhenOpened = false;
 								}
 							}
 						}
@@ -454,14 +456,39 @@ namespace Hooks
 						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 					}
 
-					if (settings->GetSetting("autoClose"))
-					{
-						float distanceTop = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow((player->GetPositionZ() + 150) - ref->GetPositionZ(), 2));
-						float distanceBottom = sqrt(pow(player->GetPositionX() - ref->GetPositionX(), 2) + pow(player->GetPositionY() - ref->GetPositionY(), 2) + pow(player->GetPositionZ() - ref->GetPositionZ(), 2));
+					if (settings->GetSetting("autoClose")) {
 						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
-						if (distanceTop > maxDistance && distanceBottom > maxDistance)
+						float currentDistance = GetDistance(player->pos, ref->pos);
+
+						if (SkyrimSoulsRE::justOpenedLockpicking)
 						{
-							uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+							lockpickingInitialDistance = currentDistance;
+							SkyrimSoulsRE::justOpenedLockpicking = false;
+
+							lockpickingTooFarWhenOpened = (lockpickingInitialDistance > maxDistance) ? true : false;
+						}
+
+						if (lockpickingTooFarWhenOpened)
+						{
+							//Check if the distance is increasing
+							if (currentDistance > (lockpickingInitialDistance + 50))
+							{
+								uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+							}
+							else if ((lockpickingInitialDistance - 50) > currentDistance) {
+								//Check if it's already in range
+								if (currentDistance < maxDistance)
+								{
+									lockpickingTooFarWhenOpened = false;
+								}
+							}
+						}
+						else
+						{
+							if (currentDistance > maxDistance)
+							{
+								uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+							}
 						}
 					}
 				}
@@ -493,8 +520,10 @@ namespace Hooks
 			g_branchTrampoline.Write5Branch(Offsets::DrawNextFrame_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
 		}
 	};
-	bool AutoCloseHandler::tooFarWhenOpened = false;
-	float AutoCloseHandler::initialDistance = 0.0;
+	bool AutoCloseHandler::containerTooFarWhenOpened = false;
+	bool AutoCloseHandler::lockpickingTooFarWhenOpened = false;
+	float AutoCloseHandler::containerInitialDistance = 0.0;
+	float AutoCloseHandler::lockpickingInitialDistance = 0.0;
 
 
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)

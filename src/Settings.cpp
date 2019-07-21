@@ -82,6 +82,7 @@ namespace SkyrimSoulsRE
 		settingStore->AddSetting(new Setting("magicMenu", GetIniValue("UNPAUSED_MENUS", "bMagicMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("barterMenu", GetIniValue("UNPAUSED_MENUS", "bBarterMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("containerMenu", GetIniValue("UNPAUSED_MENUS", "bContainerMenu", 1, iniFile)));
+		settingStore->AddSetting(new Setting("giftMenu", GetIniValue("UNPAUSED_MENUS", "bGiftMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("favoritesMenu", GetIniValue("UNPAUSED_MENUS", "bFavoritesMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("tutorialMenu", GetIniValue("UNPAUSED_MENUS", "bTutorialMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("lockpickingMenu", GetIniValue("UNPAUSED_MENUS", "bLockpickingMenu", 1, iniFile)));
@@ -93,6 +94,8 @@ namespace SkyrimSoulsRE
 		//settingStore->AddSetting(new Setting("mapMenu", GetIniValue("UNPAUSED_MENUS", "bMapMenu", 1, iniFile)));
 		//settingStore->AddSetting(new Setting("statsMenu", GetIniValue("UNPAUSED_MENUS", "bStatsMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("console", GetIniValue("UNPAUSED_MENUS", "bConsole", 1, iniFile)));
+		settingStore->AddSetting(new Setting("bethesdaModMenu", GetIniValue("UNPAUSED_MENUS", "bBethesdaModMenu", 1, iniFile)));
+		settingStore->AddSetting(new Setting("customMenu", GetIniValue("UNPAUSED_MENUS", "bCustomMenu", 1, iniFile)));
 
 		settingStore->AddSetting(new Setting("autoClose", GetIniValue("AUTOCLOSE", "bAutoCloseMenus", 1, iniFile)));
 		settingStore->AddSetting(new Setting("autoCloseDistance", GetIniValue("AUTOCLOSE", "iAutoCloseDistance", 250, iniFile)));
