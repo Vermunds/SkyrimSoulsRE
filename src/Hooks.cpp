@@ -24,6 +24,7 @@
 #include "RE/PlayerCharacter.h" //PlayerCharacter
 #include "RE/UIManager.h" //UIManager
 #include "RE/FormTypes.h" //FormType::ActorCharacter
+#include "RE/MenuOpenHandler.h" //MenuOpenHandler
 
 #include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
 #include "Offsets.h"
@@ -49,7 +50,7 @@ namespace Hooks
 		}
 	}
 
-	static float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
+	float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
 	{
 		//Get distance from feet and head, return the smaller
 		float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + 150) - a_refPos.z, 2));
@@ -374,6 +375,26 @@ namespace Hooks
 		}
 	};
 
+	class MenuOpenHandlerEx
+	{
+	public:
+		static bool CanProcess(RE::MenuOpenHandler * a_this, RE::InputEvent* a_event)
+		{
+			if (SkyrimSoulsRE::unpausedMenuCount)
+			{
+				return false;
+			}
+			bool(*CanProcess_Original)(RE::MenuOpenHandler*, RE::InputEvent*);
+			CanProcess_Original = reinterpret_cast<bool(*)(RE::MenuOpenHandler*, RE::InputEvent*)>(Offsets::MenuOpenHandler_CanProcess_Original.GetUIntPtr());;
+			return CanProcess_Original(a_this, a_event);
+		}
+
+		static void InstallHook()
+		{
+			SafeWrite64(Offsets::MenuOpenHandler_CanProcess_Hook.GetUIntPtr(), (uintptr_t)CanProcess);
+		}
+	};
+
 	class AutoCloseHandler
 	{
 	public:
@@ -416,7 +437,7 @@ namespace Hooks
 						{
 							containerInitialDistance = currentDistance;
 							SkyrimSoulsRE::justOpenedContainer = false;
-							
+
 							containerTooFarWhenOpened = (containerInitialDistance > maxDistance) ? true : false;
 						}
 
@@ -579,5 +600,6 @@ namespace Hooks
 
 		AutoCloseHandler::InstallHook();
 		PapyrusEx::InstallHook();
+		MenuOpenHandlerEx::InstallHook();
 	}
 }

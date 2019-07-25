@@ -6,7 +6,6 @@
 #include "RE/BSTEvent.h"  // BSTEventSink, EventResult, BSTEventSource
 #include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
 
-
 namespace SkyrimSoulsRE
 {
 	extern UInt8 unpausedMenuCount;
@@ -30,5 +29,4 @@ namespace SkyrimSoulsRE
 
 
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
-
 }

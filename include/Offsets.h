@@ -19,6 +19,12 @@ namespace Offsets {
 	const RelocAddr <uintptr_t *> SleepWaitMenu_ProcessMessage_Hook = 0x16BB530; //1.5.80
 	const RelocAddr <uintptr_t *> SleepWaitMenu_ProcessMessage_Original = 0x8BD8C0; //1.5.80
 
+	//const RelocAddr <uintptr_t *> MenuControls_ReceiveEvent_Hook = 0x16B8320; //1.5.80
+	//const RelocAddr <uintptr_t *> MenuControls_ReceiveEvent_Original = 0x8A7CA0; //1.5.80
+
+	const RelocAddr <uintptr_t *> MenuOpenHandler_CanProcess_Hook = 0x16B8498; //1.5.80
+	const RelocAddr <uintptr_t *> MenuOpenHandler_CanProcess_Original = 0x8AACF0; //1.5.80
+
 	const RelocAddr <uintptr_t *> ContainerMenu_TransferItem_Original = 0x85E150; //1.5.80
 	const RelocAddr <uintptr_t *> ContainerMenu_TransferItemEquip_Original = 0x85E2A0; //1.5.80
 	const RelocAddr <uintptr_t *> Unk_UpdateInventory_Call = 0x8601AB; //1.5.80
