@@ -10,56 +10,19 @@
 
 #include "HookShare.h"  // _RegisterHook_t
 
-#include "RE/IMenu.h"  // IMenu
-#include "RE/InputEvent.h"  // InputEvent
-#include "RE/MenuEventHandler.h"  // MenuEventHandler
-#include "RE/MenuManager.h"  // MenuManager
-#include "RE/Offsets.h"
-#include "RE/PlayerInputHandler.h"  // PlayerInputHandler
-#include "RE/UISaveLoadManager.h"  // UISaveLoadManager
-#include "RE/UIStringHolder.h"  // UIStringHolder
-#include "RE/FxDelegateArgs.h" //FxDelegateArgs
-#include "RE/GFxValue.h" //GFxValue
-#include "RE/TESObjectREFR.h" //RE::TESObjectREFR
-#include "RE/PlayerCharacter.h" //PlayerCharacter
-#include "RE/UIManager.h" //UIManager
-#include "RE/FormTypes.h" //FormType::ActorCharacter
-#include "RE/MenuOpenHandler.h" //MenuOpenHandler
+#include "RE/Skyrim.h"
 
 #include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
 #include "Offsets.h"
 #include "Settings.h" //unpausedMenus
 #include "Tasks.h" //SleepWaitDelegate, SaveGameDelegate, ServeTimeDelegate
+#include "Utility.h" //strToInt
 
 #include <thread> //std::this_thread::sleep_for
 #include <chrono> //std::chrono::seconds
 
 namespace Hooks
 {
-
-	HookShare::result_type _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
-	{
-		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
-		using HookShare::result_type;
-
-		if (MenuOpenCloseEventHandler::BlockInput()) {
-			return result_type::kFalse;
-		}
-		else {
-			return result_type::kContinue;
-		}
-	}
-
-	float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
-	{
-		//Get distance from feet and head, return the smaller
-		float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + 150) - a_refPos.z, 2));
-		float distanceFeet = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow(a_playerPos.z - a_refPos.z, 2));
-		if (distanceHead < distanceFeet) {
-			return distanceHead;
-		}
-		return distanceFeet;
-	}
 
 	class FavoritesMenuEx
 	{
@@ -101,12 +64,12 @@ namespace Hooks
 	class InventoryMenuEx
 	{
 	public:
-		static void DropItem_Hook(RE::Actor* a_thisActor, RE::RefHandle& a_droppedItemHandle, RE::TESForm* a_item, RE::BaseExtraList* a_extraList, UInt32 a_count, UInt64 a_arg5, UInt64 a_arg6)
+		static void DropItem_Hook(RE::Actor* a_thisActor, RE::RefHandle& a_droppedItemHandle, RE::TESForm* a_item, RE::BaseExtraList* a_extraList, UInt32 a_count, void* a_arg5, void* a_arg6)
 		{
 			//Looks like some other thread moves it before the calculation is complete, resulting in the item being moved to the coc marker
 			//This is an ugly workaround, but it should work good enought
 
-			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			mm->numPauseGame++;
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -158,16 +121,16 @@ namespace Hooks
 			RE::TESObjectREFRPtr refptr = nullptr;
 			if (RE::TESObjectREFR::LookupByHandle(*handle, refptr))
 			{
-				RE::TESObjectREFR * ref = refptr.get();
+				RE::TESObjectREFR* ref = refptr.get();
 				return ref;
 			};
 			return nullptr;
 		}
 
-		static void UpdateEquipment_Hook(uintptr_t a_unk1, RE::PlayerCharacter* a_player)
+		static void UpdateEquipment_Hook(void* a_unk, RE::PlayerCharacter* a_player)
 		{
-			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-			static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 			if (mm->IsMenuOpen(strHolder->containerMenu))
 			{
 				RE::TESObjectREFR* target = GetContainerRef();
@@ -177,16 +140,16 @@ namespace Hooks
 					ContainerMode mode = GetContainerMode();
 					if (target->Is(RE::FormType::ActorCharacter) && mode == kMode_FollowerTrade)
 					{
-						RE::Actor * containerOwner = reinterpret_cast<RE::Actor*>(target);
-						Tasks::UpdateInventoryDelegate::RegisterTask(a_unk1, containerOwner);
+						RE::Actor* containerOwner = reinterpret_cast<RE::Actor*>(target);
+						Tasks::UpdateInventoryDelegate::RegisterTask(a_unk, containerOwner);
 						return;
 					}
 				}
 			}
 
-			void(*UpdateInventory_Original)(uintptr_t, RE::Actor*);
-			UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::Actor*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
-			return UpdateInventory_Original(a_unk1, a_player);
+			void(*UpdateInventory_Original)(void*, RE::Actor*);
+			UpdateInventory_Original = reinterpret_cast<void(*)(void*, RE::Actor*)>(RE::Offset::InventoryMenu::InventoryData::Update);
+			return UpdateInventory_Original(a_unk, a_player);
 		}
 
 		static void InstallHook()
@@ -194,7 +157,7 @@ namespace Hooks
 			////Fix for trading with followers
 			g_branchTrampoline.Write5Branch(Offsets::ContainerMenu_TransferItem_Original.GetUIntPtr() + 0x105, (uintptr_t)UpdateEquipment_Hook);
 
-			//Fix for equipping directly from follower inventory (does not work properly, needs more testing)
+			//Fix for equipping directly from follower inventory
 			g_branchTrampoline.Write5Call(Offsets::ContainerMenu_TransferItemEquip_Original.GetUIntPtr() + 0x14A, (uintptr_t)UpdateEquipment_Hook);
 
 			//Another call here
@@ -206,28 +169,25 @@ namespace Hooks
 	{
 	public:
 
-		//Should be non-static
 		static RE::IMenu::Result ProcessMessage(RE::IMenu* a_thisMenu, RE::UIMessage* a_message)
 		{
 			if (a_message->message == RE::UIMessage::Message::kScaleform)
 			{
 				return a_thisMenu->RE::IMenu::ProcessMessage(a_message);
 			}
-			RE::IMenu::Result(*ProcessMessage_Original)(RE::IMenu* a_thisMenu, RE::UIMessage* msg);
+			RE::IMenu::Result(*ProcessMessage_Original)(RE::IMenu * a_thisMenu, RE::UIMessage * msg);
 			ProcessMessage_Original = reinterpret_cast<RE::IMenu::Result(*)(RE::IMenu*, RE::UIMessage*)>(Offsets::SleepWaitMenu_ProcessMessage_Original.GetUIntPtr());
 			return ProcessMessage_Original(a_thisMenu, a_message);
 		}
 
-		static bool RegisterForSleepWait(RE::FxDelegateArgs * a_args) {
-			if (Tasks::SleepWaitDelegate::RegisterTask(a_args))
-			{
-				static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-				static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
-				mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
-				mm->numPauseGame++;
-				return true;
-			}
-			return false;
+		static void StartSleepWait(const RE::FxDelegateArgs& a_args) {
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+
+			mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
+			mm->numPauseGame++;
+
+			Tasks::SleepWaitDelegate::RegisterTask(a_args);
 		}
 
 		static void InstallHook()
@@ -235,40 +195,6 @@ namespace Hooks
 			//fix for controls not working
 			SafeWrite64(Offsets::SleepWaitMenu_ProcessMessage_Hook.GetUIntPtr(), (uintptr_t)ProcessMessage);
 
-			struct RequestSleepWait_Code : Xbyak::CodeGenerator
-			{
-				RequestSleepWait_Code(void * buf, UInt64 a_registerForSleepWait) : Xbyak::CodeGenerator(4096, buf)
-				{
-					Xbyak::Label returnAddress;
-					Xbyak::Label registerForSleepWaitAddress;
-					Xbyak::Label continueWait;
-
-					sub(rsp, 0x20);
-					call(ptr[rip + registerForSleepWaitAddress]);
-					add(rsp, 0x20);
-					cmp(al, 0x0);
-					je(continueWait);
-					ret();
-					L(continueWait);
-
-					//overwritten code
-					mov(qword[rsp + 8], rbx);
-					push(rdi);
-					jmp(ptr[rip + returnAddress]);
-
-					L(returnAddress);
-					dq(Offsets::StartSleepWait_Original.GetUIntPtr() + 0x6);
-
-					L(registerForSleepWaitAddress);
-					dq(a_registerForSleepWait);
-				}
-			};
-
-			void * codeBuf = g_localTrampoline.StartAlloc();
-			RequestSleepWait_Code code(codeBuf, uintptr_t(RegisterForSleepWait));
-			g_localTrampoline.EndAlloc(code.getCurr());
-
-			g_branchTrampoline.Write6Branch(Offsets::StartSleepWait_Original.GetUIntPtr(), uintptr_t(code.getCode()));
 		}
 	};
 
@@ -286,11 +212,123 @@ namespace Hooks
 		}
 	};
 
+	class JournalMenuEx
+	{
+	public:
+
+		static bool SaveGame_Hook(RE::BGSSaveLoadManager* a_this, BGSSaveLoadManagerEx::SaveMode a_mode, BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_saveName)
+		{
+			Tasks::SaveGameDelegate::RegisterTask(a_dumpFlag, a_saveName);
+			return true;
+		}
+
+		static void InstallHook()
+		{
+			g_branchTrampoline.Write5Branch(Offsets::JournalMenu_SaveGame_Hook.GetUIntPtr(), (uintptr_t)SaveGame_Hook);
+			g_branchTrampoline.Write5Call(Offsets::JournalMenu_SaveGame_Overwrite_Hook.GetUIntPtr(), (uintptr_t)SaveGame_Hook);
+			g_branchTrampoline.Write5Call(Offsets::JournalMenu_SaveGame_Overwrite_Hook.GetUIntPtr() + 0x22, (uintptr_t)SaveGame_Hook);
+		}
+	};
+
+	class ConsoleEx
+	{
+	public:
+
+		class CommandData
+		{
+		public:
+			std::string command;
+			std::vector<std::string> arguments;
+			UInt32 numArgs;
+		};
+
+		static CommandData* ParseCommand(std::string a_fullCommand)
+		{
+			CommandData * data = new CommandData();
+
+			bool argumentExpected = false;
+
+			for (auto ch : a_fullCommand) {
+				if (ch == ' ') {
+					if (!(data->command.empty()))
+					{
+						argumentExpected = true;
+					}
+				} else {
+
+					if (argumentExpected)
+					{
+						argumentExpected = false;
+						data->numArgs++;
+						data->arguments.push_back(std::string());
+					}
+
+					if (data->numArgs != 0) {
+						std::tolower(ch);
+						data->arguments[data->numArgs - 1].push_back(ch);
+					} else {
+						std::tolower(ch);
+						data->command.push_back(ch);
+					}
+				}
+			}
+			return data;
+		}
+
+		static void ExecuteCommand_Hook(const RE::FxDelegateArgs& a_args)
+		{
+			const std::string commandStr = a_args[0].GetString();
+
+			CommandData* data = ParseCommand(commandStr);
+
+			if (data->command == "save" || data->command == "savegame")
+			{
+
+				BGSSaveLoadManagerEx::DumpFlag flag = BGSSaveLoadManagerEx::DumpFlag::kNone;
+
+				if (data->numArgs == 1)
+				{
+					Tasks::SaveGameDelegate::RegisterTask(flag, data->arguments[0].c_str());
+					return;
+				}
+				else if (data->numArgs > 1 && 5 >= data->numArgs)
+				{
+					for (int i = 1; i < data->numArgs; i++)
+					{
+						std::string arg = data->arguments[i];
+						SInt32 num = 0;
+
+						if (SkyrimSoulsRE::StrToInt(num, arg.c_str()))
+						{
+							flag |= (BGSSaveLoadManagerEx::DumpFlag)(num << (i - 1));
+						}
+						else
+						{
+							return;
+						}
+					}
+					Tasks::SaveGameDelegate::RegisterTask(flag, data->arguments[0].c_str());
+					return;
+				}
+
+			}
+			else if (data->command == "servetime" && data->numArgs == 0)
+			{
+				Tasks::ServeTimeDelegate::RegisterTask();
+				return;
+			}
+
+			void(*ExecuteCommand_Original)(const RE::FxDelegateArgs&);
+			ExecuteCommand_Original = reinterpret_cast<void(*)(const RE::FxDelegateArgs&)>(Offsets::Console_ExecuteCommand_Original.GetUIntPtr());
+			return ExecuteCommand_Original(a_args);
+		}
+	};
+
 	class PapyrusEx
 	{
 	public:
-		static bool * isInMenuMode_1;
-		static bool * isInMenuMode_2;
+		static bool* isInMenuMode_1;
+		static bool* isInMenuMode_2;
 
 		static bool IsInMenuMode()
 		{
@@ -308,77 +346,150 @@ namespace Hooks
 			SafeWrite16(Offsets::IsInMenuMode_Hook.GetUIntPtr() + 0x5, 0x9090);
 		}
 	};
-	bool * PapyrusEx::isInMenuMode_1 = nullptr;
-	bool * PapyrusEx::isInMenuMode_2 = nullptr;
+	bool* PapyrusEx::isInMenuMode_1 = nullptr;
+	bool* PapyrusEx::isInMenuMode_2 = nullptr;
 
-	class SaveGameEx
+	//PlayerControls
+	class MovementHandlerEx
 	{
 	public:
-		//Saving from the Journal Menu causes the game to hang. (Quicksaves not affected)
-		//As a workaround we don't allow the JournalMenu to save, instead we register the attempt and save from elsewhere later.
+		static void ProcessButton_Hook(RE::MovementHandler* a_this, RE::ButtonEvent* a_event, RE::MovementData* a_data)
+		{
+			RE::InputStringHolder* inStr = RE::InputStringHolder::GetSingleton();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
-		//Saving from console has the same issue
-
-		static bool RegisterForSave(int saveMode, const char * name) {
-			if ((saveMode == BGSSaveLoadManager::kEvent_Save)) {
-				if (Tasks::SaveGameDelegate::RegisterTask(name))
+			if (a_event && a_event->deviceType == RE::DeviceType::kKeyboard)
+			{
+				if (a_event->GetControlID() == inStr->forward)
 				{
-					return true;
+					a_data->autoRun = 0;
+					a_data->movementY = 1.0;
 				}
-				return false;
+				else if (a_event->GetControlID() == inStr->back)
+				{
+					a_data->autoRun = 0;
+					a_data->movementY = -1.0;
+				}
+				else if (a_event->GetControlID() == inStr->strafeLeft)
+				{
+					a_data->movementX = -1.0;
+				}
+				else if (a_event->GetControlID() == inStr->strafeRight)
+				{
+					a_data->movementX = 1.0;
+				}
+
+				if (SkyrimSoulsRE::unpausedMenuCount && !(mm->IsMenuOpen(strHolder->dialogueMenu)))
+				{
+					if (a_event->GetControlID() == inStr->up)
+					{
+						a_data->autoRun = 0;
+						a_data->movementY = 1.0;
+					}
+					else if (a_event->GetControlID() == inStr->down)
+					{
+						a_data->autoRun = 0;
+						a_data->movementY = -1.0;
+					}
+					else if (a_event->GetControlID() == inStr->left)
+					{
+						a_data->movementX = -1.0;
+					}
+					else if (a_event->GetControlID() == inStr->right)
+					{
+						a_data->movementX = 1.0;
+					}
+				}
 			}
-			//continue saving
-			return false;
 		}
 
-		static void InstallHook() {
-			struct SaveHook_Code : Xbyak::CodeGenerator
-			{
-				SaveHook_Code(void * buf, UInt64 a_registerForSave) : Xbyak::CodeGenerator(4096, buf)
-				{
-					Xbyak::Label returnAddress;
-					Xbyak::Label continueSave;
-					Xbyak::Label registerForSaveAddress;
-
-					push(rcx);
-					push(rdx);
-					mov(rcx, rdx); //save mode
-					mov(rdx, r9); //save name
-					sub(rsp, 0x20); //parameter stack space 
-					call(ptr[rip + registerForSaveAddress]);
-					add(rsp, 0x20);
-					pop(rdx);
-					pop(rcx);
-					cmp(al, 0x0); //should delay save?
-					je(continueSave);
-					ret(); //abort save
-					L(continueSave);
-
-					//overwritten code:
-					mov(dword[rsp + 0x18], r8d);
-					push(rbp);
-					jmp(ptr[rip + returnAddress]);
-
-					L(returnAddress);
-					dq(Offsets::JournalMenu_Hook.GetUIntPtr() + 0x6);
-
-					L(registerForSaveAddress);
-					dq(a_registerForSave);
-				}
-			};
-
-			void * codeBuf = g_localTrampoline.StartAlloc();
-			SaveHook_Code code(codeBuf, uintptr_t(RegisterForSave));
-			g_localTrampoline.EndAlloc(code.getCurr());
-
-			g_branchTrampoline.Write6Branch(Offsets::JournalMenu_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
+		static void InstallHook()
+		{
+			SafeWrite64(Offsets::MovementHandler_ProcessButton_Hook.GetUIntPtr(), (uintptr_t)ProcessButton_Hook);
 		}
 	};
 
+	class MenuControlsEx
+	{
+	public:
+
+		//Fix for SkyUI favorites menu
+		static RE::EventResult ReceiveEvent_Hook(RE::MenuControls* a_this, RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_source)
+		{
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			RE::InputStringHolder* inStr = RE::InputStringHolder::GetSingleton();
+
+			RE::InputEvent* nullEvent = nullptr;
+			RE::InputEvent** events = &nullEvent;
+
+			if (SkyrimSoulsRE::unpausedMenuCount && mm->IsMenuOpen(strHolder->favoritesMenu))
+			{
+				if (a_event && *a_event)
+				{
+					UInt32 index = 0;
+					for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
+					{
+						if (evn && evn->deviceType == RE::DeviceType::kKeyboard)
+						{
+							if (evn->GetControlID() == inStr->strafeLeft || evn->GetControlID() == inStr->strafeRight)
+							{
+								continue;
+							}
+						}
+						events[index] = evn;
+						if (index != 0)
+						{
+							events[index - 1]->next = evn;
+						}
+						index++;
+					}
+				}
+			}
+			else {
+				events = a_event;
+			}
+
+			RE::EventResult(*ReceiveEvent_Original)(RE::MenuControls * a_this, RE::InputEvent * *a_event, RE::BSTEventSource<RE::InputEvent*> * a_source);
+			ReceiveEvent_Original = reinterpret_cast<RE::EventResult(*)(RE::MenuControls * a_this, RE::InputEvent * *a_event, RE::BSTEventSource<RE::InputEvent*> * a_source)>(Offsets::MenuControls_ReceiveEvent_Original.GetUIntPtr());;
+			return ReceiveEvent_Original(a_this, events, a_source);
+		}
+
+		static void InstallHook()
+		{
+			SafeWrite64(Offsets::MenuControls_ReceiveEvent_Hook.GetUIntPtr(), (uintptr_t)ReceiveEvent_Hook);
+		}
+	};
+
+	//MenuControls
+	class DirectionHandlerEx
+	{
+	public:
+		static bool CanProcess(RE::MenuEventHandler* a_this, RE::InputEvent* a_event)
+		{
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+
+			if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()))
+			{
+				return false;
+			}
+			bool(*CanProcess_Original)(RE::MenuEventHandler*, RE::InputEvent*);
+			CanProcess_Original = reinterpret_cast<bool(*)(RE::MenuEventHandler*, RE::InputEvent*)>(Offsets::DirectionHandler_CanProcess_Original.GetUIntPtr());;
+			return CanProcess_Original(a_this, a_event);
+		}
+
+		static void InstallHook()
+		{
+			SafeWrite64(Offsets::DirectionHandler_CanProcess_Hook.GetUIntPtr(), (uintptr_t)CanProcess);
+		}
+	};
+
+	//MenuControls
 	class MenuOpenHandlerEx
 	{
 	public:
-		static bool CanProcess(RE::MenuOpenHandler * a_this, RE::InputEvent* a_event)
+		static bool CanProcess(RE::MenuOpenHandler* a_this, RE::InputEvent* a_event)
 		{
 			if (SkyrimSoulsRE::unpausedMenuCount)
 			{
@@ -404,13 +515,24 @@ namespace Hooks
 		static float containerInitialDistance;
 		static float lockpickingInitialDistance;
 
+		inline static float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
+		{
+			//Get distance from feet and head, return the smaller
+			float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + 150) - a_refPos.z, 2));
+			float distanceFeet = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow(a_playerPos.z - a_refPos.z, 2));
+			if (distanceHead < distanceFeet) {
+				return distanceHead;
+			}
+			return distanceFeet;
+		}
+
 		static void CheckShouldClose()
 		{
-			static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-			static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
-			static RE::PlayerCharacter * player = RE::PlayerCharacter::GetSingleton();
-			static RE::UIManager * uiManager = RE::UIManager::GetSingleton();
-			static SkyrimSoulsRE::SettingStore * settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+			RE::PlayerCharacter * player = RE::PlayerCharacter::GetSingleton();
+			RE::UIManager * uiManager = RE::UIManager::GetSingleton();
+			SkyrimSoulsRE::SettingStore * settings = SkyrimSoulsRE::SettingStore::GetSingleton();
 
 			if (mm->IsMenuOpen(strHolder->containerMenu) && settings->GetSetting("containerMenu"))
 			{
@@ -546,15 +668,49 @@ namespace Hooks
 	float AutoCloseHandler::containerInitialDistance = 0.0;
 	float AutoCloseHandler::lockpickingInitialDistance = 0.0;
 
+	void Register_Func(RE::FxDelegate* a_delegate, HookType a_type)
+	{
+		switch(a_type)
+		{
+		case kSleepWaitMenu:
+			a_delegate->callbacks.GetAlt("OK")->callback = SleepWaitMenuEx::StartSleepWait;
+			break;
+		case kConsole:
+			a_delegate->callbacks.GetAlt("ExecuteCommand")->callback = ConsoleEx::ExecuteCommand_Hook;
+			break;
+		}
+	}
+
+	HookShare::result_type _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+	{
+		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
+		using HookShare::result_type;
+
+		if (MenuOpenCloseEventHandler::BlockInput()) {
+			return result_type::kFalse;
+		}
+		else {
+			return result_type::kContinue;
+		}
+	}
+
+	HookShare::result_type _PlayerInputHandler_CanProcess_Movement(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+	{
+		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
+		using HookShare::result_type;
+
+		return result_type::kTrue;
+	}
 
 	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
 	{
 		using HookShare::Hook;
 
+		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+
 		a_register(Hook::kFirstPersonState, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kThirdPersonState, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kFavorites, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kLook, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kSprint, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kReadyWeapon, _PlayerInputHandler_CanProcess);
@@ -567,7 +723,13 @@ namespace Hooks
 		a_register(Hook::kRun, _PlayerInputHandler_CanProcess);
 		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess);
 
-		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+		if (settings->GetSetting("bEnableMovementInMenus"))
+		{
+			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess_Movement);
+		}
+		else {
+			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
+		}
 
 		if (settings->GetSetting("tweenMenu")) {
 			TweenMenuEx::InstallHook();
@@ -593,13 +755,19 @@ namespace Hooks
 		if (settings->GetSetting("inventoryMenu")) {
 			InventoryMenuEx::InstallHook();
 		}
-
-		if (settings->GetSetting("journalMenu") || settings->GetSetting("console")) {
-			SaveGameEx::InstallHook();
+		if (settings->GetSetting("journalMenu")) {
+			JournalMenuEx::InstallHook();
 		}
 
 		AutoCloseHandler::InstallHook();
 		PapyrusEx::InstallHook();
 		MenuOpenHandlerEx::InstallHook();
+
+		if (settings->GetSetting("bEnableMovementInMenus"))
+		{
+			MovementHandlerEx::InstallHook();
+			MenuControlsEx::InstallHook();
+			DirectionHandlerEx::InstallHook();
+		}
 	}
 }

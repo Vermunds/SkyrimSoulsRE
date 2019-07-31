@@ -1,17 +1,11 @@
 #include "skse64/PluginAPI.h" //SKSETaskInterface
-#include "skse64/GameData.h" //BGSSaveLoadManager
 #include "skse64/gamethreads.h" //TaskDelegate
 
-#include "RE/FxDelegateArgs.h" //FxDelegateArgs
-#include "RE/TESForm.h" //TESForm::LookupByID
-#include "RE/Actor.h" //Actor
-#include "RE/MenuManager.h" //MenuManager
-#include "RE/UIStringHolder.h" //UIStringHolder
-#include "RE/IMenu.h" //IMenu
-#include "RE/PlayerCharacter.h" //PlayerCharacter
+#include "RE/Skyrim.h"
 
 #include "Tasks.h"
 #include "Offsets.h"
+#include "Hooks.h"
 
 #include <thread> //std::this_thread::sleep_for
 #include <chrono> //std::chrono::seconds
@@ -20,8 +14,6 @@ namespace Tasks
 {
 	SKSETaskInterface * g_task = nullptr;
 
-	static bool sleepWaitInProgress = false;
-	static bool saveInProgress = false;
 	static bool updateInventoryInProgress = false;
 
 	//SleepWaitMenu
@@ -31,27 +23,24 @@ namespace Tasks
 
 	void SleepWaitDelegate::Run()
 	{
-		static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-		static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+		RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+		RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
 
-		RE::FxDelegateArgs * args;
+		const RE::FxDelegateArgs * args;
 
-		RE::IMenu * sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu);
+		RE::IMenu * sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu).get();
 		if (sleepWaitMenu) {
-			SleepWaitDelegate * task = new SleepWaitDelegate();
 
-			RE::GFxValue responseID, time;
-			responseID.SetNumber(0);
-			time.SetNumber(sleepWaitTime);
+			RE::GFxValue time = sleepWaitTime;
+			UInt32 numArgs = 1;
 
-			args = new RE::FxDelegateArgs(responseID, sleepWaitMenu, sleepWaitMenu->view, &time, 1);
+			args = new RE::FxDelegateArgs(RE::GFxValue(), sleepWaitMenu, sleepWaitMenu->view.get(), &time, numArgs);
 		} else {
 			return;
 		}
 
-		RequestSleepWait_Original = reinterpret_cast<void(*)(RE::FxDelegateArgs*)>(Offsets::StartSleepWait_Original.GetUIntPtr());
-		RequestSleepWait_Original(args);
-		sleepWaitInProgress = false;
+		RequestSleepWait_Original = reinterpret_cast<void(*)(const RE::FxDelegateArgs&)>(Offsets::StartSleepWait_Original.GetUIntPtr());
+		RequestSleepWait_Original(*args);
 		delete(args);
 	}
 
@@ -60,30 +49,22 @@ namespace Tasks
 		delete this;
 	}
 
-	bool SleepWaitDelegate::RegisterTask(RE::FxDelegateArgs * a_args)
+	void SleepWaitDelegate::RegisterTask(const RE::FxDelegateArgs& a_args)
 	{
-		if (!sleepWaitInProgress) {
-			sleepWaitInProgress = true;
-
-			SleepWaitDelegate * task = new SleepWaitDelegate();
-			task->sleepWaitTime = a_args->operator[](0).GetNumber();
-			g_task->AddTask(task);
-
-			return true;
-		}
-		return false;
+		SleepWaitDelegate * task = new SleepWaitDelegate();
+		task->sleepWaitTime = a_args[0].GetNumber();
+		g_task->AddTask(task);
 	}
 
-	// Save Game (JournalMenu)
 	SaveGameDelegate::SaveGameDelegate()
 	{
 	}
 
 	void SaveGameDelegate::Run()
 	{
-		BGSSaveLoadManager * slm = BGSSaveLoadManager::GetSingleton();
-		slm->Save(this->saveName);
-		saveInProgress = false;
+		bool(*SaveGame_Original)(RE::BGSSaveLoadManager*, Hooks::BGSSaveLoadManagerEx::SaveMode, Hooks::BGSSaveLoadManagerEx::DumpFlag, const char*, UInt32);
+		SaveGame_Original = reinterpret_cast<bool(*)(RE::BGSSaveLoadManager*, Hooks::BGSSaveLoadManagerEx::SaveMode, Hooks::BGSSaveLoadManagerEx::DumpFlag, const char*, UInt32)>(Offsets::SaveGame_Original.GetUIntPtr());
+		SaveGame_Original(RE::BGSSaveLoadManager::GetSingleton(), Hooks::BGSSaveLoadManagerEx::kSave, this->dumpFlag, this->saveName, 0);
 	}
 
 	void SaveGameDelegate::Dispose()
@@ -91,27 +72,24 @@ namespace Tasks
 		delete this;
 	}
 
-	bool SaveGameDelegate::RegisterTask(const char * a_name)
+	void SaveGameDelegate::RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name)
 	{
-		if (!saveInProgress) {
-			saveInProgress = true;
-			SaveGameDelegate * task = new SaveGameDelegate();
+		SaveGameDelegate* task = new SaveGameDelegate();
 
-			if (a_name) {
-				const size_t len = strlen(a_name);
-				char * tmp = new char[len + 1];
-				strncpy_s(tmp, len + 1, a_name, len);
-				task->saveName = tmp;
-			}
-			else {
-				task->saveName = nullptr;
-			}
-
-			g_task->AddTask(task);
-			return true;
+		if (a_name) {
+			const size_t len = strlen(a_name);
+			char* tmp = new char[len + 1];
+			strncpy_s(tmp, len + 1, a_name, len);
+			task->saveName = tmp;
 		}
-		return false;
+		else {
+			task->saveName = nullptr;
+		}
+
+		task->dumpFlag = a_dumpFlag;
+		g_task->AddTask(task);
 	}
+
 
 	//Serve Time (MessageBoxMenu)
 	ServeTimeDelegate::ServeTimeDelegate()
@@ -120,9 +98,9 @@ namespace Tasks
 
 	void ServeTimeDelegate::Run()
 	{
-		RE::Actor * player = reinterpret_cast<RE::Actor*>(RE::TESForm::LookupByID(0x00000014));
+		RE::Actor* player = reinterpret_cast<RE::Actor*>(RE::TESForm::LookupByID(0x00000014));
 		player->ServeJailTime();
-		RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 		mm->numPauseGame--;
 	}
 
@@ -134,13 +112,13 @@ namespace Tasks
 	void ServeTimeDelegate::RegisterAsyncTask()
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		ServeTimeDelegate * task = new ServeTimeDelegate();
+		ServeTimeDelegate* task = new ServeTimeDelegate();
 		g_task->AddTask(task);
 	}
 
 	void ServeTimeDelegate::RegisterTask()
 	{
-		static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 		mm->numPauseGame++;
 		std::thread t(RegisterAsyncTask);
 		t.detach();
@@ -153,15 +131,15 @@ namespace Tasks
 
 	void UpdateInventoryDelegate::Run()
 	{
-		static RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-		static RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
-		static RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		RE::MenuManager * mm = RE::MenuManager::GetSingleton();
+		RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
 		player->processManager->UpdateEquipment(player);
 		(this->containerOwner)->processManager->UpdateEquipment(this->containerOwner);
 
-		UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::PlayerCharacter*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
-		UpdateInventory_Original(this->unkArg, player);
+		UpdateInventory_Original = reinterpret_cast<void(*)(void*, RE::PlayerCharacter*)>(RE::Offset::InventoryMenu::InventoryData::Update);
+		UpdateInventory_Original(this->unk, player);
 		updateInventoryInProgress = false;
 	}
 
@@ -170,13 +148,13 @@ namespace Tasks
 		delete this;
 	}
 
-	bool UpdateInventoryDelegate::RegisterTask(uintptr_t a_unkArg, RE::Actor* a_containerOwner)
+	bool UpdateInventoryDelegate::RegisterTask(void* a_unk, RE::Actor* a_containerOwner)
 	{
 		if (!updateInventoryInProgress)
 		{
 			updateInventoryInProgress = true;
 			UpdateInventoryDelegate * task = new UpdateInventoryDelegate();
-			task->unkArg = a_unkArg;
+			task->unk = a_unk;
 			task->containerOwner = a_containerOwner;
 			g_task->AddTask(task);
 			return true;

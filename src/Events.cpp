@@ -3,14 +3,10 @@
 #include <vector>  // vector
 
 #include "Settings.h"
+#include "Hooks.h"
+#include "Offsets.h"
 
-#include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSTEvent.h"  // EventResult, BSTEventSource
-#include "RE/IMenu.h"  // IMenu
-#include "RE/MenuManager.h"  // MenuManager
-#include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
-#include "RE/UIManager.h"  // UIManager
-#include "RE/UIStringHolder.h"  // UIStringHolder
+#include "RE/Skyrim.h"
 
 namespace SkyrimSoulsRE
 {
@@ -23,13 +19,12 @@ namespace SkyrimSoulsRE
 		using RE::EventResult;
 		typedef RE::IMenu::Flag Flag;
 
-		static RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
-		static RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
-		static RE::UIManager*		uiManager = RE::UIManager::GetSingleton();
+		RE::MenuManager*		mm = RE::MenuManager::GetSingleton();
+		RE::UIStringHolder*	strHolder = RE::UIStringHolder::GetSingleton();
+		RE::UIManager*		uiManager = RE::UIManager::GetSingleton();
+		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
 
-		RE::BSFixedString lootMenuStr = "LootMenu";
-
-		RE::IMenu* menu = mm->GetMenu(a_event->menuName);
+		RE::IMenu* menu = mm->GetMenu(a_event->menuName).get();
 		if (menu && menu->menuDepth == 0 && (a_event->menuName != strHolder->tweenMenu)) {
 			menu->menuDepth++;
 		}
@@ -38,8 +33,6 @@ namespace SkyrimSoulsRE
 			//console might cause an underflow for some reason so it's not going to be affected by this
 			(a_event->isOpening) ? (unpausedMenuCount++) : (unpausedMenuCount--);
 		}
-
-		//_MESSAGE("Menu name: %s", a_event->menuName.c_str());
 
 		if (a_event->isOpening) {
 
@@ -79,19 +72,45 @@ namespace SkyrimSoulsRE
 			}
 		}
 
-		//Fix for QuickLoot
+		float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+		UInt32 multiplierPercent = settings->GetSetting("iSlowdownPercent");
+		float multiplier;
+		if (multiplierPercent >= 10 && 200 >= multiplierPercent)
+		{
+			multiplier = (float)multiplierPercent / 100.0;
+		}
+		else {
+			multiplier = 1.0;
+		}
+		
+
 		if (unpausedMenuCount) {
-			RE::IMenu* lootMenu = mm->GetMenu(lootMenuStr);
+			*globalTimescale = multiplier;
+
+			//Fix for QuickLoot
+			RE::IMenu* lootMenu = mm->GetMenu("LootMenu").get();
 			if (lootMenu) {
 				lootMenu->view->SetVisible(false);
 			}
+		}
+		else {
+			*globalTimescale = 1.0;
 		}
 
 		if (!a_event || !IsInWhiteList(a_event->menuName)) {
 			return EventResult::kContinue;
 		}
-
+	   
 		if (menu) {
+			if (a_event->menuName == strHolder->sleepWaitMenu)
+			{
+				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kSleepWaitMenu);
+			}
+			else if (a_event->menuName == strHolder->console)
+			{
+				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kConsole);
+			}
+
 			if (menu->PausesGame()) {
 				menu->flags &= ~Flag::kPauseGame;
 				if (mm->GameIsPaused()) {
@@ -108,8 +127,8 @@ namespace SkyrimSoulsRE
 
 	void MenuOpenCloseEventHandler::Init()
 	{
-		static RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-		static SettingStore* settingStore = SettingStore::GetSingleton();
+		RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+		SettingStore* settingStore = SettingStore::GetSingleton();
 
 		RE::BSFixedString customMenu = "CustomMenu";
 

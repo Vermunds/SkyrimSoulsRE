@@ -1,9 +1,6 @@
-﻿#include "common/IDebugLog.h"  // IDebugLog
-#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
+﻿#include "skse64_common/BranchTrampoline.h"  // g_branchTrampoline
 #include "skse64_common/skse_version.h"  // RUNTIME_VERSION
 #include "skse64/PluginAPI.h"  // PluginHandle, SKSEMessagingInterface, SKSETaskInterface, SKSEInterface, PluginInfo
-
-#include <ShlObj.h>  // CSIDL_MYDOCUMENTS
 
 #include "Events.h"  // g_menuOpenCloseEventHandler
 #include "Hooks.h"  // InstallHooks()
@@ -28,12 +25,12 @@ void HooksReady(SKSEMessagingInterface::Message* a_msg)
 		if (a_msg->dataLen == HookShare::kAPIVersionMajor) {
 			RegisterForCanProcess_t* _RegisterForCanProcess = static_cast<RegisterForCanProcess_t*>(a_msg->data);
 			Hooks::InstallHooks(_RegisterForCanProcess);
-			_MESSAGE("[MESSAGE] Hooks registered");
+			_MESSAGE("Hooks registered");
 
 			SkyrimSoulsRE::MenuOpenCloseEventHandler::Init();
-			_MESSAGE("[MESSAGE] Menu open/close whitelist initialized");
+			_MESSAGE("Menu open/close whitelist initialized");
 		} else {
-			_FATALERROR("[FATAL ERROR] An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
+			_FATALERROR("An incompatible version of Hook Share SSE was loaded! Expected (%i), found (%i)!\n", HookShare::kAPIVersionMajor, a_msg->type);
 		}
 	}
 }
@@ -48,28 +45,27 @@ void MessageHandler(SKSEMessagingInterface::Message* a_msg)
 	switch (a_msg->type) {
 	case SKSEMessagingInterface::kMessage_PostPostLoad:
 		if (g_messaging->RegisterListener(g_pluginHandle, "HookShareSSE", HooksReady)) {
-			_MESSAGE("[MESSAGE] Registered HookShareSSE listener");
+			_MESSAGE("Registered HookShareSSE listener");
 		}
 		else {
-			_FATALERROR("[FATAL ERROR] HookShareSSE not loaded!\n");
+			_FATALERROR("HookShareSSE not loaded!\n");
 		}
 		break;
 	case SKSEMessagingInterface::kMessage_DataLoaded:
-	{
 		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-		mm->GetMenuOpenCloseEventSource()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);
-		_MESSAGE("[MESSAGE] Menu open/close event handler sinked");
+		mm->GetEventSource<RE::MenuOpenCloseEvent>()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);
+		_MESSAGE("Menu open/close event handler sinked");
 		break;
-	}
 	}
 }
 
 extern "C" {
 	bool SKSEPlugin_Query(const SKSEInterface* a_skse, PluginInfo* a_info)
 	{
-		gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\SkyrimSoulsRE.log");
-		gLog.SetPrintLevel(IDebugLog::kLevel_DebugMessage);
-		gLog.SetLogLevel(IDebugLog::kLevel_DebugMessage);
+		SKSE::Logger::OpenRelative(FOLDERID_Documents, L"\\My Games\\Skyrim Special Edition\\SKSE\\SkyrimSoulsRE.log");
+		SKSE::Logger::SetPrintLevel(SKSE::Logger::Level::kDebugMessage);
+		SKSE::Logger::SetFlushLevel(SKSE::Logger::Level::kDebugMessage);
+		SKSE::Logger::UseLogStamp(true);
 
 		_MESSAGE("SkyrimSoulsRE v%s", SKYRIMSOULSRE_VERSION_VERSTRING);
 
@@ -80,28 +76,28 @@ extern "C" {
 		g_pluginHandle = a_skse->GetPluginHandle();
 
 		if (a_skse->isEditor) {
-			_FATALERROR("[FATAL ERROR] Loaded in editor, marking as incompatible!\n");
+			_FATALERROR("Loaded in editor, marking as incompatible!\n");
 			return false;
 		}
 
 		if ((a_skse->runtimeVersion != RUNTIME_VERSION_1_5_80) && (a_skse->runtimeVersion != RUNTIME_VERSION_1_5_73)) {
-			_FATALERROR("[FATAL ERROR] Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
+			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->runtimeVersion);
 			return false;
 		}
 
 		if (g_branchTrampoline.Create(1024 * 8)) {
-			_MESSAGE("[MESSAGE] Branch trampoline creation successful");
+			_MESSAGE("Branch trampoline creation successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Branch trampoline creation failed!\n");
+			_FATALERROR("Branch trampoline creation failed!\n");
 			return false;
 		}
 
 		if (g_localTrampoline.Create(1024 * 64, nullptr))
 		{
-			_MESSAGE("[MESSAGE] Codegen buffer creation successful");
+			_MESSAGE("Local trampoline creation successful");
 		}
 		else {
-			_FATALERROR("[FATAL ERROR] Codegen buffer creation failed!\n");
+			_FATALERROR("Local trampoline creation failed!\n");
 			return false;
 		}
 
@@ -110,23 +106,23 @@ extern "C" {
 
 	bool SKSEPlugin_Load(const SKSEInterface* a_skse)
 	{
-		_MESSAGE("[MESSAGE] SkyrimSoulsRE loaded");
+		_MESSAGE("SkyrimSoulsRE loaded");
 
 		g_messaging = (SKSEMessagingInterface*)a_skse->QueryInterface(kInterface_Messaging);
 		if (g_messaging->RegisterListener(g_pluginHandle, "SKSE", MessageHandler)) {
-			_MESSAGE("[MESSAGE] Messaging interface registration successful");
+			_MESSAGE("Messaging interface registration successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Messaging interface registration failed!\n");
+			_FATALERROR("Messaging interface registration failed!\n");
 			return false;
 		}
 
 		SkyrimSoulsRE::LoadSettings();
-		_MESSAGE("[MESSAGE] Settings successfully loaded.");
+		_MESSAGE("Settings successfully loaded.");
 
 		if (Tasks::g_task = (SKSETaskInterface *)a_skse->QueryInterface(kInterface_Task)) {
-			_MESSAGE("[MESSAGE] Task interface registration successful");
+			_MESSAGE("Task interface registration successful");
 		} else {
-			_FATALERROR("[FATAL ERROR] Task interface registration failed!\n");
+			_FATALERROR("Task interface registration failed!\n");
 			return false;
 		}
 

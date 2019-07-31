@@ -7,6 +7,8 @@
 #include "RE/Actor.h" //Actor
 #include "RE/PlayerCharacter.h" //PlayerCharacter
 
+#include "Hooks.h"
+
 namespace Tasks
 {
 	extern SKSETaskInterface * g_task;
@@ -14,24 +16,25 @@ namespace Tasks
 	class SleepWaitDelegate : TaskDelegate
 	{
 	private:
-		void(*RequestSleepWait_Original)(RE::FxDelegateArgs*);
+		void(*RequestSleepWait_Original)(const RE::FxDelegateArgs&);
 		double sleepWaitTime;
 		SleepWaitDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static bool RegisterTask(RE::FxDelegateArgs * p_arg);
+		static void RegisterTask(const RE::FxDelegateArgs&);
 	};
 
 	class SaveGameDelegate : TaskDelegate
 	{
 	private:
-		const char * saveName = nullptr;
+		const char* saveName = nullptr;
+		Hooks::BGSSaveLoadManagerEx::DumpFlag dumpFlag;
 		SaveGameDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static bool RegisterTask(const char * a_name);
+		static void RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name);
 	};
 
 	class ServeTimeDelegate : TaskDelegate
@@ -48,13 +51,13 @@ namespace Tasks
 	class UpdateInventoryDelegate : TaskDelegate
 	{
 	private:
-		uintptr_t unkArg; //this ptr
+		void* unk; //inventorydata
 		RE::Actor* containerOwner;
-		void(*UpdateInventory_Original)(uintptr_t, RE::PlayerCharacter*);
+		void(*UpdateInventory_Original)(void*, RE::PlayerCharacter*);
 		UpdateInventoryDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static bool RegisterTask(uintptr_t a_unkArg, RE::Actor* a_containerOwner);
+		static bool RegisterTask(void* a_unk, RE::Actor* a_containerOwner);
 	};
 }

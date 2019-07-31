@@ -24,11 +24,11 @@ namespace SkyrimSoulsRE
 		this->value = a_value;
 	}
 
-	UInt32 SettingStore::GetSetting(std::string a_menuName)
+	UInt32 SettingStore::GetSetting(std::string a_name)
 	{
 		for (auto &setting : this->settings)
 		{
-			if (setting->GetName() == a_menuName)
+			if (setting->GetName() == a_name)
 			{
 				return setting->GetValue();
 			}
@@ -77,6 +77,7 @@ namespace SkyrimSoulsRE
 
 		const char * iniFile = ".\\Data\\SKSE\\Plugins\\SkyrimSoulsRE.ini";
 
+		//Unpaused menus
 		settingStore->AddSetting(new Setting("tweenMenu", GetIniValue("UNPAUSED_MENUS", "bTweenMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("inventoryMenu", GetIniValue("UNPAUSED_MENUS", "bInventoryMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("magicMenu", GetIniValue("UNPAUSED_MENUS", "bMagicMenu", 1, iniFile)));
@@ -97,7 +98,14 @@ namespace SkyrimSoulsRE
 		settingStore->AddSetting(new Setting("bethesdaModMenu", GetIniValue("UNPAUSED_MENUS", "bBethesdaModMenu", 1, iniFile)));
 		settingStore->AddSetting(new Setting("customMenu", GetIniValue("UNPAUSED_MENUS", "bCustomMenu", 1, iniFile)));
 
+		//Auto-close
 		settingStore->AddSetting(new Setting("autoClose", GetIniValue("AUTOCLOSE", "bAutoCloseMenus", 1, iniFile)));
 		settingStore->AddSetting(new Setting("autoCloseDistance", GetIniValue("AUTOCLOSE", "iAutoCloseDistance", 250, iniFile)));
+
+		//Controls
+		settingStore->AddSetting(new Setting("bEnableMovementInMenus", GetIniValue("CONTROLS", "bEnableMovementInMenus", 0, iniFile)));
+
+		//Slowmotion
+		settingStore->AddSetting(new Setting("iSlowdownPercent", GetIniValue("SLOWDOWN", "iSlowdownPercent", 100, iniFile)));
 	}
 }
