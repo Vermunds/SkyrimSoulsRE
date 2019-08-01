@@ -73,6 +73,8 @@ namespace SkyrimSoulsRE
 		}
 
 		float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+		//float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
+
 		UInt32 multiplierPercent = settings->GetSetting("iSlowdownPercent");
 		float multiplier;
 		if (multiplierPercent >= 10 && 200 >= multiplierPercent)
@@ -82,6 +84,8 @@ namespace SkyrimSoulsRE
 		else {
 			multiplier = 1.0;
 		}
+
+		//*globalTimescaleHavok = 1.0;
 		
 
 		if (unpausedMenuCount) {

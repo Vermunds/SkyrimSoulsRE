@@ -324,6 +324,21 @@ namespace Hooks
 		}
 	};
 
+	class SlowTimeHook
+	{
+	public:
+		static void InstallHook()
+		{
+			//Fix for book menu and sleep wait menu slowing down
+			//This will also make all havok physics normal speed, but I can't do anyting about it
+			UInt8 codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr(), codes, sizeof(codes));
+			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0xA, codes, sizeof(codes));
+			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0x2C, codes, sizeof(codes));
+			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0x36, codes, sizeof(codes));
+		}
+	};
+
 	class PapyrusEx
 	{
 	public:
@@ -769,5 +784,7 @@ namespace Hooks
 			MenuControlsEx::InstallHook();
 			DirectionHandlerEx::InstallHook();
 		}
+
+		SlowTimeHook::InstallHook();
 	}
 }
