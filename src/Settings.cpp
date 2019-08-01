@@ -106,6 +106,7 @@ namespace SkyrimSoulsRE
 		settingStore->AddSetting(new Setting("bEnableMovementInMenus", GetIniValue("CONTROLS", "bEnableMovementInMenus", 0, iniFile)));
 
 		//Slowmotion
+		settingStore->AddSetting(new Setting("bEnableSlowMotion", GetIniValue("SLOWDOWN", "bEnableSlowMotion", 0, iniFile)));
 		settingStore->AddSetting(new Setting("iSlowdownPercent", GetIniValue("SLOWDOWN", "iSlowdownPercent", 100, iniFile)));
 	}
 }

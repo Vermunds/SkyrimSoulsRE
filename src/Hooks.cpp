@@ -183,9 +183,19 @@ namespace Hooks
 		static void StartSleepWait(const RE::FxDelegateArgs& a_args) {
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
 
 			mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
 			mm->numPauseGame++;
+
+			if (settings->GetSetting("bEnableSlowMotion"))
+			{
+				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+				float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
+
+				*globalTimescale = 1.0;
+				*globalTimescaleHavok = 1.0;
+			}
 
 			Tasks::SleepWaitDelegate::RegisterTask(a_args);
 		}
@@ -785,6 +795,9 @@ namespace Hooks
 			DirectionHandlerEx::InstallHook();
 		}
 
-		SlowTimeHook::InstallHook();
+		if (settings->GetSetting("bEnableSlowMotion"))
+		{
+			SlowTimeHook::InstallHook();
+		}
 	}
 }

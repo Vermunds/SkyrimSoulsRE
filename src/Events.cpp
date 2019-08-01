@@ -72,34 +72,41 @@ namespace SkyrimSoulsRE
 			}
 		}
 
-		float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
-		//float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
-
-		UInt32 multiplierPercent = settings->GetSetting("iSlowdownPercent");
-		float multiplier;
-		if (multiplierPercent >= 10 && 200 >= multiplierPercent)
+		if (settings->GetSetting("bEnableSlowMotion"))
 		{
-			multiplier = (float)multiplierPercent / 100.0;
-		}
-		else {
-			multiplier = 1.0;
-		}
+			float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+			float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
 
-		//*globalTimescaleHavok = 1.0;
-		
+			UInt32 multiplierPercent = settings->GetSetting("iSlowdownPercent");
+			float multiplier;
+			if (multiplierPercent >= 10 && 200 >= multiplierPercent)
+			{
+				multiplier = (float)multiplierPercent / 100.0;
+			}
+			else {
+				multiplier = 1.0;
+			}
+
+			if (unpausedMenuCount)
+			{
+				*globalTimescale = multiplier;
+				*globalTimescaleHavok = multiplier;
+			}
+			else {
+				*globalTimescale = 1.0;
+				*globalTimescaleHavok = 1.0;
+			}
+		}
 
 		if (unpausedMenuCount) {
-			*globalTimescale = multiplier;
-
+			
 			//Fix for QuickLoot
 			RE::IMenu* lootMenu = mm->GetMenu("LootMenu").get();
 			if (lootMenu) {
 				lootMenu->view->SetVisible(false);
 			}
 		}
-		else {
-			*globalTimescale = 1.0;
-		}
+
 
 		if (!a_event || !IsInWhiteList(a_event->menuName)) {
 			return EventResult::kContinue;
