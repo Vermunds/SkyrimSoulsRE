@@ -571,7 +571,7 @@ namespace Hooks
 
 					if (ref->Is(RE::FormType::ActorCharacter))
 					{
-						if (ContainerMenuEx::GetContainerMode() != ContainerMenuEx::ContainerMode::kMode_Loot && ref->IsDead(true))
+						if (ContainerMenuEx::GetContainerMode() == ContainerMenuEx::ContainerMode::kMode_Pickpocket && ref->IsDead(true))
 						{
 							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
 						}
