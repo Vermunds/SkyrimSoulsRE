@@ -138,7 +138,7 @@ namespace Tasks
 		player->processManager->UpdateEquipment(player);
 		(this->containerOwner)->processManager->UpdateEquipment(this->containerOwner);
 
-		UpdateInventory_Original = reinterpret_cast<void(*)(void*, RE::PlayerCharacter*)>(RE::Offset::InventoryMenu::InventoryData::Update);
+		UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::PlayerCharacter*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
 		UpdateInventory_Original(this->unk, player);
 		updateInventoryInProgress = false;
 	}
@@ -148,7 +148,7 @@ namespace Tasks
 		delete this;
 	}
 
-	bool UpdateInventoryDelegate::RegisterTask(void* a_unk, RE::Actor* a_containerOwner)
+	bool UpdateInventoryDelegate::RegisterTask(uintptr_t a_unk, RE::Actor* a_containerOwner)
 	{
 		if (!updateInventoryInProgress)
 		{

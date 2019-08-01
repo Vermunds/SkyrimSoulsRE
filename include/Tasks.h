@@ -51,13 +51,13 @@ namespace Tasks
 	class UpdateInventoryDelegate : TaskDelegate
 	{
 	private:
-		void* unk; //inventorydata
+		uintptr_t unk; //inventorydata
 		RE::Actor* containerOwner;
-		void(*UpdateInventory_Original)(void*, RE::PlayerCharacter*);
+		void(*UpdateInventory_Original)(uintptr_t, RE::PlayerCharacter*);
 		UpdateInventoryDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static bool RegisterTask(void* a_unk, RE::Actor* a_containerOwner);
+		static bool RegisterTask(uintptr_t a_unk, RE::Actor* a_containerOwner);
 	};
 }

@@ -51,4 +51,6 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler = 0x1E05B2C; //1.5.80
 	//const RelocAddr<uintptr_t*> GlobalTimescaleMultipler_Havok = 0x1E05B28; //1.5.80
 	const RelocAddr<uintptr_t*> GlobalTimescale_Hook = 0xC0792C; //1.5.80
+
+	const RelocAddr <uintptr_t*> UpdateInventory_Original = 0x856A50; //1.5.80
 }

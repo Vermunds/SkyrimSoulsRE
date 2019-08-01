@@ -127,7 +127,7 @@ namespace Hooks
 			return nullptr;
 		}
 
-		static void UpdateEquipment_Hook(void* a_unk, RE::PlayerCharacter* a_player)
+		static void UpdateEquipment_Hook(uintptr_t a_unk, RE::PlayerCharacter* a_player)
 		{
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
@@ -147,8 +147,8 @@ namespace Hooks
 				}
 			}
 
-			void(*UpdateInventory_Original)(void*, RE::Actor*);
-			UpdateInventory_Original = reinterpret_cast<void(*)(void*, RE::Actor*)>(RE::Offset::InventoryMenu::InventoryData::Update);
+			void(*UpdateInventory_Original)(uintptr_t, RE::Actor*);
+			UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::Actor*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
 			return UpdateInventory_Original(a_unk, a_player);
 		}
 
