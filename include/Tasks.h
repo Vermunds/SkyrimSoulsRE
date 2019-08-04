@@ -6,6 +6,7 @@
 #include "RE/FxDelegateArgs.h" //FxDelegateArgs
 #include "RE/Actor.h" //Actor
 #include "RE/PlayerCharacter.h" //PlayerCharacter
+#include "RE/ItemList.h" //PlayerCharacter
 
 #include "Hooks.h"
 
@@ -37,27 +38,15 @@ namespace Tasks
 		static void RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name);
 	};
 
-	class ServeTimeDelegate : TaskDelegate
-	{
-	private:
-		ServeTimeDelegate();
-		static void RegisterAsyncTask();
-	public:
-		void Run() override;
-		void Dispose() override;
-		static void RegisterTask();
-	};
-
 	class UpdateInventoryDelegate : TaskDelegate
 	{
 	private:
-		uintptr_t unk; //inventorydata
+		RE::ItemList* list;
 		RE::Actor* containerOwner;
-		void(*UpdateInventory_Original)(uintptr_t, RE::PlayerCharacter*);
 		UpdateInventoryDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static bool RegisterTask(uintptr_t a_unk, RE::Actor* a_containerOwner);
+		static void RegisterTask(RE::ItemList* a_list, RE::Actor* a_containerOwner);
 	};
 }

@@ -9,8 +9,12 @@
 namespace SkyrimSoulsRE
 {
 	extern UInt8 unpausedMenuCount;
+
 	extern bool justOpenedContainer;
 	extern bool justOpenedLockpicking;
+	extern bool justOpenedBook;
+
+	extern bool isInSlowMotion;
 
 	class MenuOpenCloseEventHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{

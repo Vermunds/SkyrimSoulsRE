@@ -14,8 +14,6 @@ namespace Tasks
 {
 	SKSETaskInterface * g_task = nullptr;
 
-	static bool updateInventoryInProgress = false;
-
 	//SleepWaitMenu
 	SleepWaitDelegate::SleepWaitDelegate()
 	{
@@ -62,9 +60,12 @@ namespace Tasks
 
 	void SaveGameDelegate::Run()
 	{
-		bool(*SaveGame_Original)(RE::BGSSaveLoadManager*, Hooks::BGSSaveLoadManagerEx::SaveMode, Hooks::BGSSaveLoadManagerEx::DumpFlag, const char*, UInt32);
-		SaveGame_Original = reinterpret_cast<bool(*)(RE::BGSSaveLoadManager*, Hooks::BGSSaveLoadManagerEx::SaveMode, Hooks::BGSSaveLoadManagerEx::DumpFlag, const char*, UInt32)>(Offsets::SaveGame_Original.GetUIntPtr());
-		SaveGame_Original(RE::BGSSaveLoadManager::GetSingleton(), Hooks::BGSSaveLoadManagerEx::kSave, this->dumpFlag, this->saveName, 0);
+		typedef Hooks::BGSSaveLoadManagerEx::SaveMode SaveMode;
+		typedef Hooks::BGSSaveLoadManagerEx::DumpFlag DumpFlag;
+
+		bool(*SaveGame_Original)(RE::BGSSaveLoadManager*, SaveMode, DumpFlag, const char*);
+		SaveGame_Original = reinterpret_cast<bool(*)(RE::BGSSaveLoadManager*, SaveMode, DumpFlag, const char*)>(Offsets::SaveGame_Original.GetUIntPtr());
+		SaveGame_Original(RE::BGSSaveLoadManager::GetSingleton(), SaveMode::kSave, this->dumpFlag, this->saveName);
 	}
 
 	void SaveGameDelegate::Dispose()
@@ -90,40 +91,6 @@ namespace Tasks
 		g_task->AddTask(task);
 	}
 
-
-	//Serve Time (MessageBoxMenu)
-	ServeTimeDelegate::ServeTimeDelegate()
-	{
-	}
-
-	void ServeTimeDelegate::Run()
-	{
-		RE::Actor* player = reinterpret_cast<RE::Actor*>(RE::TESForm::LookupByID(0x00000014));
-		player->ServeJailTime();
-		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-		mm->numPauseGame--;
-	}
-
-	void ServeTimeDelegate::Dispose()
-	{
-		delete this;
-	}
-
-	void ServeTimeDelegate::RegisterAsyncTask()
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		ServeTimeDelegate* task = new ServeTimeDelegate();
-		g_task->AddTask(task);
-	}
-
-	void ServeTimeDelegate::RegisterTask()
-	{
-		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-		mm->numPauseGame++;
-		std::thread t(RegisterAsyncTask);
-		t.detach();
-	}
-
 	UpdateInventoryDelegate::UpdateInventoryDelegate()
 	{
 
@@ -137,10 +104,7 @@ namespace Tasks
 
 		player->processManager->UpdateEquipment(player);
 		(this->containerOwner)->processManager->UpdateEquipment(this->containerOwner);
-
-		UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::PlayerCharacter*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
-		UpdateInventory_Original(this->unk, player);
-		updateInventoryInProgress = false;
+		(this->list)->Update(player);
 	}
 
 	void UpdateInventoryDelegate::Dispose()
@@ -148,17 +112,11 @@ namespace Tasks
 		delete this;
 	}
 
-	bool UpdateInventoryDelegate::RegisterTask(uintptr_t a_unk, RE::Actor* a_containerOwner)
+	void UpdateInventoryDelegate::RegisterTask(RE::ItemList* a_list, RE::Actor* a_containerOwner)
 	{
-		if (!updateInventoryInProgress)
-		{
-			updateInventoryInProgress = true;
-			UpdateInventoryDelegate * task = new UpdateInventoryDelegate();
-			task->unk = a_unk;
-			task->containerOwner = a_containerOwner;
-			g_task->AddTask(task);
-			return true;
-		}
-		return false;
+		UpdateInventoryDelegate * task = new UpdateInventoryDelegate();
+		task->list = a_list;
+		task->containerOwner = a_containerOwner;
+		g_task->AddTask(task);
 	}
 }

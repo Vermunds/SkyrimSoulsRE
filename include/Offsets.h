@@ -9,12 +9,14 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> StartSleepWait_Original = 0x8BDD60; //1.5.80
 
 	const RelocAddr<uintptr_t*> IsInMenuMode_Hook = 0x9B8750; //1.5.80
-	const RelocAddr<uintptr_t*>  IsInMenuMode_Original = 0x2F26B75; //1.5.80
+	const RelocAddr<uintptr_t*> IsInMenuMode_Original = 0x2F26B75; //1.5.80
 
 	const RelocAddr<uintptr_t*> LockpickingMenu_Target = 0x2F4E240; //1.5.80
 	const RelocAddr<uintptr_t*> ContainerMenu_Mode = 0x2F4C328; //1.5.80
 	const RelocAddr<uintptr_t*> ContainerMenu_Target = 0x2F4C3F0; //ContainerMenu_Mode + 0xC8 //1.5.80
 	const RelocAddr<uintptr_t*> DrawNextFrame_Hook = 0xECD489; //1.5.80
+
+	const RelocAddr<uintptr_t*> BookMenu_Target = 0x2F4BF78; //1.5.80
 
 	const RelocAddr<uintptr_t*> SleepWaitMenu_ProcessMessage_Hook = 0x16BB530; //1.5.80
 	const RelocAddr<uintptr_t*> SleepWaitMenu_ProcessMessage_Original = 0x8BD8C0; //1.5.80
@@ -50,7 +52,4 @@ namespace Offsets {
 
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler = 0x1E05B2C; //1.5.80
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler_Havok = 0x1E05B28; //1.5.80
-	const RelocAddr<uintptr_t*> GlobalTimescale_Hook = 0xC0792C; //1.5.80
-
-	const RelocAddr <uintptr_t*> UpdateInventory_Original = 0x856A50; //1.5.80
 }

@@ -11,8 +11,12 @@
 namespace SkyrimSoulsRE
 {
 	UInt8 unpausedMenuCount = 0;
+
 	bool justOpenedContainer = false;
 	bool justOpenedLockpicking = false;
+	bool justOpenedBook = false;
+
+	bool isInSlowMotion = false;
 
 	RE::EventResult MenuOpenCloseEventHandler::ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
 	{
@@ -45,6 +49,10 @@ namespace SkyrimSoulsRE
 			{
 				justOpenedLockpicking = true;
 			}
+			else if (a_event->menuName == strHolder->bookMenu)
+			{
+				justOpenedBook = true;
+			}
 
 			//Opening dialogue when an unpaused menu is open
 			if ((a_event->menuName == strHolder->dialogueMenu) && unpausedMenuCount) {
@@ -72,14 +80,15 @@ namespace SkyrimSoulsRE
 			}
 		}
 
-		if (settings->GetSetting("bEnableSlowMotion"))
-		{
-			float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
-			float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
+		static bool enableSlowMotion = settings->GetSetting("bEnableSlowMotion");
 
-			UInt32 multiplierPercent = settings->GetSetting("iSlowdownPercent");
+		if (enableSlowMotion)
+		{
+ 			static UInt32 multiplierPercent = settings->GetSetting("uSlowMotionPercent");
+			float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+
 			float multiplier;
-			if (multiplierPercent >= 10 && 200 >= multiplierPercent)
+			if (multiplierPercent >= 10 && 100 >= multiplierPercent)
 			{
 				multiplier = (float)multiplierPercent / 100.0;
 			}
@@ -87,14 +96,20 @@ namespace SkyrimSoulsRE
 				multiplier = 1.0;
 			}
 
-			if (unpausedMenuCount)
+			if (unpausedMenuCount && !isInSlowMotion)
 			{
-				*globalTimescale = multiplier;
-				*globalTimescaleHavok = multiplier;
+				isInSlowMotion = true;
+				*globalTimescale = multiplier * (*globalTimescale);
 			}
-			else {
-				*globalTimescale = 1.0;
-				*globalTimescaleHavok = 1.0;
+			else if (!unpausedMenuCount && isInSlowMotion){
+				isInSlowMotion = false;
+				*globalTimescale = (1.0 / multiplier) * (*globalTimescale);
+
+				//Safety check
+				if (*globalTimescale > 1.0)
+				{
+					*globalTimescale = 1.0;
+				}
 			}
 		}
 

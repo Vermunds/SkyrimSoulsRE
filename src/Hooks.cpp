@@ -37,6 +37,13 @@ namespace Hooks
 	class BookMenuEx
 	{
 	public:
+
+		static RE::TESObjectREFR* GetBookReference()
+		{
+			RE::TESObjectREFRPtr* refptr = reinterpret_cast<RE::TESObjectREFRPtr*>(Offsets::BookMenu_Target.GetUIntPtr());
+			return refptr->get();
+		}
+
 		static void InstallHook()
 		{
 			//Fix for book menu not appearing
@@ -127,7 +134,7 @@ namespace Hooks
 			return nullptr;
 		}
 
-		static void UpdateEquipment_Hook(uintptr_t a_unk, RE::PlayerCharacter* a_player)
+		static void UpdateEquipment_Hook(RE::ItemList* a_this, RE::PlayerCharacter* a_player)
 		{
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
@@ -141,15 +148,13 @@ namespace Hooks
 					if (target->Is(RE::FormType::ActorCharacter) && mode == kMode_FollowerTrade)
 					{
 						RE::Actor* containerOwner = reinterpret_cast<RE::Actor*>(target);
-						Tasks::UpdateInventoryDelegate::RegisterTask(a_unk, containerOwner);
+						Tasks::UpdateInventoryDelegate::RegisterTask(a_this, containerOwner);
 						return;
 					}
 				}
 			}
 
-			void(*UpdateInventory_Original)(uintptr_t, RE::Actor*);
-			UpdateInventory_Original = reinterpret_cast<void(*)(uintptr_t, RE::Actor*)>(Offsets::UpdateInventory_Original.GetUIntPtr());
-			return UpdateInventory_Original(a_unk, a_player);
+			return a_this->Update(a_player);
 		}
 
 		static void InstallHook()
@@ -188,13 +193,25 @@ namespace Hooks
 			mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
 			mm->numPauseGame++;
 
-			if (settings->GetSetting("bEnableSlowMotion"))
+			static bool enableSlowMotion = settings->GetSetting("bEnableSlowMotion");
+			if (SkyrimSoulsRE::isInSlowMotion)
 			{
+				static UInt32 multiplierPercent = settings->GetSetting("uSlowMotionPercent");
 				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
 				float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
 
-				*globalTimescale = 1.0;
-				*globalTimescaleHavok = 1.0;
+				float multiplier;
+				if (multiplierPercent >= 10 && 100 >= multiplierPercent)
+				{
+					multiplier = (float)multiplierPercent / 100.0;
+				}
+				else {
+					multiplier = 1.0;
+				}
+
+				SkyrimSoulsRE::isInSlowMotion = false;
+				*globalTimescale = (1.0 / multiplier) * (*globalTimescale);
+				*globalTimescaleHavok = (1.0 / multiplier) * (*globalTimescaleHavok);
 			}
 
 			Tasks::SleepWaitDelegate::RegisterTask(a_args);
@@ -211,14 +228,19 @@ namespace Hooks
 	class MessageBoxMenuEx
 	{
 	public:
-		static void RegisterForServeTime()
+		static void ServeTime_Hook()
 		{
-			Tasks::ServeTimeDelegate::RegisterTask();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+			mm->numPauseGame++;
+			mm->GetMenu(strHolder->messageBoxMenu)->flags |= RE::IMenu::Flag::kPauseGame;
+			player->ServeJailTime();
 		}
 
 		static void InstallHook() {
 			//Fix for serving time in jail
-			g_branchTrampoline.Write5Branch(Offsets::MessageBoxMenu_ServeTime_Hook.GetUIntPtr(), (uintptr_t)RegisterForServeTime);
+			g_branchTrampoline.Write5Branch(Offsets::MessageBoxMenu_ServeTime_Hook.GetUIntPtr(), (uintptr_t)ServeTime_Hook);
 		}
 	};
 
@@ -324,28 +346,20 @@ namespace Hooks
 			}
 			else if (data->command == "servetime" && data->numArgs == 0)
 			{
-				Tasks::ServeTimeDelegate::RegisterTask();
+				RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+				RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+
+				mm->numPauseGame++;
+				mm->GetMenu(strHolder->console)->flags |= RE::IMenu::Flag::kPauseGame;
+				
+				player->ServeJailTime();
 				return;
 			}
 
 			void(*ExecuteCommand_Original)(const RE::FxDelegateArgs&);
 			ExecuteCommand_Original = reinterpret_cast<void(*)(const RE::FxDelegateArgs&)>(Offsets::Console_ExecuteCommand_Original.GetUIntPtr());
 			return ExecuteCommand_Original(a_args);
-		}
-	};
-
-	class SlowTimeHook
-	{
-	public:
-		static void InstallHook()
-		{
-			//Fix for book menu and sleep wait menu slowing down
-			//This will also make all havok physics normal speed, but I can't do anyting about it
-			UInt8 codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr(), codes, sizeof(codes));
-			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0xA, codes, sizeof(codes));
-			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0x2C, codes, sizeof(codes));
-			SafeWriteBuf(Offsets::GlobalTimescale_Hook.GetUIntPtr() + 0x36, codes, sizeof(codes));
 		}
 	};
 
@@ -405,8 +419,19 @@ namespace Hooks
 					a_data->movementX = 1.0;
 				}
 
-				if (SkyrimSoulsRE::unpausedMenuCount && !(mm->IsMenuOpen(strHolder->dialogueMenu)))
+				if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()) &&!(mm->IsMenuOpen(strHolder->dialogueMenu)))
 				{
+					//Fix for bookMenu
+					if (a_event->GetControlID() == inStr->prevPage)
+					{
+						a_data->movementX = -1.0;
+					}
+					if (a_event->GetControlID() == inStr->nextPage)
+					{
+						a_data->movementX = 1.0;
+					}
+
+					//Fix for menus
 					if (a_event->GetControlID() == inStr->up)
 					{
 						a_data->autoRun = 0;
@@ -439,7 +464,6 @@ namespace Hooks
 	{
 	public:
 
-		//Fix for SkyUI favorites menu
 		static RE::EventResult ReceiveEvent_Hook(RE::MenuControls* a_this, RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_source)
 		{
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
@@ -449,7 +473,8 @@ namespace Hooks
 			RE::InputEvent* nullEvent = nullptr;
 			RE::InputEvent** events = &nullEvent;
 
-			if (SkyrimSoulsRE::unpausedMenuCount && mm->IsMenuOpen(strHolder->favoritesMenu))
+			//Fix for SkyUI favorites menu
+			if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()) && mm->IsMenuOpen(strHolder->favoritesMenu))
 			{
 				if (a_event && *a_event)
 				{
@@ -459,6 +484,29 @@ namespace Hooks
 						if (evn && evn->deviceType == RE::DeviceType::kKeyboard)
 						{
 							if (evn->GetControlID() == inStr->strafeLeft || evn->GetControlID() == inStr->strafeRight)
+							{
+								continue;
+							}
+						}
+						events[index] = evn;
+						if (index != 0)
+						{
+							events[index - 1]->next = evn;
+						}
+						index++;
+					}
+				}
+			}
+			if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()) && mm->IsMenuOpen(strHolder->bookMenu))
+			{
+				if (a_event && *a_event)
+				{
+					UInt32 index = 0;
+					for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
+					{
+						if (evn && evn->deviceType == RE::DeviceType::kKeyboard)
+						{
+							if (evn->GetControlID() == inStr->prevPage || evn->GetControlID() == inStr->nextPage)
 							{
 								continue;
 							}
@@ -531,14 +579,17 @@ namespace Hooks
 		}
 	};
 
-	class AutoCloseHandler
+	class DrawNextFrameEx
 	{
 	public:
 		//Initial position of player and the container
 		static bool containerTooFarWhenOpened;
 		static bool lockpickingTooFarWhenOpened;
+		static bool bookTooFarWhenOpened;
+
 		static float containerInitialDistance;
 		static float lockpickingInitialDistance;
+		static float bookInitialDistance;
 
 		inline static float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
 		{
@@ -559,7 +610,40 @@ namespace Hooks
 			RE::UIManager * uiManager = RE::UIManager::GetSingleton();
 			SkyrimSoulsRE::SettingStore * settings = SkyrimSoulsRE::SettingStore::GetSingleton();
 
-			if (mm->IsMenuOpen(strHolder->containerMenu) && settings->GetSetting("containerMenu"))
+			static bool autoClose = settings->GetSetting("bAutoClose");
+			static float maxDistance = static_cast<float>(settings->GetSetting("uAutoCloseDistance"));
+			static bool containerMenuUnpaused = settings->GetSetting("containerMenu");
+			static bool lockpickingMenuUnpaused = settings->GetSetting("lockpickingMenu");
+			static bool bookMenuUnpaused = settings->GetSetting("bookMenu");
+
+			static bool slowMotionEnabled = settings->GetSetting("bEnableSlowMotion");
+
+			if (slowMotionEnabled && SkyrimSoulsRE::isInSlowMotion)
+			{
+				static UInt32 slowMotionPercent = settings->GetSetting("uSlowMotionPercent");
+
+				float multiplier;
+				if (slowMotionPercent >= 10 && 100 >= slowMotionPercent)
+				{
+					multiplier = (float)slowMotionPercent / 100.0;
+				}
+				else {
+					multiplier = 1.0;
+				}
+
+				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+
+				if (multiplier < *globalTimescale)
+				{
+					//fix for slow motion setting back the value to 1.0 after it ends
+					*globalTimescale = multiplier;
+				}
+
+			}
+
+
+			//Auto-close Container menu
+			if (mm->IsMenuOpen(strHolder->containerMenu) && containerMenuUnpaused)
 			{
 				RE::TESObjectREFR * ref = ContainerMenuEx::GetContainerRef();
 
@@ -576,8 +660,9 @@ namespace Hooks
 							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
 						}
 					}
-					if (settings->GetSetting("autoClose")) {
-						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
+					
+					if (autoClose) {
+						
 						float currentDistance = GetDistance(player->pos, ref->pos);
 
 						if (SkyrimSoulsRE::justOpenedContainer)
@@ -614,7 +699,8 @@ namespace Hooks
 				}
 			}
 
-			if (mm->IsMenuOpen(strHolder->lockpickingMenu) && settings->GetSetting("lockpickingMenu"))
+			//Auto-close Lockpicking menu
+			if (mm->IsMenuOpen(strHolder->lockpickingMenu) && lockpickingMenuUnpaused)
 			{
 				RE::TESObjectREFR * ref = LockpickingMenuEx::GetLockpickingTarget();
 				if (ref)
@@ -624,8 +710,7 @@ namespace Hooks
 						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 					}
 
-					if (settings->GetSetting("autoClose")) {
-						float maxDistance = static_cast<float>(settings->GetSetting("autoCloseDistance"));
+					if (autoClose) {
 						float currentDistance = GetDistance(player->pos, ref->pos);
 
 						if (SkyrimSoulsRE::justOpenedLockpicking)
@@ -661,6 +746,54 @@ namespace Hooks
 					}
 				}
 			}
+
+			//Auto-close Book menu
+			if (mm->IsMenuOpen(strHolder->bookMenu) && bookMenuUnpaused)
+			{
+				RE::TESObjectREFR* ref = BookMenuEx::GetBookReference();
+				if (ref)
+				{
+					if (ref->IsDisabled() || ref->IsMarkedForDeletion())
+					{
+						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+					}
+
+					if (autoClose) {
+						float currentDistance = GetDistance(player->pos, ref->pos);
+
+						if (SkyrimSoulsRE::justOpenedBook)
+						{
+							bookInitialDistance = currentDistance;
+							SkyrimSoulsRE::justOpenedBook = false;
+
+							bookTooFarWhenOpened = (bookInitialDistance > maxDistance) ? true : false;
+						}
+
+						if (bookTooFarWhenOpened)
+						{
+							//Check if the distance is increasing
+							if (currentDistance > (bookInitialDistance + 50))
+							{
+								uiManager->AddMessage(strHolder->bookMenu, RE::UIMessage::Message::kClose, 0);
+							}
+							else if ((bookInitialDistance - 50) > currentDistance) {
+								//Check if it's already in range
+								if (currentDistance < maxDistance)
+								{
+									bookTooFarWhenOpened = false;
+								}
+							}
+						}
+						else
+						{
+							if (currentDistance > maxDistance)
+							{
+								uiManager->AddMessage(strHolder->bookMenu, RE::UIMessage::Message::kClose, 0);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		static void InstallHook()
@@ -688,10 +821,13 @@ namespace Hooks
 			g_branchTrampoline.Write5Branch(Offsets::DrawNextFrame_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
 		}
 	};
-	bool AutoCloseHandler::containerTooFarWhenOpened = false;
-	bool AutoCloseHandler::lockpickingTooFarWhenOpened = false;
-	float AutoCloseHandler::containerInitialDistance = 0.0;
-	float AutoCloseHandler::lockpickingInitialDistance = 0.0;
+	bool DrawNextFrameEx::containerTooFarWhenOpened = false;
+	bool DrawNextFrameEx::lockpickingTooFarWhenOpened = false;
+	bool DrawNextFrameEx::bookTooFarWhenOpened = false;
+
+	float DrawNextFrameEx::containerInitialDistance = 0.0;
+	float DrawNextFrameEx::lockpickingInitialDistance = 0.0;
+	float DrawNextFrameEx::bookInitialDistance = 0.0;
 
 	void Register_Func(RE::FxDelegate* a_delegate, HookType a_type)
 	{
@@ -751,6 +887,9 @@ namespace Hooks
 		if (settings->GetSetting("bEnableMovementInMenus"))
 		{
 			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess_Movement);
+			MovementHandlerEx::InstallHook();
+			MenuControlsEx::InstallHook();
+			DirectionHandlerEx::InstallHook();
 		}
 		else {
 			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
@@ -784,20 +923,8 @@ namespace Hooks
 			JournalMenuEx::InstallHook();
 		}
 
-		AutoCloseHandler::InstallHook();
+		DrawNextFrameEx::InstallHook();
 		PapyrusEx::InstallHook();
 		MenuOpenHandlerEx::InstallHook();
-
-		if (settings->GetSetting("bEnableMovementInMenus"))
-		{
-			MovementHandlerEx::InstallHook();
-			MenuControlsEx::InstallHook();
-			DirectionHandlerEx::InstallHook();
-		}
-
-		if (settings->GetSetting("bEnableSlowMotion"))
-		{
-			SlowTimeHook::InstallHook();
-		}
 	}
 }

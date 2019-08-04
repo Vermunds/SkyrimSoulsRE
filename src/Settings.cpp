@@ -99,14 +99,14 @@ namespace SkyrimSoulsRE
 		settingStore->AddSetting(new Setting("customMenu", GetIniValue("UNPAUSED_MENUS", "bCustomMenu", 1, iniFile)));
 
 		//Auto-close
-		settingStore->AddSetting(new Setting("autoClose", GetIniValue("AUTOCLOSE", "bAutoCloseMenus", 1, iniFile)));
-		settingStore->AddSetting(new Setting("autoCloseDistance", GetIniValue("AUTOCLOSE", "iAutoCloseDistance", 250, iniFile)));
+		settingStore->AddSetting(new Setting("bAutoClose", GetIniValue("AUTOCLOSE", "bAutoCloseMenus", 1, iniFile)));
+		settingStore->AddSetting(new Setting("uAutoCloseDistance", GetIniValue("AUTOCLOSE", "uAutoCloseDistance", 250, iniFile)));
 
 		//Controls
 		settingStore->AddSetting(new Setting("bEnableMovementInMenus", GetIniValue("CONTROLS", "bEnableMovementInMenus", 0, iniFile)));
 
 		//Slowmotion
-		settingStore->AddSetting(new Setting("bEnableSlowMotion", GetIniValue("SLOWDOWN", "bEnableSlowMotion", 0, iniFile)));
-		settingStore->AddSetting(new Setting("iSlowdownPercent", GetIniValue("SLOWDOWN", "iSlowdownPercent", 100, iniFile)));
+		settingStore->AddSetting(new Setting("bEnableSlowMotion", GetIniValue("SLOWMOTION", "bEnableSlowMotion", 0, iniFile)));
+		settingStore->AddSetting(new Setting("uSlowMotionPercent", GetIniValue("SLOWMOTION", "uSlowMotionPercent", 100, iniFile)));
 	}
 }
