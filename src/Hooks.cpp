@@ -228,19 +228,10 @@ namespace Hooks
 	class MessageBoxMenuEx
 	{
 	public:
-		static void ServeTime_Hook()
-		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-			mm->numPauseGame++;
-			mm->GetMenu(strHolder->messageBoxMenu)->flags |= RE::IMenu::Flag::kPauseGame;
-			player->ServeJailTime();
-		}
 
-		static void InstallHook() {
-			//Fix for serving time in jail
-			g_branchTrampoline.Write5Branch(Offsets::MessageBoxMenu_ServeTime_Hook.GetUIntPtr(), (uintptr_t)ServeTime_Hook);
+		static void ButtonPress_Hook(const RE::FxDelegateArgs& a_args)
+		{
+			Tasks::MessageBoxButtonPressDelegate::RegisterTask(a_args);
 		}
 	};
 
@@ -839,6 +830,8 @@ namespace Hooks
 		case kConsole:
 			a_delegate->callbacks.GetAlt("ExecuteCommand")->callback = ConsoleEx::ExecuteCommand_Hook;
 			break;
+		case kMessageBoxMenu:
+			a_delegate->callbacks.GetAlt("buttonPress")->callback = MessageBoxMenuEx::ButtonPress_Hook; //method name lowercase
 		}
 	}
 
@@ -909,9 +902,6 @@ namespace Hooks
 		}
 		if (settings->GetSetting("sleepWaitMenu")) {
 			SleepWaitMenuEx::InstallHook();
-		}
-		if (settings->GetSetting("messageBoxMenu")) {
-			MessageBoxMenuEx::InstallHook();
 		}
 		if (settings->GetSetting("containerMenu")) {
 			ContainerMenuEx::InstallHook();

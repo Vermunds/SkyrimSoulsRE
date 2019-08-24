@@ -52,4 +52,11 @@ namespace Offsets {
 
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler = 0x1E05B2C; //1.5.80
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler_Havok = 0x1E05B28; //1.5.80
+
+	const RelocAddr<uintptr_t*> RequestScreenshot_Original = 0x5C0960; //1.5.80
+
+	const RelocAddr<uintptr_t*> CreateScreenshot_Original = 0x5C09F0; //1.5.80
+
+	const RelocAddr<uintptr_t*> MessageBoxButtonPress_Original = 0x8AB9E0; //1.5.80
+
 }

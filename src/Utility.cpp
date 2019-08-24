@@ -11,7 +11,7 @@ namespace SkyrimSoulsRE
 
 	bool StrToInt(SInt32& i, char const* s)
 	{
-		char              c;
+		char c;
 		std::stringstream ss(s);
 		ss >> i;
 		if (ss.fail() || ss.get(c)) {

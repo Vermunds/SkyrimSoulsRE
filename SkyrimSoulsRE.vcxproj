@@ -134,8 +134,7 @@
       </Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Message>
-      </Message>
+      <Message>Installing SkyrimSoulsRE...</Message>
       <Command>copy "$(TargetPath)" "C:\Mod Organizer\mods\SkyrimSoulsRE\SKSE\Plugins\$(TargetFileName)" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

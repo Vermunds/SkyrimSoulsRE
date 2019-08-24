@@ -136,7 +136,11 @@ namespace SkyrimSoulsRE
 			{
 				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kConsole);
 			}
-
+			else if (a_event->menuName == strHolder->messageBoxMenu)
+			{
+				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kMessageBoxMenu);
+			} 
+			
 			if (menu->PausesGame()) {
 				menu->flags &= ~Flag::kPauseGame;
 				if (mm->GameIsPaused()) {

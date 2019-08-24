@@ -30,7 +30,8 @@ namespace Hooks
 	enum HookType
 	{
 		kSleepWaitMenu,
-		kConsole
+		kConsole,
+		kMessageBoxMenu
 	};
 
 	void Register_Func(RE::FxDelegate* a_delegate, HookType a_menu);

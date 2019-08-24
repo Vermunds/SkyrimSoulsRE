@@ -12,7 +12,7 @@
 
 namespace Tasks
 {
-	extern SKSETaskInterface * g_task;
+	extern SKSETaskInterface* g_task;
 
 	class SleepWaitDelegate : TaskDelegate
 	{
@@ -38,6 +38,17 @@ namespace Tasks
 		static void RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name);
 	};
 
+	//Used by console command 'ServeTime'
+	class ServeTimeDelegate : TaskDelegate
+	{
+	private:
+		ServeTimeDelegate();
+	public:
+		void Run() override;
+		void Dispose() override;
+		static void RegisterTask();
+	};
+
 	class UpdateInventoryDelegate : TaskDelegate
 	{
 	private:
@@ -48,5 +59,16 @@ namespace Tasks
 		void Run() override;
 		void Dispose() override;
 		static void RegisterTask(RE::ItemList* a_list, RE::Actor* a_containerOwner);
+	};
+
+	class MessageBoxButtonPressDelegate : TaskDelegate
+	{
+	private:
+		double selectedIndex;
+		MessageBoxButtonPressDelegate();
+	public:
+		void Run() override;
+		void Dispose() override;
+		static void RegisterTask(const RE::FxDelegateArgs&);
 	};
 }
