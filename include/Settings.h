@@ -30,6 +30,7 @@ namespace SkyrimSoulsRE
 		void AddSetting(Setting* a_setting);
 
 		static SettingStore* GetSingleton();
+
 	};
 
 	extern void LoadSettings();

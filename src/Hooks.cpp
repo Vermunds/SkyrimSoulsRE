@@ -24,6 +24,32 @@
 namespace Hooks
 {
 
+	class DialogueMenuEx
+	{
+	public:
+		static void UpdateAutoCloseTimer(uintptr_t a_unk, float a_delta)
+		{
+			uintptr_t unk = *(reinterpret_cast<uintptr_t*>(a_unk + 0x10));
+			if (unk)
+			{
+				float* timer = reinterpret_cast<float*>(unk + 0x340);
+				if (SkyrimSoulsRE::unpausedMenuCount)
+				{
+					*timer = 120.0;
+				}
+				else
+				{
+					*timer += a_delta; //a_delta is negative
+				}
+			}
+		}
+
+		static void InstallHook()
+		{
+			g_branchTrampoline.Write5Call(Offsets::DialogueMenu_UpdateAutoCloseTimer_Hook.GetUIntPtr(), (uintptr_t)UpdateAutoCloseTimer);
+		}
+	};
+
 	class FavoritesMenuEx
 	{
 	public:
@@ -375,6 +401,7 @@ namespace Hooks
 			g_branchTrampoline.Write5Branch(Offsets::IsInMenuMode_Hook.GetUIntPtr(), (uintptr_t)IsInMenuMode);
 			SafeWrite16(Offsets::IsInMenuMode_Hook.GetUIntPtr() + 0x5, 0x9090);
 		}
+
 	};
 	bool* PapyrusEx::isInMenuMode_1 = nullptr;
 	bool* PapyrusEx::isInMenuMode_2 = nullptr;
@@ -389,25 +416,30 @@ namespace Hooks
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
+			if (mm->IsMenuOpen(strHolder->console))
+			{
+				return;
+			}
+
 			if (a_event && a_event->deviceType == RE::DeviceType::kKeyboard)
 			{
 				if (a_event->GetControlID() == inStr->forward)
 				{
 					a_data->autoRun = 0;
-					a_data->movementY = 1.0;
+					a_data->movement.y = 1.0;
 				}
 				else if (a_event->GetControlID() == inStr->back)
 				{
 					a_data->autoRun = 0;
-					a_data->movementY = -1.0;
+					a_data->movement.y = -1.0;
 				}
 				else if (a_event->GetControlID() == inStr->strafeLeft)
 				{
-					a_data->movementX = -1.0;
+					a_data->movement.x = -1.0;
 				}
 				else if (a_event->GetControlID() == inStr->strafeRight)
 				{
-					a_data->movementX = 1.0;
+					a_data->movement.x = 1.0;
 				}
 
 				if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()) &&!(mm->IsMenuOpen(strHolder->dialogueMenu)))
@@ -415,31 +447,31 @@ namespace Hooks
 					//Fix for bookMenu
 					if (a_event->GetControlID() == inStr->prevPage)
 					{
-						a_data->movementX = -1.0;
+						a_data->movement.x = -1.0;
 					}
 					if (a_event->GetControlID() == inStr->nextPage)
 					{
-						a_data->movementX = 1.0;
+						a_data->movement.x = 1.0;
 					}
 
 					//Fix for menus
 					if (a_event->GetControlID() == inStr->up)
 					{
 						a_data->autoRun = 0;
-						a_data->movementY = 1.0;
+						a_data->movement.y = 1.0;
 					}
 					else if (a_event->GetControlID() == inStr->down)
 					{
 						a_data->autoRun = 0;
-						a_data->movementY = -1.0;
+						a_data->movement.y = -1.0;
 					}
 					else if (a_event->GetControlID() == inStr->left)
 					{
-						a_data->movementX = -1.0;
+						a_data->movement.x = -1.0;
 					}
 					else if (a_event->GetControlID() == inStr->right)
 					{
-						a_data->movementX = 1.0;
+						a_data->movement.x = 1.0;
 					}
 				}
 			}
@@ -469,7 +501,7 @@ namespace Hooks
 			{
 				if (a_event && *a_event)
 				{
-					UInt32 index = 0;
+					UInt32 i = 0;
 					for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
 					{
 						if (evn && evn->deviceType == RE::DeviceType::kKeyboard)
@@ -479,12 +511,12 @@ namespace Hooks
 								continue;
 							}
 						}
-						events[index] = evn;
-						if (index != 0)
+						events[i] = evn;
+						if (i != 0)
 						{
-							events[index - 1]->next = evn;
+							events[i - 1]->next = evn;
 						}
-						index++;
+						i++;
 					}
 				}
 			}
@@ -492,7 +524,7 @@ namespace Hooks
 			{
 				if (a_event && *a_event)
 				{
-					UInt32 index = 0;
+					UInt32 i = 0;
 					for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
 					{
 						if (evn && evn->deviceType == RE::DeviceType::kKeyboard)
@@ -502,12 +534,12 @@ namespace Hooks
 								continue;
 							}
 						}
-						events[index] = evn;
-						if (index != 0)
+						events[i] = evn;
+						if (i != 0)
 						{
-							events[index - 1]->next = evn;
+							events[i - 1]->next = evn;
 						}
-						index++;
+						i++;
 					}
 				}
 			}
@@ -533,8 +565,9 @@ namespace Hooks
 		static bool CanProcess(RE::MenuEventHandler* a_this, RE::InputEvent* a_event)
 		{
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
 
-			if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()))
+			if (SkyrimSoulsRE::unpausedMenuCount && !(mm->GameIsPaused()) && !(mm->IsMenuOpen(strHolder->console)))
 			{
 				return false;
 			}
@@ -582,15 +615,115 @@ namespace Hooks
 		static float lockpickingInitialDistance;
 		static float bookInitialDistance;
 
-		inline static float GetDistance(RE::NiPoint3 a_playerPos, RE::NiPoint3 a_refPos)
+		inline static float GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_refPos)
 		{
 			//Get distance from feet and head, return the smaller
-			float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + 150) - a_refPos.z, 2));
+			float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + a_playerHeight) - a_refPos.z, 2));
 			float distanceFeet = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow(a_playerPos.z - a_refPos.z, 2));
 			if (distanceHead < distanceFeet) {
 				return distanceHead;
 			}
 			return distanceFeet;
+		}
+
+		static void UpdateClock()
+		{
+			RE::BSTimeManager* tm = RE::BSTimeManager::GetSingleton();
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+
+			void(*GetTimeString)(RE::BSTimeManager * a_timeManager, char* a_str, UInt64 a_bufferSize, bool a_showYear);
+			GetTimeString = reinterpret_cast<void(*)(RE::BSTimeManager*, char*, UInt64, bool)>(Offsets::GetFormattedTime_Original.GetUIntPtr());;
+
+			//Tween menu clock
+			if (mm->IsMenuOpen(strHolder->tweenMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* tweenMenu = mm->GetMenu(strHolder->tweenMenu).get();
+				if (tweenMenu)
+				{
+					char buf[200];
+					GetTimeString(tm, buf, 200, true);
+
+					RE::GFxValue dateText;
+					tweenMenu->view->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
+					RE::GFxValue newDate(buf);
+					dateText.SetMember("htmlText", newDate);
+				}
+			}
+
+			//Journal Menu clock
+			if (mm->IsMenuOpen(strHolder->journalMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* journalMenu = mm->GetMenu(strHolder->journalMenu).get();
+				if (journalMenu)
+				{
+					char buf[200];
+					GetTimeString(tm, buf, 200, true);
+
+					RE::GFxValue dateText;
+					journalMenu->view->GetVariable(&dateText, "_root.QuestJournalFader.Menu_mc.BottomBar_mc.DateText");
+					RE::GFxValue newDate(buf);
+					dateText.SetMember("htmlText", newDate);
+				}
+			}
+
+			//Sleep/Wait menu clock
+			if (mm->IsMenuOpen(strHolder->sleepWaitMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu).get();
+				if (sleepWaitMenu)
+				{
+					char buf[200];
+					GetTimeString(tm, buf, 200, false);
+
+					RE::GFxValue dateText;
+					sleepWaitMenu->view->GetVariable(&dateText, "_root.SleepWaitMenu_mc.CurrentTime");
+					RE::GFxValue newDate(buf);
+					dateText.SetMember("htmlText", newDate);
+				}
+			}
+		}
+
+		static void UpdateBottomBar()
+		{
+			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
+			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+
+			//Inventory Menu
+			if (mm->IsMenuOpen(strHolder->inventoryMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* inventoryMenu = mm->GetMenu(strHolder->inventoryMenu).get();
+				if (inventoryMenu)
+				{
+					void(*UpdateBottomBar)(RE::IMenu*);
+					UpdateBottomBar = reinterpret_cast<void(*)(RE::IMenu*)>(Offsets::InventoryMenu_UpdateBottomBarInfo.GetUIntPtr());;
+					UpdateBottomBar(inventoryMenu);
+				}
+			}
+
+			//Magic Menu
+			if (mm->IsMenuOpen(strHolder->magicMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* magicMenu = mm->GetMenu(strHolder->magicMenu).get();
+				if (magicMenu)
+				{
+					void(*UpdateBottomBar)(RE::IMenu*);
+					UpdateBottomBar = reinterpret_cast<void(*)(RE::IMenu*)>(Offsets::MagicMenu_UpdateBottomBarInfo.GetUIntPtr());;
+					UpdateBottomBar(magicMenu);
+				}
+			}
+
+			//Container Menu
+			if (mm->IsMenuOpen(strHolder->containerMenu) && !(mm->GameIsPaused()))
+			{
+				RE::IMenu* containerMenu = mm->GetMenu(strHolder->containerMenu).get();
+				if (containerMenu)
+				{
+					void(*UpdateBottomBar)(RE::IMenu*);
+					UpdateBottomBar = reinterpret_cast<void(*)(RE::IMenu*)>(Offsets::ContainerMenu_UpdateBottomBarInfo.GetUIntPtr());;
+					UpdateBottomBar(containerMenu);
+				}
+			}
 		}
 
 		static void CheckShouldClose()
@@ -606,32 +739,6 @@ namespace Hooks
 			static bool containerMenuUnpaused = settings->GetSetting("containerMenu");
 			static bool lockpickingMenuUnpaused = settings->GetSetting("lockpickingMenu");
 			static bool bookMenuUnpaused = settings->GetSetting("bookMenu");
-
-			static bool slowMotionEnabled = settings->GetSetting("bEnableSlowMotion");
-
-			if (slowMotionEnabled && SkyrimSoulsRE::isInSlowMotion)
-			{
-				static UInt32 slowMotionPercent = settings->GetSetting("uSlowMotionPercent");
-
-				float multiplier;
-				if (slowMotionPercent >= 10 && 100 >= slowMotionPercent)
-				{
-					multiplier = (float)slowMotionPercent / 100.0;
-				}
-				else {
-					multiplier = 1.0;
-				}
-
-				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
-
-				if (multiplier < *globalTimescale)
-				{
-					//fix for slow motion setting back the value to 1.0 after it ends
-					*globalTimescale = multiplier;
-				}
-
-			}
-
 
 			//Auto-close Container menu
 			if (mm->IsMenuOpen(strHolder->containerMenu) && containerMenuUnpaused)
@@ -654,7 +761,7 @@ namespace Hooks
 					
 					if (autoClose) {
 						
-						float currentDistance = GetDistance(player->pos, ref->pos);
+						float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
 
 						if (SkyrimSoulsRE::justOpenedContainer)
 						{
@@ -702,7 +809,7 @@ namespace Hooks
 					}
 
 					if (autoClose) {
-						float currentDistance = GetDistance(player->pos, ref->pos);
+						float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
 
 						if (SkyrimSoulsRE::justOpenedLockpicking)
 						{
@@ -750,7 +857,7 @@ namespace Hooks
 					}
 
 					if (autoClose) {
-						float currentDistance = GetDistance(player->pos, ref->pos);
+						float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
 
 						if (SkyrimSoulsRE::justOpenedBook)
 						{
@@ -787,26 +894,60 @@ namespace Hooks
 			}
 		}
 
+		static void DrawNextFrame_Hook()
+		{
+			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			static bool slowMotionEnabled = settings->GetSetting("bEnableSlowMotion");
+
+			if (slowMotionEnabled && SkyrimSoulsRE::isInSlowMotion)
+			{
+				static UInt32 slowMotionPercent = settings->GetSetting("uSlowMotionPercent");
+
+				float multiplier;
+				if (slowMotionPercent >= 10 && 100 >= slowMotionPercent)
+				{
+					multiplier = (float)slowMotionPercent / 100.0;
+				}
+				else {
+					multiplier = 1.0;
+				}
+
+				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
+
+				if (multiplier < *globalTimescale)
+				{
+					//fix for slow motion setting back the value to 1.0 after it ends
+					*globalTimescale = multiplier;
+				}
+
+			}
+
+			UpdateClock();
+			UpdateBottomBar();
+			CheckShouldClose();
+		}
+
 		static void InstallHook()
 		{
+
 			struct DrawNextFrame_Code : Xbyak::CodeGenerator
 			{
-				DrawNextFrame_Code(void * buf, UInt64 a_checkShouldClose) : Xbyak::CodeGenerator(4096, buf)
+				DrawNextFrame_Code(void * buf, UInt64 a_hookAddr) : Xbyak::CodeGenerator(4096, buf)
 				{
-					Xbyak::Label checkShouldCloseAddress;
+					Xbyak::Label hookAddress;
 
-					call(ptr[rip + checkShouldCloseAddress]);
+					call(ptr[rip + hookAddress]);
 					add(rsp, 0x50);
 					pop(rbx);
 					ret();
 
-					L(checkShouldCloseAddress);
-					dq(a_checkShouldClose);
+					L(hookAddress);
+					dq(a_hookAddr);
 				}
 			};
 
 			void * codeBuf = g_localTrampoline.StartAlloc();
-			DrawNextFrame_Code code(codeBuf, uintptr_t(CheckShouldClose));
+			DrawNextFrame_Code code(codeBuf, uintptr_t(DrawNextFrame_Hook));
 			g_localTrampoline.EndAlloc(code.getCurr());
 
 			g_branchTrampoline.Write5Branch(Offsets::DrawNextFrame_Hook.GetUIntPtr(), uintptr_t(code.getCode()));
@@ -887,6 +1028,8 @@ namespace Hooks
 		else {
 			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
 		}
+
+		DialogueMenuEx::InstallHook();
 
 		if (settings->GetSetting("tweenMenu")) {
 			TweenMenuEx::InstallHook();

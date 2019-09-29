@@ -210,6 +210,7 @@ namespace SkyrimSoulsRE
 		}
 		if (settingStore->GetSetting("statsMenu")) {
 			_whiteList.emplace_back(strHolder->statsMenu);
+			_whiteList.emplace_back(strHolder->levelUpMenu);
 		}
 		*/
 		if (settingStore->GetSetting("console")) {

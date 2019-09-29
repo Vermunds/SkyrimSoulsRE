@@ -1,15 +1,12 @@
 #include "Utility.h"
 
-#include <cctype>  // toupper
-#include <ios>  // hex
 #include <sstream>  // stringstream
-#include <string>  // string, strlen
-
+#include <string>  // string
 
 namespace SkyrimSoulsRE
 {
 
-	bool StrToInt(SInt32& i, char const* s)
+	bool StrToInt(SInt32& i, const char* s)
 	{
 		char c;
 		std::stringstream ss(s);

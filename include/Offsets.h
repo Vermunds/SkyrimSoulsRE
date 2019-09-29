@@ -59,4 +59,12 @@ namespace Offsets {
 
 	const RelocAddr<uintptr_t*> MessageBoxButtonPress_Original = 0x8AB9E0; //1.5.80
 
+	const RelocAddr<uintptr_t*> DialogueMenu_UpdateAutoCloseTimer_Hook = 0x5E8569; //1.5.80
+
+	const RelocAddr<uintptr_t*> GetFormattedTime_Original = 0x5A6640; //1.5.80
+
+	const RelocAddr<uintptr_t*> InventoryMenu_UpdateBottomBarInfo = 0x88F560; //1.5.80
+	const RelocAddr<uintptr_t*> MagicMenu_UpdateBottomBarInfo = 0x89D4D0; //1.5.80
+	const RelocAddr<uintptr_t*> ContainerMenu_UpdateBottomBarInfo = 0x85F530; //1.5.80
+
 }
