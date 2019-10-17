@@ -44,11 +44,12 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> SaveGame_Original = 0x586DE0; //1.5.80
 
 	//PlayerControls
-	const RelocAddr<uintptr_t*> MovementHandler_ProcessButton_Hook = 0x166F1D8; //1.5.80
+	//const RelocAddr<uintptr_t*> MovementHandler_ProcessButton_Hook = 0x166F1D8; //1.5.80
+	//const RelocAddr<uintptr_t*> MovementHandler_ProcessThumbstick_Hook = 0x166F1C8; //1.5.80
 
 	//MenuControls
-	const RelocAddr<uintptr_t*> DirectionHandler_CanProcess_Hook = 0x16B8428; //1.5.80
-	const RelocAddr<uintptr_t*> DirectionHandler_CanProcess_Original = 0x8AABD0; //1.5.80
+	//const RelocAddr<uintptr_t*> DirectionHandler_CanProcess_Hook = 0x16B8428; //1.5.80
+	//const RelocAddr<uintptr_t*> DirectionHandler_CanProcess_Original = 0x8AABD0; //1.5.80
 
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler = 0x1E05B2C; //1.5.80
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler_Havok = 0x1E05B28; //1.5.80
@@ -66,5 +67,14 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> InventoryMenu_UpdateBottomBarInfo = 0x88F560; //1.5.80
 	const RelocAddr<uintptr_t*> MagicMenu_UpdateBottomBarInfo = 0x89D4D0; //1.5.80
 	const RelocAddr<uintptr_t*> ContainerMenu_UpdateBottomBarInfo = 0x85F530; //1.5.80
+
+	const RelocAddr<uintptr_t*> ItemMenu_MaximizeStatus = 0x2F3094C; //1.5.80
+
+	const RelocAddr<uintptr_t*> CursorPosition = 0x30317E4; //1.5.80
+
+	const RelocAddr<uintptr_t*> ScreenEdgeCameraMove_Hook = 0x705021; //1.5.80
+
+	const RelocAddr<uintptr_t*> JournalMenu_StartRemapMode_Original = 0x8F02B0; //1.5.80
+	const RelocAddr<uintptr_t*> JournalMenu_FinishRemapMode_Hook = 0x8F0966; //1.5.80
 
 }

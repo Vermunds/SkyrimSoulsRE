@@ -108,7 +108,7 @@ namespace Tasks
 	void ServeTimeDelegate::Run()
 	{
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		player->ServeJailTime();
+		player->Unk_BA();
 	}
 
 	void ServeTimeDelegate::Dispose()

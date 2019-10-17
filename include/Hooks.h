@@ -31,7 +31,8 @@ namespace Hooks
 	{
 		kSleepWaitMenu,
 		kConsole,
-		kMessageBoxMenu
+		kMessageBoxMenu,
+		kJournalMenu
 	};
 
 	void Register_Func(RE::FxDelegate* a_delegate, HookType a_menu);

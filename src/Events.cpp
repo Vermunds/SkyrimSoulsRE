@@ -78,13 +78,21 @@ namespace SkyrimSoulsRE
 				view->SetVisible(true);
 				mm->GetMenu(strHolder->dialogueMenu)->menuDepth = 3;
 			}
+			if (a_event->menuName == strHolder->cursorMenu && settings->GetSetting(settings->controls, "bAutoCenterCursor")->GetBool())
+			{
+				RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::CursorPosition.GetUIntPtr());
+				RE::INIPrefSettingCollection* pref = RE::INIPrefSettingCollection::GetSingleton();
+
+				cursorPosition->x = pref->GetSetting("iSize W:DISPLAY")->GetUInt() / 2.0;
+				cursorPosition->y = pref->GetSetting("iSize H:DISPLAY")->GetUInt() / 2.0;
+			}
 		}
 
-		static bool enableSlowMotion = settings->GetSetting("bEnableSlowMotion");
+		static bool enableSlowMotion = settings->GetSetting(settings->slowMotion, "bEnableSlowMotion")->GetBool();
 
 		if (enableSlowMotion)
 		{
- 			static UInt32 multiplierPercent = settings->GetSetting("uSlowMotionPercent");
+ 			static UInt32 multiplierPercent = settings->GetSetting(settings->slowMotion, "uSlowMotionPercent")->GetInt();
 			float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
 
 			float multiplier;
@@ -140,6 +148,10 @@ namespace SkyrimSoulsRE
 			{
 				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kMessageBoxMenu);
 			} 
+			else if (a_event->menuName == strHolder->journalMenu)
+			{
+				Hooks::Register_Func(menu->fxDelegate.get(), Hooks::HookType::kJournalMenu);
+			}
 			
 			if (menu->PausesGame()) {
 				menu->flags &= ~Flag::kPauseGame;
@@ -158,50 +170,50 @@ namespace SkyrimSoulsRE
 	void MenuOpenCloseEventHandler::Init()
 	{
 		RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-		SettingStore* settingStore = SettingStore::GetSingleton();
+		SettingStore* settings = SettingStore::GetSingleton();
 
 		RE::BSFixedString customMenu = "CustomMenu";
 
-		if (settingStore->GetSetting("tweenMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "tweenMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->tweenMenu);
 		}
-		if (settingStore->GetSetting("inventoryMenu")){
+		if (settings->GetSetting(settings->unpausedMenus, "inventoryMenu")->GetBool()){
 			_whiteList.emplace_back(strHolder->inventoryMenu);
 		}
-		if (settingStore->GetSetting("magicMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "magicMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->magicMenu);
 		}
-		if (settingStore->GetSetting("barterMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "barterMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->barterMenu);
 		}
-		if (settingStore->GetSetting("containerMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "containerMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->containerMenu);
 		}
-		if (settingStore->GetSetting("giftMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "giftMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->giftMenu);
 		}
-		if (settingStore->GetSetting("favoritesMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "favoritesMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->favoritesMenu);
 		}
-		if (settingStore->GetSetting("tutorialMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "tutorialMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->tutorialMenu);
 		}
-		if (settingStore->GetSetting("bookMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "bookMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->bookMenu);
 		}
-		if (settingStore->GetSetting("lockpickingMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "lockpickingMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->lockpickingMenu);
 		}
-		if (settingStore->GetSetting("messageBoxMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "messageBoxMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->messageBoxMenu);
 		}
-		if (settingStore->GetSetting("trainingMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "trainingMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->trainingMenu);
 		}
-		if (settingStore->GetSetting("journalMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "journalMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->journalMenu);
 		}
-		if (settingStore->GetSetting("sleepWaitMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "sleepWaitMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->sleepWaitMenu);
 		}
 		/*
@@ -213,13 +225,13 @@ namespace SkyrimSoulsRE
 			_whiteList.emplace_back(strHolder->levelUpMenu);
 		}
 		*/
-		if (settingStore->GetSetting("console")) {
+		if (settings->GetSetting(settings->unpausedMenus, "console")->GetBool()) {
 			_whiteList.emplace_back(strHolder->console);
 		}
-		if (settingStore->GetSetting("bethesdaModMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "bethesdaModMenu")->GetBool()) {
 			_whiteList.emplace_back(strHolder->modManagerMenu);
 		}
-		if (settingStore->GetSetting("customMenu")) {
+		if (settings->GetSetting(settings->unpausedMenus, "customMenu")->GetBool()) {
 			_whiteList.emplace_back(customMenu);
 		}
 		
