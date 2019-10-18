@@ -587,7 +587,7 @@ namespace Hooks
 	class CameraMoveEx
 	{
 	public:
-		static bool CameraMove_Hook()
+		static bool CameraMove_Hook(bool a_retVal)
 		{
 			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
 			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
@@ -624,7 +624,7 @@ namespace Hooks
 					pc->movementData.unk08.y = -speedY;
 				}
 			}
-			return false;
+			return a_retVal;
 		}
 
 		static void InstallHook()
@@ -637,6 +637,7 @@ namespace Hooks
 
 					add(rsp, 0x30);
 					pop(rdi);
+					mov(rcx, rax);
 					jmp(ptr[rip + hookAddress]);
 
 					L(hookAddress);
