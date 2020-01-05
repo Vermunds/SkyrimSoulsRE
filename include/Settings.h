@@ -2,56 +2,38 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace SkyrimSoulsRE
 {
-	class Setting
-	{
-	protected:
-		union Value
-		{
-			SInt32			INT;
-			float			FLOAT;
-			bool			BOOL;
-		};
-
-		std::string name;
-		Value value;
-
-	public:
-		Setting(std::string a_name, SInt32 a_value);
-		Setting(std::string a_name, float a_value);
-		Setting(std::string a_name, bool a_value);
-
-		std::string GetName();
-
-		SInt32 GetInt();
-		float GetFloat();
-		bool GetBool();
-
-		void SetValue(SInt32 a_value);
-		void SetValue(float a_value);
-		void SetValue(bool a_value);
-	};
-
-	class SettingStore
+	class Settings
 	{
 	private:
-		static SettingStore * singleton;
-		SettingStore();
+		static Settings * singleton;
+		Settings();
 	public:
 
-		std::vector<Setting*> unpausedMenus;
-		std::vector<Setting*> autoClose;
-		std::vector<Setting*> controls;
-		std::vector<Setting*> slowMotion;
+		static Settings* GetSingleton();
 
-		Setting* GetSetting(std::vector<Setting*> &a_category, std::string a_setting);
+		//Unpaused Menus
+		std::map<std::string, bool> unpausedMenus;
 
-		void AddSetting(std::vector<Setting*> &a_category, Setting* a_setting);
+		//AutoClose
+		bool	autoCloseMenus;
+		float	autoCloseDistance;
 
-		static SettingStore* GetSingleton();
+		//Controls
+		bool	autoCenterCursor;
+		bool	enableMovementInMenus;
+		bool	enableMovementDialogueMenu;
+		bool	enableGamepadCameraMove;
+		bool	enableCursorCameraMove;
+		float	cursorCameraVerticalSpeed;
+		float	cursorCameraHorizontalSpeed;
 
+		//slow motion
+		bool	enableSlowMotion;
+		float	slowMotionMultiplier;
 	};
 
 	extern void LoadSettings();

@@ -98,7 +98,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)HookShareSSE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -168,8 +168,8 @@
     <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
       <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\HookShareSSE\HookShareSSE.vcxproj">
-      <Project>{a4613869-e3c4-4282-b2ff-c072603fdd3f}</Project>
+    <ProjectReference Include="..\SimpleIni\SimpleIni.vcxproj">
+      <Project>{c23240a6-aa9d-4827-af06-c98e97ca6dfb}</Project>
     </ProjectReference>
     <ProjectReference Include="..\skse64\skse64.vcxproj">
       <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>

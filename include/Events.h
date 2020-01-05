@@ -1,14 +1,12 @@
 #pragma once
 
-#include <vector>  // vector
-
 #include "RE/BSFixedString.h"  // BSFixedString
-#include "RE/BSTEvent.h"  // BSTEventSink, EventResult, BSTEventSource
+#include "RE/BSTEvent.h"  // BSTEventSink, BSEventNotifyControl, BSTEventSource
 #include "RE/MenuOpenCloseEvent.h"  // MenuOpenCloseEvent
 
 namespace SkyrimSoulsRE
 {
-	extern UInt8 unpausedMenuCount;
+	extern UInt32 unpausedMenuCount;
 
 	extern bool justOpenedContainer;
 	extern bool justOpenedLockpicking;
@@ -19,18 +17,13 @@ namespace SkyrimSoulsRE
 	class MenuOpenCloseEventHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
-		virtual RE::EventResult ReceiveEvent(RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
-
-		static void Init();
+		virtual RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
 
 		static bool BlockInput();
 
 	private:
-		bool IsInWhiteList(RE::BSFixedString& a_name);
-
-		static std::vector<RE::BSFixedString>	_whiteList;
+		bool IsInWhiteList(const RE::BSFixedString& a_name);
 	};
-
 
 	extern MenuOpenCloseEventHandler g_menuOpenCloseEventHandler;
 }

@@ -1,18 +1,16 @@
 #pragma once
 
-#include "skse64/PluginAPI.h" //SKSETaskInterface
 #include "skse64/gamethreads.h" //TaskDelegate
-
-#include "RE/FxDelegateArgs.h" //FxDelegateArgs
-#include "RE/Actor.h" //Actor
-#include "RE/PlayerCharacter.h" //PlayerCharacter
-#include "RE/ItemList.h" //PlayerCharacter
 
 #include "Hooks.h"
 
+#include "RE/FxDelegateArgs.h"
+#include "RE/Actor.h"
+#include "RE/PlayerCharacter.h"
+#include "RE/ItemList.h"
+
 namespace Tasks
 {
-	extern SKSETaskInterface* g_task;
 
 	class SleepWaitDelegate : TaskDelegate
 	{

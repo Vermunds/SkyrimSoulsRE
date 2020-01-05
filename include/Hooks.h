@@ -1,9 +1,7 @@
 #pragma once
 
-#include "HookShare.h"  // _RegisterForCanProcess_t
-
-#include "RE/FxDelegate.h"
 #include "RE/BGSSaveLoadManager.h"
+#include "RE/IMenu.h"
 
 namespace Hooks
 {
@@ -35,8 +33,8 @@ namespace Hooks
 		kJournalMenu
 	};
 
-	void Register_Func(RE::FxDelegate* a_delegate, HookType a_menu);
+	void Register_Func(RE::IMenu* a_menu, HookType a_type);
 
-	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register);
+	void InstallHooks();
 
 }

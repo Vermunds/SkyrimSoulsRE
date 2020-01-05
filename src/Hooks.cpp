@@ -4,18 +4,16 @@
 #include "skse64_common/Relocation.h"  // RelocAddr, RelocPtr
 #include "skse64_common/SafeWrite.h"  // SafeWrite
 
-#include "skse64/GameData.h" //BGSSaveLoadManager
+#include "skse64/InputMap.h" //InputMap::GamepadMaskToKeycode
 
 #include "xbyak/xbyak.h"
 
-#include "HookShare.h"  // _RegisterHook_t
-
 #include "RE/Skyrim.h"
 
-#include "Events.h"  // MenuOpenCloseEventHandler::BlockInput()
+#include "Events.h"
 #include "Offsets.h"
-#include "Settings.h" //unpausedMenus
-#include "Tasks.h" //SleepWaitDelegate, SaveGameDelegate, ServeTimeDelegate
+#include "Settings.h"
+#include "Tasks.h"
 #include "Utility.h" //strToInt
 
 #include <thread> //std::this_thread::sleep_for
@@ -100,19 +98,18 @@ namespace Hooks
 	class InventoryMenuEx
 	{
 	public:
-		static void DropItem_Hook(RE::Actor* a_thisActor, RE::RefHandle& a_droppedItemHandle, RE::TESForm* a_item, RE::BaseExtraList* a_extraList, UInt32 a_count, void* a_arg5, void* a_arg6)
+		static void DropItem_Hook(RE::PlayerCharacter* a_player, RE::ObjectRefHandle& a_droppedItemHandle, RE::TESBoundObject* a_item, RE::ExtraDataList* a_extraList, UInt32 a_count, void* a_arg5, void* a_arg6)
 		{
 			//Looks like some other thread moves it before the calculation is complete, resulting in the item being moved to the coc marker
 			//This is an ugly workaround, but it should work good enought
 
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			mm->numPauseGame++;
+			RE::UI* ui = RE::UI::GetSingleton();
+			ui->numPausesGame++;
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-			//arg5 and arg6 seems to be an UInt64 (a pointer maybe?)
-			a_thisActor->DropItem(a_droppedItemHandle, a_item, a_extraList, a_count, a_arg5, a_arg6);
+			a_player->DropObject(a_droppedItemHandle, a_item,  a_extraList, a_count, a_arg5, a_arg6);
 
-			mm->numPauseGame--;
+			ui->numPausesGame--;
 		}
 
 		static void InstallHook()
@@ -165,9 +162,9 @@ namespace Hooks
 
 		static void UpdateEquipment_Hook(RE::ItemList* a_this, RE::PlayerCharacter* a_player)
 		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-			if (mm->IsMenuOpen(strHolder->containerMenu))
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+			if (ui->IsMenuOpen(interfaceStrings->containerMenu))
 			{
 				RE::TESObjectREFR* target = GetContainerRef();
 
@@ -216,24 +213,23 @@ namespace Hooks
 		}
 
 		static void StartSleepWait_Hook(const RE::FxDelegateArgs& a_args) {
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-			mm->GetMenu(strHolder->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPauseGame;
-			mm->numPauseGame++;
+			ui->GetMenu(interfaceStrings->sleepWaitMenu)->flags |= RE::IMenu::Flag::kPausesGame;
+			ui->numPausesGame++;
 
-			static bool enableSlowMotion = settings->GetSetting(settings->slowMotion, "bEnableSlowMotion")->GetBool();
 			if (SkyrimSoulsRE::isInSlowMotion)
 			{
-				static UInt32 multiplierPercent = settings->GetSetting(settings->slowMotion, "uSlowMotionPercent")->GetInt();
+				float slowMotionMultiplier = settings->slowMotionMultiplier;
 				float* globalTimescale = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler.GetUIntPtr());
 				float* globalTimescaleHavok = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultipler_Havok.GetUIntPtr());
 
 				float multiplier;
-				if (multiplierPercent >= 10 && 100 >= multiplierPercent)
+				if (slowMotionMultiplier >= 0.1 && 1.0 >= slowMotionMultiplier)
 				{
-					multiplier = (float)multiplierPercent / 100.0;
+					multiplier = slowMotionMultiplier;
 				}
 				else {
 					multiplier = 1.0;
@@ -270,43 +266,140 @@ namespace Hooks
 	{
 	public:
 
-		static bool SaveGame_Hook(RE::BGSSaveLoadManager* a_this, BGSSaveLoadManagerEx::SaveMode a_mode, BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_saveName)
+		static void SetJournalPaused(bool a_paused)
 		{
-			Tasks::SaveGameDelegate::RegisterTask(a_dumpFlag, a_saveName);
-			return true;
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
+
+			RE::IMenu* journalMenu = ui->GetMenu(interfaceStrings->journalMenu).get();
+
+			if (journalMenu && settings->unpausedMenus["Journal Menu"])
+			{
+				if (a_paused)
+				{
+					journalMenu->flags |= RE::IMenu::Flag::kPausesGame;
+					ui->numPausesGame++;
+				}
+				else
+				{
+					journalMenu->flags &= ~RE::IMenu::Flag::kPausesGame;
+					ui->numPausesGame--;
+				}
+			}
 		}
 
+		//Copied from SKSE64
+		class SKSEScaleform_StartRemapMode : public RE::GFxFunctionHandler
+		{
+			class RemapHandler : public RE::BSTEventSink<RE::InputEvent*>
+			{
+			public:
+
+				//End remap mode - controls menu
+				virtual RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const * a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
+				{
+					RE::ButtonEvent* evn = (RE::ButtonEvent*) * a_event;
+
+					// Make sure this is really a button event
+					if (!evn || evn->eventType != RE::INPUT_EVENT_TYPE::kButton)
+						return RE::BSEventNotifyControl::kContinue;
+
+					RE::INPUT_DEVICE deviceType = evn->device;
+
+					RE::BSInputDeviceManager* idm = static_cast<RE::BSInputDeviceManager*>(a_eventSource);
+
+					if ((idm->IsGamepadEnabled() ^ (deviceType == RE::INPUT_DEVICE::kGamepad)) || evn->value == 0 || evn->heldDownSecs != 0.0)
+					{
+						return RE::BSEventNotifyControl::kContinue;
+					}
+						
+
+					UInt32 keyMask = evn->idCode;
+					UInt32 keyCode;
+
+					// Mouse
+					if (deviceType == RE::INPUT_DEVICE::kMouse)
+						keyCode = InputMap::kMacro_MouseButtonOffset + keyMask;
+					// Gamepad
+					else if (deviceType == RE::INPUT_DEVICE::kGamepad)
+						keyCode = InputMap::GamepadMaskToKeycode(keyMask);
+					// Keyboard
+					else
+						keyCode = keyMask;
+
+					// Valid scancode?
+					if (keyCode >= InputMap::kMaxMacros)
+						keyCode = -1;
+
+					RE::GFxValue arg;
+					arg.SetNumber(keyCode);
+					scope.Invoke("EndRemapMode", NULL, &arg, 1);
+					SetJournalPaused(false);
+
+					RE::MenuControls::GetSingleton()->remapMode = false;
+					RE::PlayerControls::GetSingleton()->data.remapMode = false;
+
+					a_eventSource->RemoveEventSink(this);
+					return RE::BSEventNotifyControl::kContinue;
+				}
+
+			RE::GFxValue scope;
+		};
+
+		RemapHandler remapHandler;
+
+		public:
+
+			//Start remap mode - MCM menu
+			virtual void Call(RE::GFxFunctionHandler::Params& a_args) override
+			{
+				_ASSERT(a_args->numArgs >= 1);
+
+				SetJournalPaused(true);
+
+				remapHandler.scope = a_args.args[0];
+
+				RE::PlayerControls* playerControls = RE::PlayerControls::GetSingleton();
+				if (!playerControls)
+					return;
+
+				RE::MenuControls* menuControls = RE::MenuControls::GetSingleton();
+				if (!menuControls)
+					return;
+				RE::BSInputDeviceManager* pInputEventDispatcher = RE::BSInputDeviceManager::GetSingleton();
+				if (!(pInputEventDispatcher))
+					return;
+
+				pInputEventDispatcher->AddEventSink(&remapHandler);
+				menuControls->remapMode = true;
+				playerControls->data.remapMode = true;
+			}
+		};
+
+		//Start remap mode - controls menu
 		static void StartRemapMode_Hook(const RE::FxDelegateArgs& a_args)
 		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-
-			RE::IMenu* journalMenu = mm->GetMenu(strHolder->journalMenu).get();
-			if (journalMenu && !journalMenu->PausesGame())
-			{
-				journalMenu->flags |= RE::IMenu::Flag::kPauseGame;
-				mm->numPauseGame++;
-			}
+			SetJournalPaused(true);
 
 			void(*StartRemapMode_Original)(const RE::FxDelegateArgs&);
 			StartRemapMode_Original = reinterpret_cast<void(*)(const RE::FxDelegateArgs&)>(Offsets::JournalMenu_StartRemapMode_Original.GetUIntPtr());
 			return StartRemapMode_Original(a_args);
 		}
 
+		//End remap mode - controls menu
 		static void FinishRemapMode_Hook(RE::GFxMovieView* a_movieView, const char* a_methodName, RE::FxResponseArgsBase& a_args)
 		{
+
 			RE::FxDelegate::Invoke(a_movieView, a_methodName, a_args);
 
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			SetJournalPaused(false);
+		}
 
-			RE::IMenu* journalMenu = mm->GetMenu(strHolder->journalMenu).get();
-			if (journalMenu && journalMenu->PausesGame() && settings->GetSetting(settings->unpausedMenus, "journalMenu"))
-			{
-				journalMenu->flags &= ~RE::IMenu::Flag::kPauseGame;
-				mm->numPauseGame--;
-			}
+		static bool SaveGame_Hook(RE::BGSSaveLoadManager* a_this, BGSSaveLoadManagerEx::SaveMode a_mode, BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_saveName)
+		{
+			Tasks::SaveGameDelegate::RegisterTask(a_dumpFlag, a_saveName);
+			return true;
 		}
 
 		static void InstallHook()
@@ -403,14 +496,14 @@ namespace Hooks
 			}
 			else if (data->command == "servetime" && data->numArgs == 0)
 			{
-				RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-				RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+				RE::UI* ui = RE::UI::GetSingleton();
+				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
-				mm->numPauseGame++;
-				mm->GetMenu(strHolder->console)->flags |= RE::IMenu::Flag::kPauseGame;
+				ui->numPausesGame++;
+				ui->GetMenu(interfaceStrings->console)->flags |= RE::IMenu::Flag::kPausesGame;
 				
-				player->Unk_BA();
+				player->ServePrisonTime();
 				return;
 			}
 
@@ -450,131 +543,125 @@ namespace Hooks
 	{
 	public:
 
-		static bool IsMappedToSameButton(UInt32 a_keyMask, RE::DeviceType a_deviceType, RE::BSFixedString a_controlName, RE::InputMappingManager::Context a_context = RE::InputMappingManager::Context::kGameplay)
+		static bool IsMappedToSameButton(UInt32 a_keyMask, RE::INPUT_DEVICE a_deviceType, RE::BSFixedString a_controlName, RE::UserEvents::INPUT_CONTEXT_ID a_context = RE::UserEvents::INPUT_CONTEXT_ID::kGameplay)
 		{
-			RE::InputMappingManager* imm = RE::InputMappingManager::GetSingleton();
+			RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
 
-			if (a_deviceType == RE::DeviceType::kKeyboard)
+			if (a_deviceType == RE::INPUT_DEVICE::kKeyboard)
 			{
-				UInt32 keyMask = imm->GetMappedKey(a_controlName, RE::DeviceType::kKeyboard, a_context);
+				UInt32 keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kKeyboard, a_context);
 				return a_keyMask == keyMask;
 			}
-			else if (a_deviceType == RE::DeviceType::kMouse)
+			else if (a_deviceType == RE::INPUT_DEVICE::kMouse)
 			{
-				UInt32 keyMask = imm->GetMappedKey(a_controlName, RE::DeviceType::kMouse, a_context);
+				UInt32 keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kMouse, a_context);
 				return a_keyMask == keyMask;
 			}
 			return false;
 		}
 
-		static RE::EventResult ReceiveEvent_Hook(RE::MenuControls* a_this, RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_source)
+		static RE::BSEventNotifyControl ReceiveEvent_Hook(RE::MenuControls* a_this, RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_source)
 		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
-			RE::InputStringHolder* inStr = RE::InputStringHolder::GetSingleton();
-			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+			RE::UserEvents* inputStrings = RE::UserEvents::GetSingleton();
+			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-			static bool enableMovementInMenus = settings->GetSetting(settings->controls, "bEnableMovementInMenus")->GetBool();
-			static bool enableGamepadCameraMove = settings->GetSetting(settings->controls, "bEnableGamepadCameraMove")->GetBool();
-
-			if (a_event && *a_event && SkyrimSoulsRE::unpausedMenuCount && !a_this->remapMode && !(mm->GameIsPaused()) && !(mm->IsMenuOpen(strHolder->dialogueMenu)))
+			if (a_event && *a_event && !a_this->remapMode && !(ui->GameIsPaused()) && ((SkyrimSoulsRE::unpausedMenuCount) || (ui->IsMenuOpen(interfaceStrings->dialogueMenu) && settings->enableMovementDialogueMenu)))
 			{
 				for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
 				{
-					if (evn && evn->IsIDEvent())
+					if (evn && evn->HasIDCode())
 					{
 						RE::ButtonEvent* buttonEvn = reinterpret_cast<RE::ButtonEvent*>(evn);
 						RE::ThumbstickEvent* thumbEvn = reinterpret_cast<RE::ThumbstickEvent*>(evn);
 
-						if (enableMovementInMenus)
+						if (settings->enableMovementInMenus)
 						{
 							//Forward
-							if (buttonEvn->controlID == inStr->up && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->forward))
+							if (buttonEvn->userEvent == inputStrings->up && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->forward))
 							{
-								buttonEvn->controlID = inStr->forward;
+								buttonEvn->userEvent = inputStrings->forward;
 							}
 							//Back
-							if (buttonEvn->controlID == inStr->down && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->back))
+							if (buttonEvn->userEvent == inputStrings->down && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->back))
 							{
-								buttonEvn->controlID = inStr->back;
+								buttonEvn->userEvent = inputStrings->back;
 							}
 							//Left
-							if (buttonEvn->controlID == inStr->left && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeLeft))
+							if (buttonEvn->userEvent == inputStrings->left && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeLeft))
 							{
-								buttonEvn->controlID = inStr->strafeLeft;
+								buttonEvn->userEvent = inputStrings->strafeLeft;
 							}
 							//Right
-							if (buttonEvn->controlID == inStr->right && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeRight))
+							if (buttonEvn->userEvent == inputStrings->right && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeRight))
 							{
-								buttonEvn->controlID = inStr->strafeRight;
+								buttonEvn->userEvent = inputStrings->strafeRight;
 							}
 							//SkyUI Favorites menu fix
-							if (mm->IsMenuOpen(strHolder->favoritesMenu))
+							if (ui->IsMenuOpen(interfaceStrings->favoritesMenu))
 							{
 								//Prevent SkyUI from detecting the key mask
 								//Left
-								if (buttonEvn->controlID == inStr->strafeLeft && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeLeft))
+								if (buttonEvn->userEvent == inputStrings->strafeLeft && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeLeft))
 								{
-									buttonEvn->keyMask = 0;
+									buttonEvn->idCode = 0;
 								}
 								//Left
-								if (buttonEvn->controlID == inStr->strafeRight && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeRight))
+								if (buttonEvn->userEvent == inputStrings->strafeRight && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeRight))
 								{
-									buttonEvn->keyMask = 0;
+									buttonEvn->idCode = 0;
 								}
 								//Allow category change with LB and RB when using controllers
-								if (buttonEvn->deviceType == RE::DeviceType::kGamepad)
+								if (buttonEvn->device == RE::INPUT_DEVICE::kGamepad)
 								{
-									if (buttonEvn->keyMask == 0x100) //LB
+									if (buttonEvn->idCode == 0x100) //LB
 									{
-										buttonEvn->controlID = inStr->left;
+										buttonEvn->userEvent = inputStrings->left;
 									}
-									if (buttonEvn->keyMask == 0x200) //RB
+									if (buttonEvn->idCode == 0x200) //RB
 									{
-										buttonEvn->controlID = inStr->right;
+										buttonEvn->userEvent = inputStrings->right;
 									}
 								}
 							}
 							//Book menu fix
-							if (mm->IsMenuOpen(strHolder->bookMenu))
+							if (ui->IsMenuOpen(interfaceStrings->bookMenu))
 							{
 								//Left
-								if (buttonEvn->controlID == inStr->prevPage && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeLeft))
+								if (buttonEvn->userEvent == inputStrings->prevPage && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeLeft))
 								{
-									buttonEvn->controlID = inStr->strafeLeft;
+									buttonEvn->userEvent = inputStrings->strafeLeft;
 								}
 								//Right
-								if (buttonEvn->controlID == inStr->nextPage && IsMappedToSameButton(buttonEvn->keyMask, buttonEvn->deviceType, inStr->strafeRight))
+								if (buttonEvn->userEvent == inputStrings->nextPage && IsMappedToSameButton(buttonEvn->idCode, buttonEvn->device, inputStrings->strafeRight))
 								{
-									buttonEvn->controlID = inStr->strafeRight;
+									buttonEvn->userEvent = inputStrings->strafeRight;
 								}
 							}
 
 							//Controllers
-							if (thumbEvn->controlID == inStr->leftStick)
+							if (thumbEvn->userEvent == inputStrings->leftStick)
 							{
-								thumbEvn->controlID = inStr->move;
+								thumbEvn->userEvent = inputStrings->move;
 							}
 						}
 
-						if (enableGamepadCameraMove)
+						if (settings->enableGamepadCameraMove)
 						{
 							//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
-							if (thumbEvn->controlID == inStr->rotate && !(*(reinterpret_cast<float*>(Offsets::ItemMenu_MaximizeStatus.GetUIntPtr())) == 1.0))
+							if (thumbEvn->userEvent == inputStrings->rotate && !(*(reinterpret_cast<float*>(Offsets::ItemMenu_MaximizeStatus.GetUIntPtr())) == 1.0))
 							{
-								thumbEvn->controlID = inStr->look;
+								thumbEvn->userEvent = inputStrings->look;
 							}
 						}
+
 					}
 				}
-			}
+			}		
 
-
-			//Fix for SkyUI favorites menu
-			
-
-			RE::EventResult(*ReceiveEvent_Original)(RE::MenuControls*, RE::InputEvent**, RE::BSTEventSource<RE::InputEvent*>*);
-			ReceiveEvent_Original = reinterpret_cast<RE::EventResult(*)(RE::MenuControls*, RE::InputEvent**, RE::BSTEventSource<RE::InputEvent*>*)>(Offsets::MenuControls_ReceiveEvent_Original.GetUIntPtr());;
+			RE::BSEventNotifyControl(*ReceiveEvent_Original)(RE::MenuControls*, RE::InputEvent**, RE::BSTEventSource<RE::InputEvent*>*);
+			ReceiveEvent_Original = reinterpret_cast<RE::BSEventNotifyControl(*)(RE::MenuControls*, RE::InputEvent**, RE::BSTEventSource<RE::InputEvent*>*)>(Offsets::MenuControls_ReceiveEvent_Original.GetUIntPtr());;
 			return ReceiveEvent_Original(a_this, a_event, a_source);
 		}
 
@@ -589,13 +676,13 @@ namespace Hooks
 	public:
 		static bool CameraMove_Hook(bool a_retVal)
 		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 			RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
 			RE::MenuControls* mc = RE::MenuControls::GetSingleton();
-			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-			if (SkyrimSoulsRE::unpausedMenuCount && !mc->remapMode && !(mm->GameIsPaused()) && !(mm->IsMenuOpen(strHolder->dialogueMenu)))
+			if (SkyrimSoulsRE::unpausedMenuCount && !mc->remapMode && !(ui->GameIsPaused()) && !(ui->IsMenuOpen(interfaceStrings->dialogueMenu)))
 			{
 				RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::CursorPosition.GetUIntPtr());
 				RE::INIPrefSettingCollection* pref = RE::INIPrefSettingCollection::GetSingleton();
@@ -603,25 +690,25 @@ namespace Hooks
 				UInt32 resX = pref->GetSetting("iSize W:DISPLAY")->GetUInt();
 				UInt32 resY = pref->GetSetting("iSize H:DISPLAY")->GetUInt();
 
-				float speedX = settings->GetSetting(settings->controls, "fCursorCameraHorizontalSpeed")->GetFloat();
-				float speedY = settings->GetSetting(settings->controls, "fCursorCameraVerticalSpeed")->GetFloat();
+				float speedX = settings->cursorCameraHorizontalSpeed;
+				float speedY = settings->cursorCameraVerticalSpeed;
 
 				if (cursorPosition->x == 0)
 				{
-					pc->movementData.unk08.x = -speedX;
+					pc->data.lookInputVec.x = -speedX;
 				}
 				else if (cursorPosition->x == resX)
 				{
-					pc->movementData.unk08.x = speedX;
+					pc->data.lookInputVec.x = speedX;
 				}
 
 				if (cursorPosition->y == 0)
 				{
-					pc->movementData.unk08.y = speedY;
+					pc->data.lookInputVec.y = speedY;
 				}
 				else if (cursorPosition->y == resY)
 				{
-					pc->movementData.unk08.y = -speedY;
+					pc->data.lookInputVec.y = -speedY;
 				}
 			}
 			return a_retVal;
@@ -704,21 +791,21 @@ namespace Hooks
 
 		static void UpdateClock()
 		{
-			RE::BSTimeManager* tm = RE::BSTimeManager::GetSingleton();
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			RE::Calendar* calendar = RE::Calendar::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
-			void(*GetTimeString)(RE::BSTimeManager * a_timeManager, char* a_str, UInt64 a_bufferSize, bool a_showYear);
-			GetTimeString = reinterpret_cast<void(*)(RE::BSTimeManager*, char*, UInt64, bool)>(Offsets::GetFormattedTime_Original.GetUIntPtr());;
+			void(*GetTimeString)(RE::Calendar* a_this, char* a_str, UInt64 a_bufferSize, bool a_showYear);
+			GetTimeString = reinterpret_cast<void(*)(RE::Calendar*, char*, UInt64, bool)>(Offsets::GetFormattedTime_Original.GetUIntPtr());;
 
 			//Tween menu clock
-			if (mm->IsMenuOpen(strHolder->tweenMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->tweenMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* tweenMenu = mm->GetMenu(strHolder->tweenMenu).get();
+				RE::IMenu* tweenMenu = ui->GetMenu(interfaceStrings->tweenMenu).get();
 				if (tweenMenu)
 				{
 					char buf[200];
-					GetTimeString(tm, buf, 200, true);
+					GetTimeString(calendar, buf, 200, true);
 
 					RE::GFxValue dateText;
 					tweenMenu->view->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
@@ -728,13 +815,13 @@ namespace Hooks
 			}
 
 			//Journal Menu clock
-			if (mm->IsMenuOpen(strHolder->journalMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->journalMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* journalMenu = mm->GetMenu(strHolder->journalMenu).get();
+				RE::IMenu* journalMenu = ui->GetMenu(interfaceStrings->journalMenu).get();
 				if (journalMenu)
 				{
 					char buf[200];
-					GetTimeString(tm, buf, 200, true);
+					GetTimeString(calendar, buf, 200, true);
 
 					RE::GFxValue dateText;
 					journalMenu->view->GetVariable(&dateText, "_root.QuestJournalFader.Menu_mc.BottomBar_mc.DateText");
@@ -744,13 +831,13 @@ namespace Hooks
 			}
 
 			//Sleep/Wait menu clock
-			if (mm->IsMenuOpen(strHolder->sleepWaitMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->sleepWaitMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu).get();
+				RE::IMenu* sleepWaitMenu = ui->GetMenu(interfaceStrings->sleepWaitMenu).get();
 				if (sleepWaitMenu)
 				{
 					char buf[200];
-					GetTimeString(tm, buf, 200, false);
+					GetTimeString(calendar, buf, 200, false);
 
 					RE::GFxValue dateText;
 					sleepWaitMenu->view->GetVariable(&dateText, "_root.SleepWaitMenu_mc.CurrentTime");
@@ -762,13 +849,13 @@ namespace Hooks
 
 		static void UpdateBottomBar()
 		{
-			RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
 			//Inventory Menu
-			if (mm->IsMenuOpen(strHolder->inventoryMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->inventoryMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* inventoryMenu = mm->GetMenu(strHolder->inventoryMenu).get();
+				RE::IMenu* inventoryMenu = ui->GetMenu(interfaceStrings->inventoryMenu).get();
 				if (inventoryMenu)
 				{
 					void(*UpdateBottomBar)(RE::IMenu*);
@@ -778,9 +865,9 @@ namespace Hooks
 			}
 
 			//Magic Menu
-			if (mm->IsMenuOpen(strHolder->magicMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->magicMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* magicMenu = mm->GetMenu(strHolder->magicMenu).get();
+				RE::IMenu* magicMenu = ui->GetMenu(interfaceStrings->magicMenu).get();
 				if (magicMenu)
 				{
 					void(*UpdateBottomBar)(RE::IMenu*);
@@ -790,9 +877,9 @@ namespace Hooks
 			}
 
 			//Container Menu
-			if (mm->IsMenuOpen(strHolder->containerMenu) && !(mm->GameIsPaused()))
+			if (ui->IsMenuOpen(interfaceStrings->containerMenu) && !(ui->GameIsPaused()))
 			{
-				RE::IMenu* containerMenu = mm->GetMenu(strHolder->containerMenu).get();
+				RE::IMenu* containerMenu = ui->GetMenu(interfaceStrings->containerMenu).get();
 				if (containerMenu)
 				{
 					void(*UpdateBottomBar)(RE::IMenu*);
@@ -804,25 +891,23 @@ namespace Hooks
 
 		static void CheckShouldClose()
 		{
-			RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-			RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 			RE::PlayerCharacter * player = RE::PlayerCharacter::GetSingleton();
-			RE::UIManager * uiManager = RE::UIManager::GetSingleton();
-			SkyrimSoulsRE::SettingStore * settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+			RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
+			SkyrimSoulsRE::Settings * settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-			static bool autoClose = settings->GetSetting(settings->autoClose, "bAutoClose");
-			static float maxDistance = static_cast<float>(settings->GetSetting(settings->autoClose, "uAutoCloseDistance")->GetInt());
-			static bool containerMenuUnpaused = settings->GetSetting(settings->unpausedMenus, "containerMenu")->GetBool();
-			static bool lockpickingMenuUnpaused = settings->GetSetting(settings->unpausedMenus, "lockpickingMenu")->GetBool();
-			static bool bookMenuUnpaused = settings->GetSetting(settings->unpausedMenus, "bookMenu")->GetBool();
+			float autoCloseDistance = settings->autoCloseDistance;
 
 			//Auto-close Container menu
-			if (mm->IsMenuOpen(strHolder->containerMenu) && containerMenuUnpaused)
+			if (ui->IsMenuOpen(interfaceStrings->containerMenu) && settings->unpausedMenus["ContainerMenu"])
 			{
 				RE::TESObjectREFR * ref = ContainerMenuEx::GetContainerRef();
 
+				ContainerMenuEx::ContainerMode mode = ContainerMenuEx::GetContainerMode();
+
 				if (ref) {
-					float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
+					float currentDistance = GetDistance(player->GetPosition(), player->GetHeight(), ref->GetPosition());
 
 					if (SkyrimSoulsRE::justOpenedContainer)
 					{
@@ -830,34 +915,34 @@ namespace Hooks
 						containerInitiallyDisabled = ref->IsDisabled();
 						SkyrimSoulsRE::justOpenedContainer = false;
 
-						containerTooFarWhenOpened = (containerInitialDistance > maxDistance) ? true : false;
+						containerTooFarWhenOpened = (containerInitialDistance > autoCloseDistance) ? true : false;
 					}
 
 					if ((ref->IsDisabled() && !containerInitiallyDisabled) || ref->IsMarkedForDeletion())
 					{
-						uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+						uiMessageQueue->AddMessage(interfaceStrings->containerMenu, RE::UIMessage::Message::kClose, 0);
 					}
 
 					if (ref->Is(RE::FormType::ActorCharacter))
 					{
 						if (ContainerMenuEx::GetContainerMode() == ContainerMenuEx::ContainerMode::kMode_Pickpocket && ref->IsDead(true))
 						{
-							uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+							uiMessageQueue->AddMessage(interfaceStrings->containerMenu, RE::UIMessage::Message::kClose, 0);
 						}
 					}
 					
-					if (autoClose) {
+					if (settings->autoCloseMenus) {
 
 						if (containerTooFarWhenOpened)
 						{
 							//Check if the distance is increasing
 							if (currentDistance > (containerInitialDistance + 50))
 							{
-								uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->containerMenu, RE::UIMessage::Message::kClose, 0);
 							}
 							else if ((containerInitialDistance - 50) > currentDistance) {
 								//Check if it's already in range
-								if (currentDistance < maxDistance)
+								if (currentDistance < autoCloseDistance)
 								{
 									containerTooFarWhenOpened = false;
 								}
@@ -865,9 +950,9 @@ namespace Hooks
 						}
 						else
 						{
-							if (currentDistance > maxDistance)
+							if (currentDistance > autoCloseDistance)
 							{
-								uiManager->AddMessage(strHolder->containerMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->containerMenu, RE::UIMessage::Message::kClose, 0);
 							}
 						}
 					}
@@ -875,12 +960,12 @@ namespace Hooks
 			}
 
 			//Auto-close Lockpicking menu
-			if (mm->IsMenuOpen(strHolder->lockpickingMenu) && lockpickingMenuUnpaused)
+			if (ui->IsMenuOpen(interfaceStrings->lockpickingMenu) && settings->unpausedMenus["Lockpicking Menu"])
 			{
 				RE::TESObjectREFR * ref = LockpickingMenuEx::GetLockpickingTarget();
 				if (ref)
 				{
-					float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
+					float currentDistance = GetDistance(player->GetPosition(), player->GetHeight(), ref->GetPosition());
 
 					if (SkyrimSoulsRE::justOpenedLockpicking)
 					{
@@ -888,26 +973,26 @@ namespace Hooks
 						lockpickingInitiallyDisabled = ref->IsDisabled();
 						SkyrimSoulsRE::justOpenedLockpicking = false;
 
-						lockpickingTooFarWhenOpened = (lockpickingInitialDistance > maxDistance) ? true : false;
+						lockpickingTooFarWhenOpened = (lockpickingInitialDistance > autoCloseDistance) ? true : false;
 					}
 
 					if ((ref->IsDisabled() && !lockpickingInitiallyDisabled) || ref->IsMarkedForDeletion())
 					{
-						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+						uiMessageQueue->AddMessage(interfaceStrings->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 					}
 
-					if (autoClose) {
+					if (settings->autoCloseMenus) {
 
 						if (lockpickingTooFarWhenOpened)
 						{
 							//Check if the distance is increasing
 							if (currentDistance > (lockpickingInitialDistance + 50))
 							{
-								uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 							}
 							else if ((lockpickingInitialDistance - 50) > currentDistance) {
 								//Check if it's already in range
-								if (currentDistance < maxDistance)
+								if (currentDistance < autoCloseDistance)
 								{
 									lockpickingTooFarWhenOpened = false;
 								}
@@ -915,9 +1000,9 @@ namespace Hooks
 						}
 						else
 						{
-							if (currentDistance > maxDistance)
+							if (currentDistance > autoCloseDistance)
 							{
-								uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 							}
 						}
 					}
@@ -925,12 +1010,12 @@ namespace Hooks
 			}
 
 			//Auto-close Book menu
-			if (mm->IsMenuOpen(strHolder->bookMenu) && bookMenuUnpaused)
+			if (ui->IsMenuOpen(interfaceStrings->bookMenu) && settings->unpausedMenus["Book Menu"])
 			{
 				RE::TESObjectREFR* ref = BookMenuEx::GetBookReference();
 				if (ref)
 				{
-					float currentDistance = GetDistance(player->pos, player->GetHeight(), ref->pos);
+					float currentDistance = GetDistance(player->GetPosition(), player->GetHeight(), ref->GetPosition());
 
 					if (SkyrimSoulsRE::justOpenedBook)
 					{
@@ -938,26 +1023,26 @@ namespace Hooks
 						bookInitiallyDisabled = ref->IsDisabled();
 						SkyrimSoulsRE::justOpenedBook = false;
 
-						bookTooFarWhenOpened = (bookInitialDistance > maxDistance) ? true : false;
+						bookTooFarWhenOpened = (bookInitialDistance > autoCloseDistance) ? true : false;
 					}
 
 					if ((ref->IsDisabled() && !bookInitiallyDisabled) || ref->IsMarkedForDeletion())
 					{
-						uiManager->AddMessage(strHolder->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
+						uiMessageQueue->AddMessage(interfaceStrings->lockpickingMenu, RE::UIMessage::Message::kClose, 0);
 					}
 
-					if (autoClose) {
+					if (settings->autoCloseMenus) {
 
 						if (bookTooFarWhenOpened)
 						{
 							//Check if the distance is increasing
 							if (currentDistance > (bookInitialDistance + 50))
 							{
-								uiManager->AddMessage(strHolder->bookMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->bookMenu, RE::UIMessage::Message::kClose, 0);
 							}
 							else if ((bookInitialDistance - 50) > currentDistance) {
 								//Check if it's already in range
-								if (currentDistance < maxDistance)
+								if (currentDistance < autoCloseDistance)
 								{
 									bookTooFarWhenOpened = false;
 								}
@@ -965,9 +1050,9 @@ namespace Hooks
 						}
 						else
 						{
-							if (currentDistance > maxDistance)
+							if (currentDistance > autoCloseDistance)
 							{
-								uiManager->AddMessage(strHolder->bookMenu, RE::UIMessage::Message::kClose, 0);
+								uiMessageQueue->AddMessage(interfaceStrings->bookMenu, RE::UIMessage::Message::kClose, 0);
 							}
 						}
 					}
@@ -978,17 +1063,16 @@ namespace Hooks
 		static void DrawNextFrame_Hook()
 		{
 			//Slow motion
-			SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
-			static bool slowMotionEnabled = settings->GetSetting(settings->slowMotion, "bEnableSlowMotion")->GetBool();
+			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-			if (slowMotionEnabled && SkyrimSoulsRE::isInSlowMotion)
+			if (settings->enableSlowMotion && SkyrimSoulsRE::isInSlowMotion)
 			{
-				static UInt32 slowMotionPercent = settings->GetSetting(settings->slowMotion, "uSlowMotionPercent")->GetBool();
+				float slowMotionMultiplier = settings->slowMotionMultiplier;
 
 				float multiplier;
-				if (slowMotionPercent >= 10 && 100 >= slowMotionPercent)
+				if (slowMotionMultiplier >= 0.1 && 1.0 >= slowMotionMultiplier)
 				{
-					multiplier = (float)slowMotionPercent / 100.0;
+					multiplier = slowMotionMultiplier;
 				}
 				else {
 					multiplier = 1.0;
@@ -1047,73 +1131,126 @@ namespace Hooks
 	bool DrawNextFrameEx::lockpickingInitiallyDisabled = false;
 	bool DrawNextFrameEx::bookInitiallyDisabled = false;
 
-	void Register_Func(RE::FxDelegate* a_delegate, HookType a_type)
+	void Register_Func(RE::IMenu* a_menu, HookType a_type)
 	{
+		RE::FxDelegate* dlg = a_menu->fxDelegate.get();
+
 		switch (a_type)
 		{
 		case kSleepWaitMenu:
-			a_delegate->callbacks.GetAlt("OK")->callback = SleepWaitMenuEx::StartSleepWait_Hook;
+			dlg->callbacks.GetAlt("OK")->callback = SleepWaitMenuEx::StartSleepWait_Hook;
 			break;
 		case kConsole:
-			a_delegate->callbacks.GetAlt("ExecuteCommand")->callback = ConsoleEx::ExecuteCommand_Hook;
+			dlg->callbacks.GetAlt("ExecuteCommand")->callback = ConsoleEx::ExecuteCommand_Hook;
 			break;
 		case kMessageBoxMenu:
-			a_delegate->callbacks.GetAlt("buttonPress")->callback = MessageBoxMenuEx::ButtonPress_Hook; //method name lowercase
+			dlg->callbacks.GetAlt("buttonPress")->callback = MessageBoxMenuEx::ButtonPress_Hook; //method name lowercase
 			break;
 		case kJournalMenu:
-			a_delegate->callbacks.GetAlt("StartRemapMode")->callback = JournalMenuEx::StartRemapMode_Hook;
+
+			//Temporary fix for remapping from controls menu
+			dlg->callbacks.GetAlt("StartRemapMode")->callback = JournalMenuEx::StartRemapMode_Hook;
+
+			//Temporary fix for remapping from MCM menu
+			RE::GFxValue globals, skse;
+
+			bool result = a_menu->view->GetVariable(&globals, "_global");
+			if (!result)
+			{
+				_ERROR("Couldn't get _global");
+				return;
+			}
+
+			result = globals.GetMember("skse", &skse);
+			if (!result)
+			{
+				_ERROR("Couldn't get skse");
+				return;
+			}
+
+			RE::GFxFunctionHandler* fn = nullptr;
+
+			fn = new JournalMenuEx::SKSEScaleform_StartRemapMode();
+			RE::GFxValue fnValue;
+			a_menu->view.get()->CreateFunction(&fnValue, fn);
+			skse.SetMember("StartRemapMode", fnValue);
 		}
 	}
 
-	HookShare::result_type _PlayerInputHandler_CanProcess(RE::PlayerInputHandler* a_this, RE::InputEvent* a_event)
+	template <std::uintptr_t offset>
+	class PlayerInputHandler : public RE::PlayerInputHandler
 	{
-		using SkyrimSoulsRE::MenuOpenCloseEventHandler;
-		using HookShare::result_type;
+	public:
+		using func_t = function_type_t<decltype(&RE::PlayerInputHandler::CanProcess)>;
+		static inline func_t* func;
 
-		if (MenuOpenCloseEventHandler::BlockInput()) {
-			return result_type::kFalse;
+		bool CanProcess_Hook(RE::InputEvent* a_event)
+		{
+			if (SkyrimSoulsRE::MenuOpenCloseEventHandler::BlockInput())
+			{
+				return false;
+			}
+			return func(this, a_event);
 		}
-		else {
-			return result_type::kContinue;
-		}
-	}
 
-	void InstallHooks(HookShare::RegisterForCanProcess_t* a_register)
+		static void InstallHook()
+		{
+			REL::Offset<func_t**> vFunc(offset);
+			func = *vFunc;
+			SafeWrite64(vFunc.GetAddress(), GetFnAddr(&CanProcess_Hook));
+		}
+	};
+
+	void InstallHooks()
 	{
-		using HookShare::Hook;
+		SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
-		SkyrimSoulsRE::SettingStore* settings = SkyrimSoulsRE::SettingStore::GetSingleton();
+		using FirstPersonStateHandlerEx = PlayerInputHandler<RE::Offset::FirstPersonState::Vtbl + (0x8 * 0x8) + 0x10 + (0x1 * 0x8)>;
+		using ThirdPersonStateHandlerEx = PlayerInputHandler<RE::Offset::ThirdPersonState::Vtbl + (0xF * 0x8) + 0x10 + (0x1 * 0x8)>;
+		using FavoritesHandlerEx = PlayerInputHandler<RE::Offset::FavoritesHandler::Vtbl + (0x1 * 0x8)>;
+		using MovementHandlerEx = PlayerInputHandler<RE::Offset::MovementHandler::Vtbl + (0x1 * 0x8)>;
+		using LookHandlerEx = PlayerInputHandler<RE::Offset::LookHandler::Vtbl + (0x1 * 0x8)>;
+		using SprintHandlerEx = PlayerInputHandler<RE::Offset::SprintHandler::Vtbl + (0x1 * 0x8)>;
+		using ReadyWeaponHandlerEx = PlayerInputHandler<RE::Offset::ReadyWeaponHandler::Vtbl + (0x1 * 0x8)>;
+		using AutoMoveHandlerEx = PlayerInputHandler<RE::Offset::AutoMoveHandler::Vtbl + (0x1 * 0x8)>;
+		using ToggleRunHandlerEx = PlayerInputHandler<RE::Offset::ToggleRunHandler::Vtbl + (0x1 * 0x8)>;
+		using ActivateHandlerEx = PlayerInputHandler<RE::Offset::ActivateHandler::Vtbl + (0x1 * 0x8)>;
+		using JumpHandlerEx = PlayerInputHandler<RE::Offset::JumpHandler::Vtbl + (0x1 * 0x8)>;
+		using ShoutHandlerEx = PlayerInputHandler<RE::Offset::ShoutHandler::Vtbl + (0x1 * 0x8)>;
+		using AttackBlockHandlerEx = PlayerInputHandler<RE::Offset::AttackBlockHandler::Vtbl + (0x1 * 0x8)>;
+		using RunHandlerEx = PlayerInputHandler<RE::Offset::RunHandler::Vtbl + (0x1 * 0x8)>;
+		using SneakHandlerEx = PlayerInputHandler<RE::Offset::SneakHandler::Vtbl + (0x1 * 0x8)>;
 
-		a_register(Hook::kFirstPersonState, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kThirdPersonState, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kFavorites, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kSprint, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kReadyWeapon, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kAutoMove, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kToggleRun, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kActivate, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kJump, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kShout, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kAttackBlock, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kRun, _PlayerInputHandler_CanProcess);
-		a_register(Hook::kSneak, _PlayerInputHandler_CanProcess);
+		FirstPersonStateHandlerEx::InstallHook();
+		ThirdPersonStateHandlerEx::InstallHook();
+		FavoritesHandlerEx::InstallHook();
+		SprintHandlerEx::InstallHook();
+		ReadyWeaponHandlerEx::InstallHook();
+		AutoMoveHandlerEx::InstallHook();
+		ToggleRunHandlerEx::InstallHook();
+		ActivateHandlerEx::InstallHook();
+		JumpHandlerEx::InstallHook();
+		ShoutHandlerEx::InstallHook();
+		AttackBlockHandlerEx::InstallHook();
+		RunHandlerEx::InstallHook();
+		SneakHandlerEx::InstallHook();
 
-		if (settings->GetSetting(settings->controls, "bEnableMovementInMenus")->GetBool() || settings->GetSetting(settings->controls, "bEnableGamepadCameraMove")->GetBool())
+		if (settings->enableMovementInMenus || settings->enableGamepadCameraMove)
 		{
 			MenuControlsEx::InstallHook();
 		}
 
-		if (!settings->GetSetting(settings->controls, "bEnableMovementInMenus")->GetBool())
+		if (!settings->enableMovementInMenus)
 		{
-			a_register(Hook::kMovement, _PlayerInputHandler_CanProcess);
+			MovementHandlerEx::InstallHook();
 		}
 
-		if (!settings->GetSetting(settings->controls, "bEnableGamepadCameraMove")->GetBool())
+		if (!settings->enableGamepadCameraMove)
 		{
-			a_register(Hook::kLook, _PlayerInputHandler_CanProcess);
+			LookHandlerEx::InstallHook();
 		}
 
-		if (settings->GetSetting(settings->controls, "bEnableCursorCameraMove")->GetBool())
+		if (settings->enableCursorCameraMove)
 		{
 			CameraMoveEx::InstallHook();
 		}
@@ -1121,28 +1258,28 @@ namespace Hooks
 
 		DialogueMenuEx::InstallHook();
 
-		if (settings->GetSetting(settings->unpausedMenus, "tweenMenu")->GetBool()) {
+		if (settings->unpausedMenus["TweenMenu"]) {
 			TweenMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "favoritesMenu")->GetBool()) {
+		if (settings->unpausedMenus["FavoritesMenu"]) {
 			FavoritesMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "bookMenu")->GetBool()) {
+		if (settings->unpausedMenus["Book Menu"]) {
 			BookMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "lockpickingMenu")->GetBool()) {
+		if (settings->unpausedMenus["Lockpicking Menu"]) {
 			LockpickingMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "sleepWaitMenu")->GetBool()) {
+		if (settings->unpausedMenus["Sleep/Wait Menu"]) {
 			SleepWaitMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "containerMenu")->GetBool()) {
+		if (settings->unpausedMenus["ContainerMenu"]) {
 			ContainerMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "inventoryMenu")->GetBool()) {
+		if (settings->unpausedMenus["InventoryMenu"]) {
 			InventoryMenuEx::InstallHook();
 		}
-		if (settings->GetSetting(settings->unpausedMenus, "journalMenu")->GetBool()) {
+		if (settings->unpausedMenus["Journal Menu"]) {
 			JournalMenuEx::InstallHook();
 		}
 

@@ -1,4 +1,3 @@
-#include "skse64/PluginAPI.h" //SKSETaskInterface
 #include "skse64/gamethreads.h" //TaskDelegate
 
 #include "RE/Skyrim.h"
@@ -10,9 +9,10 @@
 #include <thread> //std::this_thread::sleep_for
 #include <chrono> //std::chrono::seconds
 
+#include <SKSE\API.h>
+
 namespace Tasks
 {
-	SKSETaskInterface * g_task = nullptr;
 
 	//SleepWaitMenu
 	SleepWaitDelegate::SleepWaitDelegate()
@@ -21,12 +21,12 @@ namespace Tasks
 
 	void SleepWaitDelegate::Run()
 	{
-		RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-		RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+		RE::UI* ui = RE::UI::GetSingleton();
+		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
 		const RE::FxDelegateArgs * args;
 
-		RE::IMenu * sleepWaitMenu = mm->GetMenu(strHolder->sleepWaitMenu).get();
+		RE::IMenu * sleepWaitMenu = ui->GetMenu(interfaceStrings->sleepWaitMenu).get();
 		if (sleepWaitMenu) {
 
 			RE::GFxValue time = sleepWaitTime;
@@ -51,7 +51,9 @@ namespace Tasks
 	{
 		SleepWaitDelegate * task = new SleepWaitDelegate();
 		task->sleepWaitTime = a_args[0].GetNumber();
-		g_task->AddTask(task);
+
+		auto taskInterface = SKSE::GetTaskInterface();
+		taskInterface->AddTask(task);
 	}
 
 	SaveGameDelegate::SaveGameDelegate()
@@ -98,7 +100,8 @@ namespace Tasks
 		}
 
 		task->dumpFlag = a_dumpFlag;
-		g_task->AddTask(task);
+		auto taskInterface = SKSE::GetTaskInterface();
+		taskInterface->AddTask(task);
 	}
 
 	ServeTimeDelegate::ServeTimeDelegate()
@@ -108,7 +111,7 @@ namespace Tasks
 	void ServeTimeDelegate::Run()
 	{
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		player->Unk_BA();
+		player->ServePrisonTime();
 	}
 
 	void ServeTimeDelegate::Dispose()
@@ -119,7 +122,8 @@ namespace Tasks
 	void ServeTimeDelegate::RegisterTask()
 	{
 		ServeTimeDelegate* task = new ServeTimeDelegate();
-		g_task->AddTask(task);
+		auto taskInterface = SKSE::GetTaskInterface();
+		taskInterface->AddTask(task);
 	}
 
 
@@ -130,12 +134,12 @@ namespace Tasks
 
 	void UpdateInventoryDelegate::Run()
 	{
-		RE::MenuManager * mm = RE::MenuManager::GetSingleton();
-		RE::UIStringHolder * strHolder = RE::UIStringHolder::GetSingleton();
+		RE::UI* ui = RE::UI::GetSingleton();
+		RE::InterfaceStrings * interfaceStrings = RE::InterfaceStrings::GetSingleton();
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
-		player->processManager->UpdateEquipment(player);
-		(this->containerOwner)->processManager->UpdateEquipment(this->containerOwner);
+		player->currentProcess->UpdateEquipment(player);
+		(this->containerOwner)->currentProcess->UpdateEquipment(this->containerOwner);
 		(this->list)->Update(player);
 	}
 
@@ -149,7 +153,8 @@ namespace Tasks
 		UpdateInventoryDelegate * task = new UpdateInventoryDelegate();
 		task->list = a_list;
 		task->containerOwner = a_containerOwner;
-		g_task->AddTask(task);
+		auto taskInterface = SKSE::GetTaskInterface();
+		taskInterface->AddTask(task);;
 	}
 
 	MessageBoxButtonPressDelegate::MessageBoxButtonPressDelegate()
@@ -159,12 +164,12 @@ namespace Tasks
 
 	void MessageBoxButtonPressDelegate::Run()
 	{
-		RE::MenuManager* mm = RE::MenuManager::GetSingleton();
-		RE::UIStringHolder* strHolder = RE::UIStringHolder::GetSingleton();
+		RE::UI* ui = RE::UI::GetSingleton();
+		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
 		const RE::FxDelegateArgs* args;
 
-		RE::IMenu* messageBoxMenu = mm->GetMenu(strHolder->messageBoxMenu).get();
+		RE::IMenu* messageBoxMenu = ui->GetMenu(interfaceStrings->messageBoxMenu).get();
 		if (messageBoxMenu) {
 
 			RE::GFxValue index = this->selectedIndex;
@@ -191,7 +196,8 @@ namespace Tasks
 		{
 			MessageBoxButtonPressDelegate* task = new MessageBoxButtonPressDelegate();
 			task->selectedIndex = a_args[0].GetNumber();
-			g_task->AddTask(task);
+			auto taskInterface = SKSE::GetTaskInterface();
+			taskInterface->AddTask(task);
 		}
 	}
 }
