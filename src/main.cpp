@@ -13,7 +13,7 @@
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
-	case SKSEMessagingInterface::kMessage_DataLoaded:
+	case SKSE::MessagingInterface::kDataLoaded:
 		RE::UI* ui = RE::UI::GetSingleton();
 		ui->GetEventSource<RE::MenuOpenCloseEvent>()->AddEventSink(&SkyrimSoulsRE::g_menuOpenCloseEventHandler);
 		_MESSAGE("Menu open/close event handler sinked");
@@ -40,23 +40,33 @@ extern "C" {
 			return false;
 		}
 
-		if (a_skse->RuntimeVersion() != RUNTIME_VERSION_1_5_97) {
+		if (a_skse->RuntimeVersion() != SKSE::RUNTIME_1_5_97) {
 			_FATALERROR("Unsupported runtime version %08X!\n", a_skse->RuntimeVersion());
 			return false;
 		}
 
-		
-		if (SKSE::AllocBranchTrampoline(1024 * 8))
+		//SKSE::Trampoline* trampoline = SKSE::GetTrampoline();
+		//
+		//if (trampoline->AllocBranchTrampoline(1024 * 8))
+		//{
+		//	_MESSAGE("Branch trampoline creation successful");
+		//} else {
+		//	_FATALERROR("Branch trampoline creation failed!\n");
+		//	return false;
+		//}
+		//
+		//if (SKSE::AllocLocalTrampoline(1024 * 8))
+		//{
+		//	_MESSAGE("Local trampoline creation successful");
+		//}
+		//else {
+		//	_FATALERROR("Local trampoline creation failed!\n");
+		//	return false;
+		//}
+
+		if (SKSE::AllocTrampoline(1024 * 8))
 		{
-			_MESSAGE("Branch trampoline creation successful");
-		} else {
-			_FATALERROR("Branch trampoline creation failed!\n");
-			return false;
-		}
-		
-		if (SKSE::AllocLocalTrampoline(1024 * 8))
-		{
-			_MESSAGE("Local trampoline creation successful");
+			_MESSAGE("Trampoline creation successful");
 		}
 		else {
 			_FATALERROR("Local trampoline creation failed!\n");
@@ -72,6 +82,7 @@ extern "C" {
 			_FATALERROR("SKSE init failed!");
 			return false;
 		}
+
 		_MESSAGE("Skyrim Souls RE loaded");
 
 		auto messaging = SKSE::GetMessagingInterface();
@@ -85,7 +96,7 @@ extern "C" {
 		SkyrimSoulsRE::LoadSettings();
 		_MESSAGE("Settings successfully loaded.");
 
-		Hooks::InstallHooks();
+		SkyrimSoulsRE::Hooks::InstallHooks();
 		_MESSAGE("Hooks installed.");
 
 		return true;

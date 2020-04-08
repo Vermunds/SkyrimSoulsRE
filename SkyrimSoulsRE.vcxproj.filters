@@ -7,9 +7,6 @@
     <ClCompile Include="src\Events.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hooks.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Settings.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -18,6 +15,51 @@
     </ClCompile>
     <ClCompile Include="src\Tasks.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks.cpp">
+      <Filter>src\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_Input.cpp">
+      <Filter>src\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_BookMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_ContainerMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_DialogueMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_FavoritesMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_InventoryMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_JournalMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_LockpickingMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BGSSaveLoadManagerEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_TweenMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_MessageBoxMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_SleepWaitMenu.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_Console.cpp">
+      <Filter>src\Hooks\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hooks_Papyrus.cpp">
+      <Filter>src\Hooks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -30,12 +72,21 @@
     <Filter Include="src">
       <UniqueIdentifier>{0a225d30-8b41-4f8e-b39a-d4189ae7421c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\Hooks">
+      <UniqueIdentifier>{191e4aa9-9f10-49af-9c0a-0212aaaf6937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Hooks\Menu">
+      <UniqueIdentifier>{5bb5fade-eda8-42f0-9ff7-8c4a547a54eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Hooks">
+      <UniqueIdentifier>{881653fd-5f4e-4381-9990-6f31a18a9f4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Hooks\Menu">
+      <UniqueIdentifier>{746f21e0-5218-46db-8d3c-f5de6d41a3eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Events.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Hooks.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Settings.h">
@@ -52,6 +103,51 @@
     </ClInclude>
     <ClInclude Include="include\Tasks.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks.h">
+      <Filter>include\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_Input.h">
+      <Filter>include\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_FavoritesMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_ContainerMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_DialogueMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_JournalMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_BookMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_InventoryMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_LockpickingMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGSSaveLoadManagerEx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_TweenMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_SleepWaitMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_MessageBoxMenu.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_Console.h">
+      <Filter>include\Hooks\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Hooks_Papyrus.h">
+      <Filter>include\Hooks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

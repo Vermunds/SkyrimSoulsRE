@@ -26,9 +26,6 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> MenuControls_ReceiveEvent_Hook = 0x16B8310; //1.5.97
 	const RelocAddr<uintptr_t*> MenuControls_ReceiveEvent_Original = 0x8A7CA0; //1.5.97
 
-	const RelocAddr<uintptr_t*> MenuOpenHandler_CanProcess_Hook = 0x16B8488; //1.5.97
-	const RelocAddr<uintptr_t*> MenuOpenHandler_CanProcess_Original = 0x8AACF0; //1.5.97
-
 	const RelocAddr<uintptr_t*> ContainerMenu_TransferItem_Original = 0x85E150; //1.5.97
 	const RelocAddr<uintptr_t*> ContainerMenu_TransferItemEquip_Original = 0x85E2A0; //1.5.97
 	const RelocAddr<uintptr_t*> Unk_UpdateInventory_Call = 0x8601AB; //1.5.97
@@ -42,8 +39,6 @@ namespace Offsets {
 	const RelocAddr<uintptr_t*> JournalMenu_SaveGame_Overwrite_Hook = 0x5794FE; //1.5.97
 
 	const RelocAddr<uintptr_t*> Console_ExecuteCommand_Original = 0x85A760; //1.5.97
-
-	const RelocAddr<uintptr_t*> SaveGame_Original = 0x586DE0; //1.5.97
 
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler = 0x1E05B2C; //1.5.97
 	const RelocAddr<uintptr_t*> GlobalTimescaleMultipler_Havok = 0x1E05B28; //1.5.97

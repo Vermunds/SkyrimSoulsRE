@@ -3,13 +3,14 @@
 #include "skse64/gamethreads.h" //TaskDelegate
 
 #include "Hooks.h"
+#include "BGSSaveLoadManagerEx.h"
 
 #include "RE/FxDelegateArgs.h"
 #include "RE/Actor.h"
 #include "RE/PlayerCharacter.h"
 #include "RE/ItemList.h"
 
-namespace Tasks
+namespace SkyrimSoulsRE::Tasks
 {
 
 	class SleepWaitDelegate : TaskDelegate
@@ -28,12 +29,12 @@ namespace Tasks
 	{
 	private:
 		const char* saveName = nullptr;
-		Hooks::BGSSaveLoadManagerEx::DumpFlag dumpFlag;
+		BGSSaveLoadManagerEx::OutputFlag outputFlag;
 		SaveGameDelegate();
 	public:
 		void Run() override;
 		void Dispose() override;
-		static void RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name);
+		static void RegisterTask(BGSSaveLoadManagerEx::OutputFlag a_outputFlag, const char* a_name);
 	};
 
 	//Used by console command 'ServeTime'

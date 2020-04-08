@@ -6,6 +6,11 @@
 #include "Hooks.h"
 #include "Offsets.h"
 
+#include "Hooks_JournalMenu.h"
+#include "Hooks_SleepWaitMenu.h"
+#include "Hooks_MessageBoxMenu.h"
+#include "Hooks_Console.h"
+
 #include "RE/Skyrim.h"
 
 namespace SkyrimSoulsRE
@@ -56,7 +61,7 @@ namespace SkyrimSoulsRE
 			//Opening dialogue when an unpaused menu is open
 			if ((a_event->menuName == interfaceStrings->dialogueMenu) && unpausedMenuCount) {
 				//Close tween menu if open
-				uiMessageQueue->AddMessage(interfaceStrings->tweenMenu, RE::UIMessage::Message::kClose, 0);
+				uiMessageQueue->AddMessage(interfaceStrings->tweenMenu, RE::UI_MESSAGE_TYPE::kHide, 0);
 
 				RE::GFxMovieView* view = ui->GetMovieView(interfaceStrings->dialogueMenu).get();
 				view->SetVisible(false);
@@ -135,19 +140,19 @@ namespace SkyrimSoulsRE
 		if (menu) {
 			if (a_event->menuName == interfaceStrings->sleepWaitMenu)
 			{
-				Hooks::Register_Func(menu, Hooks::HookType::kSleepWaitMenu);
+				Hooks::SleepWaitMenu::Register_Func(static_cast<RE::SleepWaitMenu*>(menu));
 			}
 			else if (a_event->menuName == interfaceStrings->console)
 			{
-				Hooks::Register_Func(menu, Hooks::HookType::kConsole);
+				Hooks::Console::Register_Func(static_cast<RE::Console*>(menu));
 			}
 			else if (a_event->menuName == interfaceStrings->messageBoxMenu)
 			{
-				Hooks::Register_Func(menu, Hooks::HookType::kMessageBoxMenu);
+				Hooks::MessageBoxMenu::Register_Func(static_cast<RE::MessageBoxMenu*>(menu));
 			} 
 			else if (a_event->menuName == interfaceStrings->journalMenu)
 			{
-				Hooks::Register_Func(menu, Hooks::HookType::kJournalMenu);
+				Hooks::JournalMenu::Register_Func(static_cast<RE::JournalMenu*>(menu));
 			}
 			
 			if (menu->PausesGame()) {

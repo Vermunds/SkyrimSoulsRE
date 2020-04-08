@@ -5,13 +5,14 @@
 #include "Tasks.h"
 #include "Offsets.h"
 #include "Hooks.h"
+#include "BGSSaveLoadManagerEx.h"
 
 #include <thread> //std::this_thread::sleep_for
 #include <chrono> //std::chrono::seconds
 
 #include <SKSE\API.h>
 
-namespace Tasks
+namespace SkyrimSoulsRE::Tasks
 {
 
 	//SleepWaitMenu
@@ -62,13 +63,12 @@ namespace Tasks
 
 	void SaveGameDelegate::Run()
 	{
-		typedef Hooks::BGSSaveLoadManagerEx::SaveMode SaveMode;
-		typedef Hooks::BGSSaveLoadManagerEx::DumpFlag DumpFlag;
+		using SaveType = BGSSaveLoadManagerEx::SaveType;
+		using OutputFlag = BGSSaveLoadManagerEx::OutputFlag;
 
 		//Save
-		bool(*SaveGame_Original)(RE::BGSSaveLoadManager*, SaveMode, DumpFlag, const char*);
-		SaveGame_Original = reinterpret_cast<bool(*)(RE::BGSSaveLoadManager*, SaveMode, DumpFlag, const char*)>(Offsets::SaveGame_Original.GetUIntPtr());
-		SaveGame_Original(RE::BGSSaveLoadManager::GetSingleton(), SaveMode::kSave, this->dumpFlag, this->saveName);
+		BGSSaveLoadManagerEx* slm = static_cast<BGSSaveLoadManagerEx*>(RE::BGSSaveLoadManager::GetSingleton());
+		slm->SaveGame(SaveType::kSave, this->outputFlag, this->saveName);
 	}
 
 	void SaveGameDelegate::Dispose()
@@ -76,7 +76,7 @@ namespace Tasks
 		delete this;
 	}
 
-	void SaveGameDelegate::RegisterTask(Hooks::BGSSaveLoadManagerEx::DumpFlag a_dumpFlag, const char* a_name)
+	void SaveGameDelegate::RegisterTask(BGSSaveLoadManagerEx::OutputFlag a_outputFlag, const char* a_name)
 	{
 		//Create save screenshot
 		void(*RequestScreenshot_Original)();
@@ -99,7 +99,7 @@ namespace Tasks
 			task->saveName = nullptr;
 		}
 
-		task->dumpFlag = a_dumpFlag;
+		task->outputFlag = a_outputFlag;
 		auto taskInterface = SKSE::GetTaskInterface();
 		taskInterface->AddTask(task);
 	}
@@ -138,8 +138,8 @@ namespace Tasks
 		RE::InterfaceStrings * interfaceStrings = RE::InterfaceStrings::GetSingleton();
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
-		player->currentProcess->UpdateEquipment(player);
-		(this->containerOwner)->currentProcess->UpdateEquipment(this->containerOwner);
+		player->currentProcess->Update3DModel(player);
+		(this->containerOwner)->currentProcess->Update3DModel(this->containerOwner);
 		(this->list)->Update(player);
 	}
 

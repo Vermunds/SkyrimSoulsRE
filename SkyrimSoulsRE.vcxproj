@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)HookShareSSE\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -142,7 +142,21 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\BGSSaveLoadManagerEx.cpp" />
     <ClCompile Include="src\Hooks.cpp" />
+    <ClCompile Include="src\Hooks_BookMenu.cpp" />
+    <ClCompile Include="src\Hooks_Console.cpp" />
+    <ClCompile Include="src\Hooks_ContainerMenu.cpp" />
+    <ClCompile Include="src\Hooks_DialogueMenu.cpp" />
+    <ClCompile Include="src\Hooks_FavoritesMenu.cpp" />
+    <ClCompile Include="src\Hooks_Input.cpp" />
+    <ClCompile Include="src\Hooks_InventoryMenu.cpp" />
+    <ClCompile Include="src\Hooks_JournalMenu.cpp" />
+    <ClCompile Include="src\Hooks_LockpickingMenu.cpp" />
+    <ClCompile Include="src\Hooks_MessageBoxMenu.cpp" />
+    <ClCompile Include="src\Hooks_Papyrus.cpp" />
+    <ClCompile Include="src\Hooks_SleepWaitMenu.cpp" />
+    <ClCompile Include="src\Hooks_TweenMenu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\Settings.cpp" />
@@ -150,9 +164,23 @@
     <ClCompile Include="src\Tasks.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BGSSaveLoadManagerEx.h" />
     <ClInclude Include="include\Events.h" />
     <ClInclude Include="include\Hooks.h" />
+    <ClInclude Include="include\Hooks_BookMenu.h" />
+    <ClInclude Include="include\Hooks_Console.h" />
+    <ClInclude Include="include\Hooks_ContainerMenu.h" />
+    <ClInclude Include="include\Hooks_DialogueMenu.h" />
+    <ClInclude Include="include\Hooks_FavoritesMenu.h" />
+    <ClInclude Include="include\Hooks_Input.h" />
+    <ClInclude Include="include\Hooks_InventoryMenu.h" />
+    <ClInclude Include="include\Hooks_JournalMenu.h" />
+    <ClInclude Include="include\Hooks_LockpickingMenu.h" />
+    <ClInclude Include="include\Hooks_MessageBoxMenu.h" />
+    <ClInclude Include="include\Hooks_Papyrus.h" />
+    <ClInclude Include="include\Hooks_SleepWaitMenu.h" />
     <ClInclude Include="include\Settings.h" />
+    <ClInclude Include="include\Hooks_TweenMenu.h" />
     <ClInclude Include="include\Utility.h" />
     <ClInclude Include="include\version.h" />
     <ClInclude Include="include\Offsets.h" />
