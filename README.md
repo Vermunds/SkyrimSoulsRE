@@ -3,7 +3,6 @@ Head to the [releases tab](https://github.com/Vermunds/SkyrimSoulsRE/releases) t
 Also available on [Nexus mods](https://www.nexusmods.com/skyrimspecialedition/mods/27859).
 
 ## Build Dependencies
-* [SKSE64](https://skse.silverlock.org/)
 * [CommonLibSSE](https://github.com/SniffleMan/CommonLibSSE)
 * [Simpleini](https://github.com/brofield/simpleini)
 
