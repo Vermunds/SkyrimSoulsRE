@@ -20,10 +20,12 @@ namespace SkyrimSoulsRE
 
 		//AutoClose
 		bool	autoCloseMenus;
+		bool	autoCloseDialogueMenus;
+		bool	autoCloseSleepWaitMenu;
 		float	autoCloseDistance;
+		float	autoCloseDistanceDialogueContext;
 
 		//Controls
-		bool	autoCenterCursor;
 		bool	enableMovementInMenus;
 		bool	enableMovementDialogueMenu;
 		bool	enableGamepadCameraMove;
@@ -34,6 +36,19 @@ namespace SkyrimSoulsRE
 		//slow motion
 		bool	enableSlowMotion;
 		float	slowMotionMultiplier;
+
+		//Blur
+		bool	disableBlur;
+
+		//Saving
+		std::uint32_t saveDelayMS;
+
+		//HUD
+		float sneakMeterPosX;
+		float sneakMeterPosY;
+		
+		//Combat Alert Overlay
+		std::map<std::string, bool> overlayMenus;
 	};
 
 	extern void LoadSettings();

@@ -1,0 +1,40 @@
+#include "Menus/Hooks_TweenMenu.h"
+
+namespace SkyrimSoulsRE
+{
+	void TweenMenuEx::AdvanceMovie_Hook(float a_interval, uint32_t a_currentTime)
+	{
+		UpdateClock();
+		return _AdvanceMovie(this, a_interval, a_currentTime);
+	}
+
+	//Tween menu clock
+	void TweenMenuEx::UpdateClock()
+	{
+		void(*GetTimeString)(RE::Calendar * a_this, char* a_str, std::uint64_t a_bufferSize, bool a_showYear) = reinterpret_cast<void(*)(RE::Calendar*, char*, std::uint64_t, bool)>(Offsets::Calendar::GetTimeString.address());
+
+		char buf[200];
+		GetTimeString(RE::Calendar::GetSingleton(), buf, 200, true);
+
+		RE::GFxValue dateText;
+		this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
+		RE::GFxValue newDate(buf);
+		dateText.SetMember("htmlText", newDate);
+	}
+
+	RE::IMenu* TweenMenuEx::Creator()
+	{
+		return CreateMenu(RE::TweenMenu::MENU_NAME);
+	}
+
+	void TweenMenuEx::InstallHook()
+	{
+		//Hook AdvanceMovie
+		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::TweenMenu::Vtbl);
+		_AdvanceMovie = vTable.write_vfunc(0x5, &TweenMenuEx::AdvanceMovie_Hook);
+
+		//Fix for camera movement
+		std::uint8_t codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+		REL::safe_write(Offsets::Menus::TweenMenu::Camera_Hook.address() + 0x5A5, codes, sizeof(codes));
+	}
+}

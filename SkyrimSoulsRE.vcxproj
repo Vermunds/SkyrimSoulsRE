@@ -16,6 +16,7 @@
     <RootNamespace>SkyrimSoulsRE</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static-md</VcpkgTriplet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -56,12 +57,12 @@
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ForcedIncludeFiles>ForceInclude.h;SKSE/Logger.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>PCH.h;</ForcedIncludeFiles>
       <ExceptionHandling>Sync</ExceptionHandling>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -71,12 +72,15 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <UseFullPaths>false</UseFullPaths>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <ForceFileOutput>
+      </ForceFileOutput>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -90,8 +94,7 @@
       <Command>copy "$(TargetPath)" "C:\Mod Organizer\mods\SkyrimSoulsRE\SKSE\Plugins\$(TargetFileName)" /Y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>
-      </Message>
+      <Message>Installing DLL...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -100,18 +103,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ForcedIncludeFiles>ForceInclude.h;SKSE/Logger.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>PCH.h;</ForcedIncludeFiles>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <OmitFramePointers>
       </OmitFramePointers>
-      <MultiProcessorCompilation>
-      </MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -134,7 +135,7 @@
       </Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Message>Installing SkyrimSoulsRE...</Message>
+      <Message>Installing DLL...</Message>
       <Command>copy "$(TargetPath)" "C:\Mod Organizer\mods\SkyrimSoulsRE\SKSE\Plugins\$(TargetFileName)" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -142,68 +143,89 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\BGSSaveLoadManagerEx.cpp" />
-    <ClCompile Include="src\Hooks.cpp" />
-    <ClCompile Include="src\Hooks_BookMenu.cpp" />
-    <ClCompile Include="src\Hooks_Console.cpp" />
-    <ClCompile Include="src\Hooks_ContainerMenu.cpp" />
-    <ClCompile Include="src\Hooks_DialogueMenu.cpp" />
-    <ClCompile Include="src\Hooks_FavoritesMenu.cpp" />
-    <ClCompile Include="src\Hooks_Input.cpp" />
-    <ClCompile Include="src\Hooks_InventoryMenu.cpp" />
-    <ClCompile Include="src\Hooks_JournalMenu.cpp" />
-    <ClCompile Include="src\Hooks_LockpickingMenu.cpp" />
-    <ClCompile Include="src\Hooks_MessageBoxMenu.cpp" />
-    <ClCompile Include="src\Hooks_Papyrus.cpp" />
-    <ClCompile Include="src\Hooks_SleepWaitMenu.cpp" />
-    <ClCompile Include="src\Hooks_TweenMenu.cpp" />
+    <ClCompile Include="src\ConsoleCommandHooks.cpp" />
+    <ClCompile Include="src\Controls\CameraMovement.cpp" />
+    <ClCompile Include="src\Controls\MenuControlsEx.cpp" />
+    <ClCompile Include="src\Controls\PlayerControlsEx.cpp" />
+    <ClCompile Include="src\Menus\CombatAlertOverlayMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_BarterMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_BookMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_Console.cpp" />
+    <ClCompile Include="src\Menus\Hooks_ContainerMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_CustomMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_DialogueMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_FavoritesMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_GiftMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_HUDMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_InventoryMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_JournalMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_LevelUpMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_LockpickingMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_MagicMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_MapMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_MessageBoxMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_ModManagerMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_SleepWaitMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_StatsMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_TrainingMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_TutorialMenu.cpp" />
+    <ClCompile Include="src\Menus\Hooks_TweenMenu.cpp" />
+    <ClCompile Include="src\AutoCloseManager.cpp" />
+    <ClCompile Include="src\SkyrimSoulsRE.cpp" />
+    <ClCompile Include="src\PayprusHook.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Events.cpp" />
+    <ClCompile Include="src\SlowMotionHandler.cpp" />
     <ClCompile Include="src\Settings.cpp" />
-    <ClCompile Include="src\Utility.cpp" />
-    <ClCompile Include="src\Tasks.cpp" />
+    <ClCompile Include="src\UnpausedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\BGSSaveLoadManagerEx.h" />
-    <ClInclude Include="include\Events.h" />
-    <ClInclude Include="include\Hooks.h" />
-    <ClInclude Include="include\Hooks_BookMenu.h" />
-    <ClInclude Include="include\Hooks_Console.h" />
-    <ClInclude Include="include\Hooks_ContainerMenu.h" />
-    <ClInclude Include="include\Hooks_DialogueMenu.h" />
-    <ClInclude Include="include\Hooks_FavoritesMenu.h" />
-    <ClInclude Include="include\Hooks_Input.h" />
-    <ClInclude Include="include\Hooks_InventoryMenu.h" />
-    <ClInclude Include="include\Hooks_JournalMenu.h" />
-    <ClInclude Include="include\Hooks_LockpickingMenu.h" />
-    <ClInclude Include="include\Hooks_MessageBoxMenu.h" />
-    <ClInclude Include="include\Hooks_Papyrus.h" />
-    <ClInclude Include="include\Hooks_SleepWaitMenu.h" />
+    <ClInclude Include="include\ConsoleCommandHooks.h" />
+    <ClInclude Include="include\Controls\CameraMovement.h" />
+    <ClInclude Include="include\Controls\InputHandlerEx.h" />
+    <ClInclude Include="include\Controls\MenuControlsEx.h" />
+    <ClInclude Include="include\Controls\PlayerControlsEx.h" />
+    <ClInclude Include="include\Menus\CombatAlertOverlayMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_LevelUpMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_MapMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_StatsMenu.h" />
+    <ClInclude Include="include\SlowMotionHandler.h" />
+    <ClInclude Include="include\AutoCloseManager.h" />
+    <ClInclude Include="include\PCH.h" />
+    <ClInclude Include="include\SkyrimSoulsRE.h" />
+    <ClInclude Include="include\Menus\Hooks_BarterMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_BookMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_Console.h" />
+    <ClInclude Include="include\Menus\Hooks_ContainerMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_CustomMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_DialogueMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_FavoritesMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_GiftMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_HUDMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_InventoryMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_JournalMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_LockpickingMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_MessageBoxMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_ModManagerMenu.h" />
+    <ClInclude Include="include\PapyrusHook.h" />
+    <ClInclude Include="include\Menus\Hooks_SleepWaitMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_MagicMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_TrainingMenu.h" />
+    <ClInclude Include="include\Menus\Hooks_TutorialMenu.h" />
     <ClInclude Include="include\Settings.h" />
-    <ClInclude Include="include\Hooks_TweenMenu.h" />
-    <ClInclude Include="include\Utility.h" />
+    <ClInclude Include="include\Menus\Hooks_TweenMenu.h" />
+    <ClInclude Include="include\UnpausedTaskQueue.h" />
     <ClInclude Include="include\version.h" />
     <ClInclude Include="include\Offsets.h" />
-    <ClInclude Include="include\Tasks.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\common\common_vc14.vcxproj">
-      <Project>{472e19ab-def0-42df-819b-18722e8dc822}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\CommonLibSSE\CommonLibSSE.vcxproj">
-      <Project>{c1af9204-ee2d-421b-b11e-1d70d8acc11f}</Project>
+      <Project>{3e4b6ef3-ec6e-46cf-9003-eeb57a258b82}</Project>
     </ProjectReference>
     <ProjectReference Include="..\SimpleIni\SimpleIni.vcxproj">
       <Project>{c23240a6-aa9d-4827-af06-c98e97ca6dfb}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\skse64\skse64.vcxproj">
-      <Project>{7028b79c-06e3-4d9a-b38c-1dc3680b1bdb}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\skse64_common\skse64_common.vcxproj">
-      <Project>{5fd1c08d-db80-480c-a1c6-f0920005cd13}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,0 +1,120 @@
+#include "Menus/Hooks_InventoryMenu.h"
+
+namespace SkyrimSoulsRE
+{
+
+	void InventoryMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
+	{
+		this->UpdateBottomBar();
+		return _AdvanceMovie(this, a_interval, a_currentTime);
+	}
+
+	void InventoryMenuEx::UpdateBottomBar()
+	{
+		using func_t = decltype(&InventoryMenuEx::UpdateBottomBar);
+		REL::Relocation<func_t> func(Offsets::Menus::InventoryMenu::UpdateBottomBar);
+		return func(this);
+	}
+
+	void InventoryMenuEx::ItemDrop_Hook(const RE::FxDelegateArgs& a_args)
+	{
+		class ItemDropTask : public UnpausedTask
+		{
+			double count;
+		public:
+			ItemDropTask(double a_count)
+			{
+				this->count = a_count;
+			}
+
+			virtual void Run() override
+			{
+				RE::UI* ui = RE::UI::GetSingleton();
+
+				if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
+				{
+					RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
+
+					RE::GFxValue arg = this->count;
+					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+					_ItemDrop(args);
+				}
+			}
+		};
+
+		ItemDropTask* task = new ItemDropTask(a_args[0].GetNumber());
+		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+		queue->AddTask(task);
+	}
+
+	void InventoryMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
+	{
+		class ItemSelectTask : public UnpausedTask
+		{
+			bool	hasSlot;
+			double	slot;
+		public:
+			ItemSelectTask(bool a_hasSlot, double a_slot = 0.0)
+			{
+				this->hasSlot = a_hasSlot;
+				this->slot = a_slot;			}
+
+			virtual void Run() override
+			{
+				RE::UI* ui = RE::UI::GetSingleton();
+
+				if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
+				{
+					RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
+
+					if (this->hasSlot)
+					{
+						RE::GFxValue arg = this->slot;
+						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+						_ItemSelect(args);
+					}
+					else
+					{
+						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
+						_ItemSelect(args);
+					}
+				}
+			}
+		};
+
+		ItemSelectTask* task;
+
+		if (a_args.GetArgCount() == 0)
+		{
+			task = new ItemSelectTask(false);
+		}
+		else
+		{
+			task = new ItemSelectTask(true, a_args[0].GetNumber());
+		}
+
+		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+		queue->AddTask(task);
+	}
+
+	RE::IMenu* InventoryMenuEx::Creator()
+	{
+		RE::InventoryMenu* menu = static_cast<RE::InventoryMenu*>(CreateMenu(RE::InventoryMenu::MENU_NAME));
+
+		RE::FxDelegate* dlg = menu->fxDelegate.get();
+
+		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
+		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
+		_ItemDrop = dlg->callbacks.GetAlt("ItemDrop")->callback;
+		dlg->callbacks.GetAlt("ItemDrop")->callback = ItemDrop_Hook;
+
+		return menu;
+	}
+
+	void InventoryMenuEx::InstallHook()
+	{
+		//Hook AdvanceMovie
+		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::InventoryMenu::Vtbl);
+		_AdvanceMovie = vTable.write_vfunc(0x5, &InventoryMenuEx::AdvanceMovie_Hook);
+	}
+};
