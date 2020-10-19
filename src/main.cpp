@@ -16,19 +16,6 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	}
 }
 
-void ShowErrorMessage(std::string a_error, std::string a_desc = "")
-{
-	SKSE::log::critical(a_error.c_str());
-	if (a_desc != "")
-	{
-		MessageBoxA(nullptr, (a_error + "\n\n" + a_desc + "\n\nPress OK to continue with the mod disabled.").c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_DEFBUTTON2 | MB_SYSTEMMODAL);
-	}
-	else
-	{
-		MessageBoxA(nullptr, (a_error + "\n\nPress OK to continue with the mod disabled.").c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_DEFBUTTON2 | MB_SYSTEMMODAL);
-	}
-}
-
 extern "C" {
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
@@ -54,7 +41,8 @@ extern "C" {
 		}
 
 		if (a_skse->RuntimeVersion() != SKSE::RUNTIME_1_5_97) {
-			ShowErrorMessage("Unsupported runtime version " + a_skse->RuntimeVersion().string());
+			SKSE::log::critical("Unsupported runtime version " + a_skse->RuntimeVersion().string());
+			MessageBoxA(nullptr, std::string("Unsupported runtime version " + a_skse->RuntimeVersion().string()).c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
 
@@ -63,22 +51,25 @@ extern "C" {
 			SKSE::log::info("Trampoline creation successful.");
 		}
 		else {
-			ShowErrorMessage("Trampoline creation failed!");
+			SKSE::log::critical("Trampoline creation failed.");
+			MessageBoxA(nullptr, "Trampoline creation failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
 
 		//Check for kassents version
 		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))
 		{
-			ShowErrorMessage("A different version of Skyrim Souls is detected.", "Remove any old versions you have installed, or you won't be able to use this updated version.");
+			SKSE::log::critical("A different version of Skyrim Souls is detected.");
+			MessageBoxA(nullptr, "A different version of Skyrim Souls is detected. The updated version will be disabled.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
 
 		//Check if Address Library is available
-		std::string fileName = "Data/SKSE/Plugins/version-" + std::to_string(a_skse->RuntimeVersion()[0]) + "-" + std::to_string(a_skse->RuntimeVersion()[1]) + "-" + std::to_string(a_skse->RuntimeVersion()[2]) + "-" + std::to_string(a_skse->RuntimeVersion()[3]) + ".bin";
+		std::string fileName = "Data/SKSE/Plugins/version-" + a_skse->RuntimeVersion().string() + ".bin";
 		if (!std::filesystem::exists(fileName))
 		{
-			ShowErrorMessage("Address Library for SKSE Plugins not found for current runtime version " + a_skse->RuntimeVersion().string(), "This mod requires it to function. Please install it before continuing.");
+			SKSE::log::critical("A different version of Skyrim Souls is detected. The updated version will be disabled.");
+			MessageBoxA(nullptr, std::string("Address Library for SKSE Plugins not found for current runtime version " + a_skse->RuntimeVersion().string() + "\nThe mod will be disabled.").c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
 
@@ -88,25 +79,27 @@ extern "C" {
 	bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
 	{
 		if (!SKSE::Init(a_skse)) {
-			ShowErrorMessage("SKSE initialization failed!", "Check your SKSE installation.");
+			SKSE::log::critical("SKSE init failed.");
+			MessageBoxA(nullptr, "SKSE init failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
-
-		SKSE::log::info("Skyrim Souls RE loaded.");
 
 		auto messaging = SKSE::GetMessagingInterface();
 		if (messaging->RegisterListener("SKSE", MessageHandler)) {
 			SKSE::log::info("Messaging interface registration successful.");
 		} else {
-			ShowErrorMessage("Messaging interface registration failed.");
+			SKSE::log::critical("Messaging interface registration failed.");
+			MessageBoxA(nullptr, "Messaging interface registration failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			return false;
 		}
 
 		SkyrimSoulsRE::LoadSettings();
-		SKSE::log::info("Settings successfully loaded.");
+		SKSE::log::info("Settings loaded.");
 
 		SkyrimSoulsRE::InstallHooks();
 		SKSE::log::info("Hooks installed.");
+
+		SKSE::log::info("Skyrim Souls RE loaded.");
 
 		return true;
 	}
