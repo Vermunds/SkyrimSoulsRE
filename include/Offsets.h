@@ -48,7 +48,7 @@ namespace Offsets {
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268222));
 
 			static constexpr REL::ID ContainerMode(static_cast<std::uint64_t>(519396));
-			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(517110)); // + 0x68
+			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(519421));
 
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50214));
 		}

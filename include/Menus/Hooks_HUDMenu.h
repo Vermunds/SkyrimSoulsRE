@@ -11,7 +11,8 @@ namespace SkyrimSoulsRE
 		static inline double stealthMeterPosX;
 		static inline double stealthMeterPosY;
 
-		void SetStealPickpocketHUDMode(bool a_isEnabled);
+		void SetSkyrimSoulsMode(bool a_isEnabled);
+		void UpdateHUD();
 
 		static RE::IMenu* Creator();
 		static void InstallHook();

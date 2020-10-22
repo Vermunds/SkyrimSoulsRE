@@ -19,7 +19,8 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 extern "C" {
 	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
-		auto path = SKSE::log::log_directory() / "SkyrimSoulsRE.log";
+		assert(SKSE::log::log_directory().has_value());
+		auto path = SKSE::log::log_directory().value() / std::filesystem::path("SkyrimSoulsRE.log");
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
 		auto log = std::make_shared<spdlog::logger>("global log", std::move(sink));
 
@@ -46,15 +47,7 @@ extern "C" {
 			return false;
 		}
 
-		if (SKSE::AllocTrampoline(1 << 8))
-		{
-			SKSE::log::info("Trampoline creation successful.");
-		}
-		else {
-			SKSE::log::critical("Trampoline creation failed.");
-			MessageBoxA(nullptr, "Trampoline creation failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
-			return false;
-		}
+		SKSE::AllocTrampoline(1 << 8, true);
 
 		//Check for kassents version
 		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))
@@ -78,11 +71,7 @@ extern "C" {
 
 	bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
 	{
-		if (!SKSE::Init(a_skse)) {
-			SKSE::log::critical("SKSE init failed.");
-			MessageBoxA(nullptr, "SKSE init failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
-			return false;
-		}
+		SKSE::Init(a_skse);
 
 		auto messaging = SKSE::GetMessagingInterface();
 		if (messaging->RegisterListener("SKSE", MessageHandler)) {

@@ -2,6 +2,18 @@
 
 namespace SkyrimSoulsRE
 {
+	RE::UI_MESSAGE_RESULTS BarterMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
+	{
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		{
+			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+			if (hudMenu)
+			{
+				hudMenu->SetSkyrimSoulsMode(false);
+			}
+		}
+		return _ProcessMessage(this, a_message);
+	}
 	void BarterMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		//this->UpdateBottomBar();
@@ -74,6 +86,12 @@ namespace SkyrimSoulsRE
 			SKSE::log::error("Failed to find Barter Menu target!");
 		}
 
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+		if (hudMenu)
+		{
+			hudMenu->SetSkyrimSoulsMode(true);
+		}
+
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
 		autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, ref, true);
 
@@ -82,8 +100,9 @@ namespace SkyrimSoulsRE
 
 	void BarterMenuEx::InstallHook()
 	{
-		//Hook AdvanceMovie
+		//Hook AdvanceMovie + ProcessMessage
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::BarterMenu::Vtbl);
+		_ProcessMessage = vTable.write_vfunc(0x4, &BarterMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &BarterMenuEx::AdvanceMovie_Hook);
 	}
 }

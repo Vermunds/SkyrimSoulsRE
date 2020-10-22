@@ -30,7 +30,12 @@ namespace SkyrimSoulsRE
 
 	void JournalMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
-		UpdateClock();
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+		if (hudMenu)
+		{
+			hudMenu->UpdateHUD();
+		}
+		this->UpdateClock();
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 

@@ -5,6 +5,19 @@ namespace SkyrimSoulsRE
 	//testing
 	auto lastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
 
+	RE::UI_MESSAGE_RESULTS MagicMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
+	{
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		{
+			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+			if (hudMenu)
+			{
+				hudMenu->SetSkyrimSoulsMode(false);
+			}
+		}
+		return _ProcessMessage(this, a_message);
+	}
+
 	void MagicMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		this->UpdateBottomBar();
@@ -31,6 +44,12 @@ namespace SkyrimSoulsRE
 	{
 		lastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
 
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+		if (hudMenu)
+		{
+			hudMenu->SetSkyrimSoulsMode(true);
+		}
+
 		return CreateMenu(RE::MagicMenu::MENU_NAME);
 	}
 
@@ -38,6 +57,7 @@ namespace SkyrimSoulsRE
 	{
 		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::MagicMenu::Vtbl);
+		_ProcessMessage = vTable.write_vfunc(0x4, &MagicMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MagicMenuEx::AdvanceMovie_Hook);
 	}
 }

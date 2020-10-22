@@ -14,10 +14,12 @@ namespace SkyrimSoulsRE
 
 	void SleepWaitMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
-		if (!(RE::UI::GetSingleton()->GameIsPaused()))
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+		if (hudMenu)
 		{
-			this->UpdateClock();
+			hudMenu->UpdateHUD();
 		}
+		this->UpdateClock();
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 

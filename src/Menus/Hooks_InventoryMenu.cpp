@@ -2,7 +2,18 @@
 
 namespace SkyrimSoulsRE
 {
-
+	RE::UI_MESSAGE_RESULTS InventoryMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
+	{
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		{
+			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+			if (hudMenu)
+			{
+				hudMenu->SetSkyrimSoulsMode(false);
+			}
+		}
+		return _ProcessMessage(this, a_message);
+	}
 	void InventoryMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		this->UpdateBottomBar();
@@ -108,6 +119,12 @@ namespace SkyrimSoulsRE
 		_ItemDrop = dlg->callbacks.GetAlt("ItemDrop")->callback;
 		dlg->callbacks.GetAlt("ItemDrop")->callback = ItemDrop_Hook;
 
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+		if (hudMenu)
+		{
+			hudMenu->SetSkyrimSoulsMode(true);
+		}
+
 		return menu;
 	}
 
@@ -115,6 +132,7 @@ namespace SkyrimSoulsRE
 	{
 		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::InventoryMenu::Vtbl);
+		_ProcessMessage = vTable.write_vfunc(0x4, &InventoryMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &InventoryMenuEx::AdvanceMovie_Hook);
 	}
 };

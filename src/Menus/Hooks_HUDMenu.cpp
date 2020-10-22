@@ -2,7 +2,7 @@
 
 namespace SkyrimSoulsRE
 {
-	void HUDMenuEx::SetStealPickpocketHUDMode(bool a_isEnabled)
+	void HUDMenuEx::SetSkyrimSoulsMode(bool a_isEnabled)
 	{
 		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 		RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
@@ -38,6 +38,15 @@ namespace SkyrimSoulsRE
 
 		StealthMeterInstance.SetDisplayInfo(displayInfo);
 		this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance", &StealthMeterInstance);
+	}
+
+	void HUDMenuEx::UpdateHUD()
+	{
+		for (auto it = this->objects.begin(); it != this->objects.end(); ++it)
+		{
+			RE::HUDObject* obj = *it;
+			obj->Update();
+		}
 	}
 
 	RE::IMenu* HUDMenuEx::Creator()

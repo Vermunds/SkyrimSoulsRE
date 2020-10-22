@@ -9,16 +9,13 @@ namespace SkyrimSoulsRE
 
 		bool IsInMenuMode()
 		{
-			if (*isInMenuMode_1 || *isInMenuMode_2 || SkyrimSoulsRE::GetUnpausedMenuCount()) {
-				return true;
-			}
-			return false;
+			return *isInMenuMode_1 || *isInMenuMode_2 || SkyrimSoulsRE::GetUnpausedMenuCount();
 		}
 
 		void InstallHook() {
 			isInMenuMode_1 = reinterpret_cast<bool*>(Offsets::Papyrus::IsInMenuMode::Value1.address());
 			isInMenuMode_2 = reinterpret_cast<bool*>(Offsets::Papyrus::IsInMenuMode::Value2.address());
-			SKSE::GetTrampoline().write_call<5>(Offsets::Papyrus::IsInMenuMode::Hook.address(), IsInMenuMode);
+			SKSE::GetTrampoline().write_branch<5>(Offsets::Papyrus::IsInMenuMode::Hook.address(), IsInMenuMode);
 		}
 	}
 }

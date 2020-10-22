@@ -5,17 +5,12 @@ namespace SkyrimSoulsRE
 
 	void LockpickingMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
-
-		// Update the HUD
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)
 		{
-			for (auto it = hudMenu->objects.begin(); it != hudMenu->objects.end(); ++it)
-			{
-				RE::HUDObject* obj = *it;
-				obj->Update();
-			}
+			hudMenu->UpdateHUD();
 		}
+		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::LockpickingMenu::MENU_NAME);
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 
@@ -26,7 +21,7 @@ namespace SkyrimSoulsRE
 			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 			if (hudMenu)
 			{
-				hudMenu->SetStealPickpocketHUDMode(false);
+				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
 		return _ProcessMessage(this, a_message);
@@ -42,18 +37,14 @@ namespace SkyrimSoulsRE
 		assert(refptr);
 
 		RE::TESObjectREFR* ref = refptr->get();
-		if (!ref)
-		{
-			SKSE::log::error("Failed to find Lockpicking Menu target!");
-		}
 
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, false);
+		autoCloseManager->InitAutoClose(RE::LockpickingMenu::MENU_NAME, ref, false);
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)
 		{
-			hudMenu->SetStealPickpocketHUDMode(true);
+			hudMenu->SetSkyrimSoulsMode(true);
 		}
 
 		return menu;

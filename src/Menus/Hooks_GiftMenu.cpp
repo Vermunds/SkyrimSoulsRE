@@ -2,6 +2,18 @@
 
 namespace SkyrimSoulsRE
 {
+	RE::UI_MESSAGE_RESULTS GiftMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
+	{
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		{
+			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+			if (hudMenu)
+			{
+				hudMenu->SetSkyrimSoulsMode(false);
+			}
+		}
+		return _ProcessMessage(this, a_message);
+	}
 	void GiftMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		this->UpdateBottomBar();
@@ -42,12 +54,16 @@ namespace SkyrimSoulsRE
 	{
 		using func_t = decltype(&GiftMenuEx::UpdateBottomBar);
 		REL::Relocation<func_t> func(Offsets::Menus::GiftMenu::UpdateBottomBar);
+		return func(this);
+	}
 
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-		if (hudMenu)
-		{
-			hudMenu->SetStealPickpocketHUDMode(true);
-		}
+	RE::IMenu* GiftMenuEx::Creator()
+	{
+		RE::IMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
+
+		RE::FxDelegate* dlg = menu->fxDelegate.get();
+		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
+		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
 		std::uint32_t* handle = reinterpret_cast<std::uint32_t*>(Offsets::Menus::GiftMenu::TargetRefHandle.address());
 		RE::TESObjectREFRPtr refptr = nullptr;
@@ -61,29 +77,22 @@ namespace SkyrimSoulsRE
 			SKSE::log::error("Failed to find Gift Menu target!");
 		}
 
+		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+		if (hudMenu)
+		{
+			hudMenu->SetSkyrimSoulsMode(true);
+		}
+
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
 		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, true);
-
-		return func(this);
-	}
-
-	RE::IMenu* GiftMenuEx::Creator()
-	{
-		RE::IMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
-
-		RE::FxDelegate* dlg = menu->fxDelegate.get();
-		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
-		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
 		return menu;
 	}
 
 	void GiftMenuEx::InstallHook()
 	{
-		// Provides no difference right now - reserved for future use.
-
-		//Hook AdvanceMovie
-		//REL::Offset<std::uintptr_t> vTable(Offsets::IMenu::GiftMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::GiftMenu::Vtbl);
+		_ProcessMessage= vTable.write_vfunc(0x4, &GiftMenuEx::ProcessMessage_Hook);
 		//_AdvanceMovie = vTable.WriteVFunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
 	}
 }

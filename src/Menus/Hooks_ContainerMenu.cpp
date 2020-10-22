@@ -9,7 +9,7 @@ namespace SkyrimSoulsRE
 			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
 			if (hudMenu)
 			{
-				hudMenu->SetStealPickpocketHUDMode(false);
+				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
 		return _ProcessMessage(this, a_message);
@@ -268,7 +268,7 @@ namespace SkyrimSoulsRE
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
 		if (hudMenu)
 		{
-			hudMenu->SetStealPickpocketHUDMode(true);
+			hudMenu->SetSkyrimSoulsMode(true);
 		}
 
 		std::uint32_t* handle = reinterpret_cast<std::uint32_t*>(Offsets::Menus::ContainerMenu::TargetRefHandle.address());
