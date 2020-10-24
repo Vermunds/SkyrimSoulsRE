@@ -31,7 +31,7 @@ namespace SkyrimSoulsRE
 				this->amount = a_amount;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 

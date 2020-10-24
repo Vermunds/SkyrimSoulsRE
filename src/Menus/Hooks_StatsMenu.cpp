@@ -15,7 +15,6 @@ namespace SkyrimSoulsRE
     RE::IMenu* StatsMenuEx::Creator()
     {
         StatsMenuEx* menu = static_cast<StatsMenuEx*>(CreateMenu(RE::StatsMenu::MENU_NAME));
-        menu->CanProcess(nullptr);
         return menu;
     }
 

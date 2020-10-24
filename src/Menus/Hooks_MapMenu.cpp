@@ -17,7 +17,7 @@ namespace SkyrimSoulsRE
 				this->currentTime = a_currentTime;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 

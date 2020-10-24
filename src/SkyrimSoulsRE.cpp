@@ -103,9 +103,9 @@ namespace SkyrimSoulsRE
 
 		std::uint32_t count = 0;
 
-		for (RE::BSTArray<RE::GPtr<RE::IMenu>>::iterator it = ui->menuStack.begin(); it != ui->menuStack.end(); ++it)
+		for (auto & it : ui->menuStack)
 		{
-			RE::IMenu* menu = (*it).get();
+			RE::IMenu* menu = it.get();
 			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUsesCombatAlertOverlay)) != Flag::kNone)
 			{
 				++count;
@@ -121,9 +121,9 @@ namespace SkyrimSoulsRE
 
 		std::uint32_t count = 0;
 
-		for (RE::BSTArray<RE::GPtr<RE::IMenu>>::iterator it = ui->menuStack.begin(); it != ui->menuStack.end(); ++it)
+		for (auto & it : ui->menuStack)
 		{
-			RE::IMenu* menu = (*it).get();
+			RE::IMenu* menu = it.get();
 			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUnpaused)) != Flag::kNone)
 			{
 				++count;

@@ -38,7 +38,7 @@ namespace SkyrimSoulsRE
 				this->count = a_count;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 
@@ -70,7 +70,7 @@ namespace SkyrimSoulsRE
 				this->hasSlot = a_hasSlot;
 				this->slot = a_slot;			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 

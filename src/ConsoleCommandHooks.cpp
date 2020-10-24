@@ -30,7 +30,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 				this->delayTimeMS = std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS);
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				BGSSaveLoadManagerEx* saveLoadManager = static_cast<BGSSaveLoadManagerEx*>(RE::BGSSaveLoadManager::GetSingleton());
 				if (saveLoadManager->Save_Impl(deviceID, outputStats, fileName.c_str()))
@@ -63,7 +63,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 
 			ServeTimeTask() {}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 				return player->ServePrisonTime();
@@ -89,7 +89,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 				this->cell = a_cell;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();		
 				

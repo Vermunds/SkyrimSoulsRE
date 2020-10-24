@@ -25,7 +25,7 @@ namespace SkyrimSoulsRE
 
 			if ((data->target->IsDisabled() && !data->initiallyDisabled) || data->target->IsMarkedForDeletion())
 			{
-				uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, 0);
+				uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 				return;
 			}
 
@@ -33,7 +33,7 @@ namespace SkyrimSoulsRE
 			{
 				if (data->target->IsDead(true))
 				{
-					uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, 0);
+					uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 					return;
 				}
 			}
@@ -43,14 +43,14 @@ namespace SkyrimSoulsRE
 				if (!tooFarOnOpen && currentDistance > maxDistance)
 				{
 					//Normal case
-					uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, 0);
+					uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 				}
 				else if (tooFarOnOpen)
 				{
 					//Container was opened when it was too far
 					if (currentDistance > maxDistance && currentDistance > (data->minDistance + tolerance)) //Close only if the distance is increasing
 					{
-						uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, 0);
+						uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 						return;
 					}
 				}
@@ -79,7 +79,7 @@ namespace SkyrimSoulsRE
 		data->dialogueMode = (a_menuName == RE::DialogueMenu::MENU_NAME);
 
 		// Check for parent menus -> copy the parent menus autoclose data
-		// Menus we never auto close: Tutorial Menu (maybe possible but I don't care), MessageBox (can't really autoclose this one, as there is no way I know of to "cancel" actions. The player has to decide.)
+		// Menus we never auto close: Tutorial Menu (maybe possible but I don't care), MessageBox (can't really auto close this one, as there is no way I know of to "cancel" actions. The player has to decide.)
 		// Dialogue -> Container
 		if (a_menuName == RE::ContainerMenu::MENU_NAME)
 		{

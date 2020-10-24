@@ -78,7 +78,7 @@ namespace SkyrimSoulsRE
 			RE::GFxValue	scope;
 			std::uint32_t	keyCode;
 		public:
-			virtual RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
+			RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
 			{
 				RE::ButtonEvent* evn = (RE::ButtonEvent*) * a_event;
 
@@ -112,7 +112,7 @@ namespace SkyrimSoulsRE
 					keyCode = keyMask;
 				}
 
-				// Valid scancode?
+				// Valid scan code?
 				if (keyCode >= 282)
 				{
 					keyCode = -1;
@@ -129,7 +129,7 @@ namespace SkyrimSoulsRE
 				return RE::BSEventNotifyControl::kContinue;
 			}
 
-			virtual void Call(RE::GFxFunctionHandler::Params& a_args) override
+			void Call(RE::GFxFunctionHandler::Params& a_args) override
 			{
 				scope = a_args.args[0];
 
@@ -142,14 +142,14 @@ namespace SkyrimSoulsRE
 				playerControls->data.remapMode = true;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::GFxValue arg;
 				arg.SetNumber(this->keyCode);
 				scope.Invoke("EndRemapMode", nullptr, &arg, 1);
 			}
 
-			virtual void Dispose() override {}
+			void Dispose() override {}
 		};
 
 		class SaveGameHandler : public RE::GFxFunctionHandler, public UnpausedTask
@@ -157,7 +157,7 @@ namespace SkyrimSoulsRE
 		private:
 			double selectedIndex;
 		public:
-			virtual void Call(Params& params)
+			void Call(Params& params) override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
@@ -197,7 +197,7 @@ namespace SkyrimSoulsRE
 				}
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 
@@ -217,7 +217,7 @@ namespace SkyrimSoulsRE
 				}
 			}
 
-			virtual void Dispose() override {}
+			void Dispose() override {}
 		};
 
 		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(CreateMenu(RE::JournalMenu::MENU_NAME.data()));

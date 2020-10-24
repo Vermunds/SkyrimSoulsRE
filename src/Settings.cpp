@@ -28,7 +28,7 @@ namespace SkyrimSoulsRE
 
 		CSimpleIniA ini;
 		ini.SetUnicode();
-		ini.LoadFile(".\\Data\\SKSE\\Plugins\\SkyrimSoulsRE.ini");
+		ini.LoadFile(R"(.\Data\SKSE\Plugins\SkyrimSoulsRE.ini)");
 
 		ini.SetValue("UNPAUSED_MENUS", nullptr, nullptr, "# DELETE THIS FILE AND RUN THE GAME IF YOU WANT TO REGENERATE THE DEFAULT SETTINGS\n\n#  Here you can set which menus you want to be paused or unpaused.");
 
@@ -98,8 +98,8 @@ namespace SkyrimSoulsRE
 
 		ini.SetBoolValue("CONTROLS", "bEnableMovementInMenus", settings->enableMovementInMenus, "#  If enabled, you will be able to move when a menu is open. Use the mouse (or the D-pad on controllers) to navigate the menus.\n#  (For controllers users) To change tabs in SkyUI favorites menu, use LB and RB buttons.", true);
 		ini.SetBoolValue("CONTROLS", "bEnableMovementDialogueMenu", settings->enableMovementDialogueMenu, "#  If enabled, you will be able to move in the dialogue menu as well. \n#  bEnableMovementInMenus must be enabled for this to work.", true);
-		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "#  If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumbstick.", true);
-		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "#  If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similiar to how it works in the dialogue menu).", true);
+		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "#  If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumb stick.", true);
+		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "#  If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similar to how it works in the dialogue menu).", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", settings->cursorCameraVerticalSpeed, "#  The vertical and horizontal speed the camera moves when bEnableCursorCameraMove is enabled.", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", settings->cursorCameraHorizontalSpeed, nullptr, true);
 
@@ -159,20 +159,20 @@ namespace SkyrimSoulsRE
 		settings->sneakMeterPosX = ini.GetDoubleValue("HUD", "fSneakMeterPosX", 24.0);
 		settings->sneakMeterPosY = ini.GetDoubleValue("HUD", "fSneakMeterPosY", 120.0);
 
-		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "#  The position where the sneak meter will appear on the screen when a menu is open. It's necesary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitary so just try different values until you find what suits you.", true);
+		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "#  The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosY", settings->sneakMeterPosY, nullptr, true);
 
 
 		//Blur
 		settings->disableBlur = ini.GetBoolValue("BLUR", "bDisableBlur", false);
 
-		ini.SetBoolValue("BLUR", "bDisableBlur", settings->disableBlur, "#  If this is enabled, background blur will be diabled in menus", true);
+		ini.SetBoolValue("BLUR", "bDisableBlur", settings->disableBlur, "#  If this is enabled, background blur will be disabled in menus", true);
 
 		//Saving
 		settings->saveDelayMS = ini.GetLongValue("SAVING", "iSaveDelayMS", 1000);
 
 		ini.SetLongValue("SAVING", "iSaveDelayMS", settings->saveDelayMS, "#  Additional delay (in milliseconds) when saving from the Journal Menu, to make sure that saving happens form a paused state.\n# Larger values will increase the time saving takes.", false, true);
 
-		ini.SaveFile(".\\Data\\SKSE\\Plugins\\SkyrimSoulsRE.ini");
+		ini.SaveFile(R"(.\Data\SKSE\Plugins\SkyrimSoulsRE.ini)");
 	}
 }

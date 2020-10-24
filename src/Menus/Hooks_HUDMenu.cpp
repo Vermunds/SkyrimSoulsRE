@@ -42,9 +42,8 @@ namespace SkyrimSoulsRE
 
 	void HUDMenuEx::UpdateHUD()
 	{
-		for (auto it = this->objects.begin(); it != this->objects.end(); ++it)
+		for (RE::HUDObject * obj : this->objects)
 		{
-			RE::HUDObject* obj = *it;
 			obj->Update();
 		}
 	}

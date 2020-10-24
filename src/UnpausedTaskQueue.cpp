@@ -61,9 +61,8 @@ namespace SkyrimSoulsRE
 		std::queue<UnpausedTask*>().swap(_nextFrameTaskQueue);
 		this->Unlock();
 
-		for (std::list<UnpausedTask*>::iterator it = tasks.begin(); it != tasks.end(); ++it)
+		for (UnpausedTask * task : tasks)
 		{
-			UnpausedTask* task = *it;
 			task->Run();
 			task->Dispose();
 			

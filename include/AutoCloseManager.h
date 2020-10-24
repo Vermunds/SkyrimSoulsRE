@@ -20,7 +20,7 @@ namespace SkyrimSoulsRE
 	private:
 		struct AutoCloseData
 		{
-			RE::TESObjectREFR*	target;
+			RE::TESObjectREFR* target;
 			bool				initiallyDisabled;
 			float				initialDistance;
 			float				minDistance;
@@ -51,7 +51,7 @@ namespace SkyrimSoulsRE
 
 		std::map<std::string, AutoCloseData*>	_autoCloseDataMap;
 
-		static AutoCloseManager*				_singleton;
+		static AutoCloseManager* _singleton;
 
 		float GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_refPos);
 	};
