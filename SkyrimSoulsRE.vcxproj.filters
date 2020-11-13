@@ -237,14 +237,14 @@
     <ClInclude Include="include\Menus\Hooks_LevelUpMenu.h">
       <Filter>include\Menus</Filter>
     </ClInclude>
-    <ClInclude Include="include\Menus\CombatAlertOverlayMenu.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\ConsoleCommandHooks.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\AudioHooks.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\CombatAlertOverlayMenu.h">
+      <Filter>include\Menus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
