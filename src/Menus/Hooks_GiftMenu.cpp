@@ -59,16 +59,16 @@ namespace SkyrimSoulsRE
 
 	RE::IMenu* GiftMenuEx::Creator()
 	{
-		RE::IMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
+		RE::GiftMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
 
 		RE::FxDelegate* dlg = menu->fxDelegate.get();
 		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
 		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
-		std::uint32_t* handle = reinterpret_cast<std::uint32_t*>(Offsets::Menus::GiftMenu::TargetRefHandle.address());
+		RE::RefHandle handle = menu->GetTargetRefHandle();
 		RE::TESObjectREFRPtr refptr = nullptr;
 		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(*handle, refptr))
+		if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
 		{
 			ref = refptr.get();
 		}

@@ -18,7 +18,7 @@ namespace SkyrimSoulsRE
 	void ContainerMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		this->UpdateBottomBar();
-		if (containerMode == ContainerMode::kPickpocket)
+		if (this->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
 		{
 			this->UpdatePickpocketChance();
 		}
@@ -236,7 +236,7 @@ namespace SkyrimSoulsRE
 						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
 						ContainerMenuEx::_TransferItem(args);
 
-						if (containerMode == ContainerMode::kSteal && menu->value != 0)
+						if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 						{
 							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
 							menu->value = 0;
@@ -271,10 +271,10 @@ namespace SkyrimSoulsRE
 			hudMenu->SetSkyrimSoulsMode(true);
 		}
 
-		std::uint32_t* handle = reinterpret_cast<std::uint32_t*>(Offsets::Menus::ContainerMenu::TargetRefHandle.address());
+		RE::RefHandle handle = menu->GetTargetRefHandle();
 		RE::TESObjectREFRPtr refptr = nullptr;
 		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(*handle, refptr))
+		if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
 		{
 			ref = refptr.get();
 		}
@@ -284,10 +284,9 @@ namespace SkyrimSoulsRE
 		}
 
 		containerRef = ref;
-		containerMode = *(reinterpret_cast<ContainerMode*>(Offsets::Menus::ContainerMenu::ContainerMode.address()));
 
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();		
-		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, containerMode == ContainerMenuEx::ContainerMode::kPickpocket);
+		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket);
 
 		return menu;
 	}

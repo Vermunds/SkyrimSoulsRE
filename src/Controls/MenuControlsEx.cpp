@@ -110,10 +110,10 @@ namespace SkyrimSoulsRE
 					{
 						//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
 						RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
-						//if (thumbEvent->userEvent == userEvents->rotate && !(*(reinterpret_cast<float*>(Offsets::ItemMenu_MaximizeStatus.address())) == 1.0))
-						//{
-						//	thumbEvent->userEvent = userEvents->look;
-						//}
+						if (thumbEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0)
+						{
+							thumbEvent->userEvent = userEvents->look;
+						}
 					}
 				}
 			}

@@ -103,6 +103,9 @@
     <ClCompile Include="src\ConsoleCommandHooks.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\AudioHooks.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
@@ -237,6 +240,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\ConsoleCommandHooks.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AudioHooks.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

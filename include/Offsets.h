@@ -6,11 +6,6 @@ namespace Offsets {
 	//TODO - remove this
 	static constexpr REL::ID LockpickingMenu_Hook(51071); // + 0xE0
 
-	namespace Calendar
-	{
-		static constexpr REL::ID GetTimeString(static_cast<std::uint64_t>(35413));
-	}
-
 	namespace ConsoleCommands
 	{
 		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398)); // + 0x5B
@@ -20,6 +15,13 @@ namespace Offsets {
 		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22465)); // + 0xC4
 	}
 
+	namespace BSAudioManager
+	{
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(39377)); // + 0xBC; + 0x124
+		static constexpr REL::ID SetListenerPosition(static_cast<std::uint64_t>(66445));
+		static constexpr REL::ID SetListenerRotation(static_cast<std::uint64_t>(66446));
+	}
+
 	namespace Menus
 	{
 		namespace BarterMenu
@@ -27,15 +29,11 @@ namespace Offsets {
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(267991));
 
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50013));
-
-			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(519283));
 		}
 
 		namespace BookMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268064));
-
-			static constexpr REL::ID TargetRef(static_cast<std::uint64_t>(519300));
 		}
 
 		namespace Console
@@ -46,9 +44,6 @@ namespace Offsets {
 		namespace ContainerMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268222));
-
-			static constexpr REL::ID ContainerMode(static_cast<std::uint64_t>(519396));
-			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(519421));
 
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50214));
 		}
@@ -79,8 +74,6 @@ namespace Offsets {
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268697));
 
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50682));
-
-			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(519570));
 		}
 
 		namespace HUDMenu
@@ -110,8 +103,6 @@ namespace Offsets {
 		namespace LockpickingMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(269215));
-
-			static constexpr REL::ID TargetRef(static_cast<std::uint64_t>(519716));
 		}
 
 		namespace MagicMenu
@@ -124,6 +115,7 @@ namespace Offsets {
 		namespace MapMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270809));
+			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(52206));
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(52225));
 		}
@@ -166,7 +158,6 @@ namespace Offsets {
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270195));
 
 			static constexpr REL::ID Camera_Hook(51833); // + 0x5A5
-
 		}
 	}
 
@@ -200,7 +191,4 @@ namespace Offsets {
 	{
 		static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(269528));
 	}
-
-	// TODO:
-	//const REL::Relocation<uintptr_t*> ItemMenu_MaximizeStatus = 0x2F3094C; //1.5.97
 }

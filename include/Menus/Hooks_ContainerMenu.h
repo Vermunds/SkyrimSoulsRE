@@ -18,7 +18,6 @@ namespace SkyrimSoulsRE
 			kNPC = 3
 		};
 
-		static inline ContainerMode			containerMode;
 		static inline RE::TESObjectREFR*	containerRef;
 
 		// Virtual functions

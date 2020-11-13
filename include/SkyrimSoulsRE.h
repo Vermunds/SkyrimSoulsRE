@@ -8,6 +8,7 @@ using namespace SKSE::util;
 #include "SlowMotionHandler.h"
 #include "PapyrusHook.h"
 #include "ConsoleCommandHooks.h"
+#include "AudioHooks.h"
 
 #include "AutoCloseManager.h"
 

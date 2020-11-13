@@ -11,14 +11,12 @@ namespace SkyrimSoulsRE
 	//Tween menu clock
 	void TweenMenuEx::UpdateClock()
 	{
-		void(*GetTimeString)(RE::Calendar * a_this, char* a_str, std::uint64_t a_bufferSize, bool a_showYear) = reinterpret_cast<void(*)(RE::Calendar*, char*, std::uint64_t, bool)>(Offsets::Calendar::GetTimeString.address());
-
-		char buf[200];
-		GetTimeString(RE::Calendar::GetSingleton(), buf, 200, true);
+		char timeDateString[200];
+		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, true);
 
 		RE::GFxValue dateText;
 		this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
-		RE::GFxValue newDate(buf);
+		RE::GFxValue newDate(timeDateString);
 		dateText.SetMember("htmlText", newDate);
 	}
 

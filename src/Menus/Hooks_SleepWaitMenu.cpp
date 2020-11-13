@@ -25,14 +25,12 @@ namespace SkyrimSoulsRE
 
 	void SleepWaitMenuEx::UpdateClock()
 	{
-		void(*GetTimeString)(RE::Calendar * a_this, char* a_str, std::uint64_t a_bufferSize, bool a_showYear) = reinterpret_cast<void(*)(RE::Calendar*, char*, std::uint64_t, bool)>(Offsets::Calendar::GetTimeString.address());
-
-		char buf[200];
-		GetTimeString(RE::Calendar::GetSingleton(), buf, 200, false);
+		char timeDateString[200];
+		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, false);
 
 		RE::GFxValue dateText;
 		this->uiMovie->GetVariable(&dateText, "_root.SleepWaitMenu_mc.CurrentTime");
-		RE::GFxValue newDate(buf);
+		RE::GFxValue newDate(timeDateString);
 		dateText.SetMember("htmlText", newDate);
 	}
 

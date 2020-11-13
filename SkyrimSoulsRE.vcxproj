@@ -143,6 +143,7 @@
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AudioHooks.cpp" />
     <ClCompile Include="src\ConsoleCommandHooks.cpp" />
     <ClCompile Include="src\Controls\CameraMovement.cpp" />
     <ClCompile Include="src\Controls\MenuControlsEx.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="src\UnpausedTaskQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AudioHooks.h" />
     <ClInclude Include="include\ConsoleCommandHooks.h" />
     <ClInclude Include="include\Controls\CameraMovement.h" />
     <ClInclude Include="include\Controls\InputHandlerEx.h" />

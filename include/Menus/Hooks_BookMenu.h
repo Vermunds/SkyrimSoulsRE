@@ -10,9 +10,8 @@ namespace SkyrimSoulsRE
 	class BookMenuEx : public RE::BookMenu
 	{
 	public:
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message); // 04
 		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime); // 05
-
-		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
 
 		static RE::IMenu* Creator();
 		static void InstallHook();

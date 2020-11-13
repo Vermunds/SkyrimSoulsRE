@@ -17,7 +17,7 @@ namespace SkyrimSoulsRE
 				this->currentTime = a_currentTime;
 			}
 
-			virtual void Run() override
+			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
 
@@ -126,7 +126,7 @@ namespace SkyrimSoulsRE
 				ProcessMessageTask* task = new ProcessMessageTask(message);
 				queue->AddTask(task);
 
-				if (this->unk94)
+				if (this->closeMenu)
 				{
 					// close animation done
 					return RE::UI_MESSAGE_RESULTS::kHandled;
@@ -145,14 +145,8 @@ namespace SkyrimSoulsRE
 	{
 		RE::BookMenu* menu = static_cast<RE::BookMenu*>(CreateMenu(RE::BookMenu::MENU_NAME));
 
-
-		RE::TESObjectREFRPtr* refptr = reinterpret_cast<RE::TESObjectREFRPtr*>(Offsets::Menus::BookMenu::TargetRef.address());
-		assert(refptr);
-
-		RE::TESObjectREFR* ref = refptr->get();
-
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::BookMenu::MENU_NAME, ref, false);
+		autoCloseManager->InitAutoClose(RE::BookMenu::MENU_NAME, menu->GetTargetReference(), false);
 
 		return menu;
 	}

@@ -201,6 +201,7 @@ namespace SkyrimSoulsRE
 		Papyrus::InstallHook();
 		ConsoleCommandHooks::InstallHook();
 		CameraMovement::InstallHook();
+		Audio::InstallHook();
 
 		MenuControlsEx::InstallHook();
 		PlayerControlsEx::InstallHook();
