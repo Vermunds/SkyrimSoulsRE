@@ -8,10 +8,9 @@ namespace SkyrimSoulsRE
 	// flags = kPausesGame | kUpdateUsesCursor | kInventoryItemMenu | kCustomRendering
 	// context = kFavorites
 	class FavoritesMenuEx :
-		public RE::FavoritesMenu	// 00
+		public RE::FavoritesMenu  // 00
 	{
 	public:
-
 		static void ItemSelect_Hook(RE::FavoritesMenu* a_this, RE::BGSEquipSlot* a_slot);
 
 		static RE::IMenu* Creator();

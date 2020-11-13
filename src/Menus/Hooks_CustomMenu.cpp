@@ -7,4 +7,3 @@ namespace SkyrimSoulsRE
 		return CreateMenu("CustomMenu");
 	}
 }
-

@@ -7,7 +7,6 @@ namespace SkyrimSoulsRE
 	class HUDMenuEx : public RE::HUDMenu
 	{
 	public:
-
 		static inline double stealthMeterPosX;
 		static inline double stealthMeterPosY;
 

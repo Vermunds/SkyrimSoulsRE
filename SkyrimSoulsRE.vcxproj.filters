@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
+    <None Include=".clang-format" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="include">

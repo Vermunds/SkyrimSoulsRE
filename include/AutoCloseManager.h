@@ -11,7 +11,6 @@ namespace SkyrimSoulsRE
 	class AutoCloseManager
 	{
 	public:
-
 		void CheckAutoClose(RE::BSFixedString a_menuName);
 		void InitAutoClose(RE::BSFixedString a_menuName, RE::TESObjectREFR* a_ref, bool a_checkForDeath);
 
@@ -21,22 +20,20 @@ namespace SkyrimSoulsRE
 		struct AutoCloseData
 		{
 			RE::TESObjectREFR* target;
-			bool				initiallyDisabled;
-			float				initialDistance;
-			float				minDistance;
-			bool				checkForDeath;
-			bool				dialogueMode;
+			bool initiallyDisabled;
+			float initialDistance;
+			float minDistance;
+			bool checkForDeath;
+			bool dialogueMode;
 		};
 
 		template <class T>
 		bool CheckMenuStack(AutoCloseData* a_inData, RE::TESObjectREFR* a_ref)
 		{
 			RE::UI* ui = RE::UI::GetSingleton();
-			if (ui->IsMenuOpen(T::MENU_NAME) && _autoCloseDataMap.find(T::MENU_NAME.data()) != _autoCloseDataMap.end())
-			{
+			if (ui->IsMenuOpen(T::MENU_NAME) && _autoCloseDataMap.find(T::MENU_NAME.data()) != _autoCloseDataMap.end()) {
 				AutoCloseData* data = _autoCloseDataMap.at(T::MENU_NAME.data());
-				if (data->target == a_ref)
-				{
+				if (data->target == a_ref) {
 					a_inData->target = data->target;
 					a_inData->initialDistance = data->initialDistance;
 					a_inData->minDistance = data->minDistance;
@@ -49,7 +46,7 @@ namespace SkyrimSoulsRE
 			return false;
 		}
 
-		std::map<std::string, AutoCloseData*>	_autoCloseDataMap;
+		std::map<std::string, AutoCloseData*> _autoCloseDataMap;
 
 		static AutoCloseManager* _singleton;
 

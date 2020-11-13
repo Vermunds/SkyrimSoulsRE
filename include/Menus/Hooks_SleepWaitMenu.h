@@ -11,8 +11,8 @@ namespace SkyrimSoulsRE
 	class SleepWaitMenuEx : public RE::SleepWaitMenu
 	{
 	public:
-		RE::UI_MESSAGE_RESULTS	ProcessMessage_Hook(RE::UIMessage& a_message);
-		void					AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
+		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);
 
 		void UpdateClock();
 

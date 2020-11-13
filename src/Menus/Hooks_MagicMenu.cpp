@@ -61,4 +61,3 @@ namespace SkyrimSoulsRE
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MagicMenuEx::AdvanceMovie_Hook);
 	}
 }
-

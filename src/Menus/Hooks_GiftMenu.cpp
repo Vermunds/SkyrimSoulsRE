@@ -96,4 +96,3 @@ namespace SkyrimSoulsRE
 		//_AdvanceMovie = vTable.WriteVFunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
 	}
 }
-

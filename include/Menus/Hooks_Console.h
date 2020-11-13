@@ -4,7 +4,6 @@
 
 namespace SkyrimSoulsRE
 {
-
 	// menuDepth = 12
 	// flags = kPausesGame | kAlwaysOpen | kUsesCursor | kAllowSaving
 	// context = kConsole
@@ -13,7 +12,7 @@ namespace SkyrimSoulsRE
 	public:
 		static void ExecuteCommand_Callback_Hook(const RE::FxDelegateArgs& a_args);
 
-		static RE::IMenu* Creator(); //Only runs at game startup, the menu stays open in the background
+		static RE::IMenu* Creator();  //Only runs at game startup, the menu stays open in the background
 		static void InstallHook();
 	};
 }

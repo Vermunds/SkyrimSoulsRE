@@ -140,6 +140,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include=".clang-format" />
     <None Include="exports.def" />
   </ItemGroup>
   <ItemGroup>

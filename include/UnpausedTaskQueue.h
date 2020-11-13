@@ -1,7 +1,7 @@
 #pragma once
-#include <queue>
-#include <mutex>
 #include <chrono>
+#include <mutex>
+#include <queue>
 
 namespace SkyrimSoulsRE
 {
@@ -14,9 +14,9 @@ namespace SkyrimSoulsRE
 			virtual void Run() = 0;
 			virtual void Dispose() { delete this; };
 
-			bool									usesDelay = false;
-			std::chrono::steady_clock::time_point	beginTime;
-			std::chrono::milliseconds				delayTimeMS;
+			bool usesDelay = false;
+			std::chrono::steady_clock::time_point beginTime;
+			std::chrono::milliseconds delayTimeMS;
 		};
 
 		void Lock();
@@ -30,13 +30,13 @@ namespace SkyrimSoulsRE
 		static void InstallHook();
 
 	private:
-		UnpausedTaskQueue() {};
+		UnpausedTaskQueue(){};
 
 		static UnpausedTaskQueue* _singleton;
 
-		std::queue<UnpausedTask*>		_taskQueue;
-		std::queue<UnpausedTask*>		_nextFrameTaskQueue;
-		std::mutex						_mutex;
+		std::queue<UnpausedTask*> _taskQueue;
+		std::queue<UnpausedTask*> _nextFrameTaskQueue;
+		std::mutex _mutex;
 	};
 
 	using UnpausedTask = UnpausedTaskQueue::UnpausedTask;

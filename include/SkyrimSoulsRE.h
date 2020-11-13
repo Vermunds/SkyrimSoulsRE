@@ -2,13 +2,13 @@
 
 using namespace SKSE::util;
 
-#include "Settings.h"
-#include "Offsets.h"
-#include "UnpausedTaskQueue.h"
-#include "SlowMotionHandler.h"
-#include "PapyrusHook.h"
-#include "ConsoleCommandHooks.h"
 #include "AudioHooks.h"
+#include "ConsoleCommandHooks.h"
+#include "Offsets.h"
+#include "PapyrusHook.h"
+#include "Settings.h"
+#include "SlowMotionHandler.h"
+#include "UnpausedTaskQueue.h"
 
 #include "AutoCloseManager.h"
 
@@ -57,4 +57,3 @@ namespace SkyrimSoulsRE
 	void InstallMenuHooks();
 	void InstallHooks();
 }
- 

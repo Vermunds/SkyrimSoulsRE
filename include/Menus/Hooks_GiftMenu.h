@@ -4,16 +4,14 @@
 
 namespace SkyrimSoulsRE
 {
-
 	// menuDepth = 3
 	// flags = kPausesGame | kUsesMenuContext | kDisablePauseMenu | kUpdateUsesCursor | kInventoryItemMenu | kCustomRendering
 	// context = kItemMenu
 	class GiftMenuEx : public RE::GiftMenu
 	{
 	public:
-
-		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message); //04
-		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime); // 05
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);	//04
+		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);	// 05
 
 		void UpdateBottomBar();
 

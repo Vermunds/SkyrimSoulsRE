@@ -15,6 +15,7 @@ namespace SkyrimSoulsRE
 		void InitExtensions();
 
 		static RE::IMenu* Creator();
+
 	private:
 		CombatAlertOverlayMenu();
 

@@ -11,7 +11,7 @@ namespace SkyrimSoulsRE
 		bool IsMappedToSameButton(std::uint32_t a_keyMask, RE::INPUT_DEVICE a_deviceType, RE::BSFixedString a_controlName, RE::UserEvents::INPUT_CONTEXT_ID a_context = RE::UserEvents::INPUT_CONTEXT_ID::kGameplay);
 		static void InstallHook();
 
-		using ProcessEvent_t = decltype(static_cast<RE::BSEventNotifyControl(RE::MenuControls::*)(RE::InputEvent* const*, RE::BSTEventSource<RE::InputEvent*>*)>(&RE::MenuControls::ProcessEvent));
+		using ProcessEvent_t = decltype(static_cast<RE::BSEventNotifyControl (RE::MenuControls::*)(RE::InputEvent* const*, RE::BSTEventSource<RE::InputEvent*>*)>(&RE::MenuControls::ProcessEvent));
 		static inline REL::Relocation<ProcessEvent_t> _ProcessEvent;
 	};
 }

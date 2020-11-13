@@ -1,23 +1,23 @@
 #pragma once
 #include "REL/Relocation.h"
 
-namespace Offsets {
-
+namespace Offsets
+{
 	//TODO - remove this
-	static constexpr REL::ID LockpickingMenu_Hook(51071); // + 0xE0
+	static constexpr REL::ID LockpickingMenu_Hook(51071);  // + 0xE0
 
 	namespace ConsoleCommands
 	{
-		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398)); // + 0x5B
-		static constexpr REL::ID CenterOnWorld_Hook(static_cast<std::uint64_t>(22401)); // + 0x108
-		static constexpr REL::ID CenterOnExterior_Hook(static_cast<std::uint64_t>(22400)); // + 0x118
-		static constexpr REL::ID ServeTime_Hook(static_cast<std::uint64_t>(22145)); // + 0xE
-		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22465)); // + 0xC4
+		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398));		// + 0x5B
+		static constexpr REL::ID CenterOnWorld_Hook(static_cast<std::uint64_t>(22401));		// + 0x108
+		static constexpr REL::ID CenterOnExterior_Hook(static_cast<std::uint64_t>(22400));	// + 0x118
+		static constexpr REL::ID ServeTime_Hook(static_cast<std::uint64_t>(22145));			// + 0xE
+		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22465));			// + 0xC4
 	}
 
 	namespace BSAudioManager
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(39377)); // + 0xBC; + 0x124
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(39377));  // + 0xBC; + 0x124
 		static constexpr REL::ID SetListenerPosition(static_cast<std::uint64_t>(66445));
 		static constexpr REL::ID SetListenerRotation(static_cast<std::uint64_t>(66446));
 	}
@@ -52,7 +52,7 @@ namespace Offsets {
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268589));
 
-			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(36540)); // + 0x4F9
+			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(36540));	// + 0x4F9
 
 			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(517110));
 		}
@@ -157,7 +157,7 @@ namespace Offsets {
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270195));
 
-			static constexpr REL::ID Camera_Hook(51833); // + 0x5A5
+			static constexpr REL::ID Camera_Hook(51833);  // + 0x5A5
 		}
 	}
 
@@ -172,12 +172,12 @@ namespace Offsets {
 	{
 		static constexpr REL::ID CreateSaveScreenshot(static_cast<std::uint64_t>(35886));
 		static constexpr REL::ID CursorPosition(static_cast<std::uint64_t>(525564));
-		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(41259)); // + 0x241
+		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(41259));  // + 0x241
 	}
 
 	namespace UnpausedTaskQueue
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(35551)); // + 0x11F
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(35551));  // + 0x11F
 		static constexpr REL::ID OriginalFunc(static_cast<std::uint64_t>(35565));
 	}
 
