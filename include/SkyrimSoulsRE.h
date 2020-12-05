@@ -9,6 +9,7 @@ using namespace SKSE::util;
 #include "Settings.h"
 #include "SlowMotionHandler.h"
 #include "UnpausedTaskQueue.h"
+#include "ItemMenuUpdater.h"
 
 #include "AutoCloseManager.h"
 

@@ -149,6 +149,7 @@
     <ClCompile Include="src\Controls\CameraMovement.cpp" />
     <ClCompile Include="src\Controls\MenuControlsEx.cpp" />
     <ClCompile Include="src\Controls\PlayerControlsEx.cpp" />
+    <ClCompile Include="src\ItemMenuUpdater.cpp" />
     <ClCompile Include="src\Menus\CombatAlertOverlayMenu.cpp" />
     <ClCompile Include="src\Menus\Hooks_BarterMenu.cpp" />
     <ClCompile Include="src\Menus\Hooks_BookMenu.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="include\Controls\InputHandlerEx.h" />
     <ClInclude Include="include\Controls\MenuControlsEx.h" />
     <ClInclude Include="include\Controls\PlayerControlsEx.h" />
+    <ClInclude Include="include\ItemMenuUpdater.h" />
     <ClInclude Include="include\Menus\CombatAlertOverlayMenu.h" />
     <ClInclude Include="include\Menus\Hooks_LevelUpMenu.h" />
     <ClInclude Include="include\Menus\Hooks_MapMenu.h" />
