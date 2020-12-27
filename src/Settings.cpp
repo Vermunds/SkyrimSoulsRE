@@ -77,27 +77,21 @@ namespace SkyrimSoulsRE
 
 		//Auto-close
 		settings->autoCloseMenus = ini.GetBoolValue("AUTOCLOSE", "bAutoCloseMenus", true);
-		settings->autoCloseDialogueMenus = ini.GetBoolValue("AUTOCLOSE", "bAutoCloseDialogueMenus", false);
-		settings->autoCloseSleepWaitMenu = ini.GetBoolValue("AUTOCLOSE", "bAutoCloseSleepWaitMenu", false);
-		settings->autoCloseDistance = ini.GetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", 350.0);
-		settings->autoCloseDistanceDialogueContext = ini.GetDoubleValue("AUTOCLOSE", "fAutoCloseDistanceDialogueContext", 1000.0);
+		settings->autoCloseDistance = static_cast<float>(ini.GetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", 400.0));
+		settings->autoCloseTolerance = static_cast<float>(ini.GetDoubleValue("AUTOCLOSE", "fAutoCloseTolerance", 100.0));
 
-		ini.SetBoolValue("AUTOCLOSE", "bAutoCloseMenus", settings->autoCloseMenus, "#  Auto close menus if the distance to the object is larger than this value. Affects ContainerMenu, LockpickingMenu and BookMenu.\n#  This will make pickpocketing harder if the npc is moving.", true);
-		ini.SetBoolValue("AUTOCLOSE", "bAutoCloseDialogueMenus", settings->autoCloseDialogueMenus, "#  Affects DialogueMenu, BarterMenu, GiftMenu and TrainingMenu. Should be enabled if bEnableMovementDialogueMenu is set to true.", true);
-		ini.SetBoolValue("AUTOCLOSE", "bAutoCloseSleepWaitMenu", settings->autoCloseSleepWaitMenu, "#  (Experimental) Closes the sleep/wait menu if you get too far from the bed.", true);
-		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", settings->autoCloseDistance, "#  The maximum distance (in in-game units) before the menus will automatically close.\n#  Too small values can cause the menus to close immediately.", true);
-		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseDistanceDialogueContext", settings->autoCloseDistanceDialogueContext, "#  The maximum distance for dialogue related menus (used by bAutoCloseDialogueMenus)", true);
-
+		ini.SetBoolValue("AUTOCLOSE", "bAutoCloseMenus", settings->autoCloseMenus, "#  Auto close menus if the distance to the object is larger than the specified value.", true);
+		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", settings->autoCloseDistance, "#  The maximum distance (in in-game units) before the menus will automatically close.\n#  Too small values can cause the menus to close unexpectedly.", true);
+		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseTolerance", settings->autoCloseTolerance, "#  The maximum distance (in in-game units) where the menus NEVER auto-close (in relation to the players initial position when the menu was opened).\n#  This is used as a failsafe when the initial distance is larger than the maximum allowed to prevent the menu from closing immediately (e.g. a container opened by a script).", true);
+		
 		//Controls
-		settings->enableMovementInMenus = ini.GetBoolValue("CONTROLS", "bEnableMovementInMenus", false);
-		settings->enableMovementDialogueMenu = ini.GetBoolValue("CONTROLS", "bEnableMovementDialogueMenu", false);
+		settings->enableMovementInMenus = ini.GetBoolValue("CONTROLS", "bEnableMovementInMenus", true);
 		settings->enableGamepadCameraMove = ini.GetBoolValue("CONTROLS", "bEnableGamepadCameraMove", true);
 		settings->enableCursorCameraMove = ini.GetBoolValue("CONTROLS", "bEnableCursorCameraMove", true);
-		settings->cursorCameraVerticalSpeed = ini.GetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", 0.15);
-		settings->cursorCameraHorizontalSpeed = ini.GetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", 0.20);
+		settings->cursorCameraVerticalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", 0.15));
+		settings->cursorCameraHorizontalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", 0.25));
 
 		ini.SetBoolValue("CONTROLS", "bEnableMovementInMenus", settings->enableMovementInMenus, "#  If enabled, you will be able to move when a menu is open. Use the mouse (or the D-pad on controllers) to navigate the menus.\n#  (For controllers users) To change tabs in SkyUI favorites menu, use LB and RB buttons.", true);
-		ini.SetBoolValue("CONTROLS", "bEnableMovementDialogueMenu", settings->enableMovementDialogueMenu, "#  If enabled, you will be able to move in the dialogue menu as well. \n#  bEnableMovementInMenus must be enabled for this to work.", true);
 		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "#  If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumb stick.", true);
 		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "#  If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similar to how it works in the dialogue menu).", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", settings->cursorCameraVerticalSpeed, "#  The vertical and horizontal speed the camera moves when bEnableCursorCameraMove is enabled.", true);
@@ -105,9 +99,9 @@ namespace SkyrimSoulsRE
 
 		//Slowmotion
 		settings->enableSlowMotion = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion", false);
-		settings->slowMotionMultiplier = ini.GetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", 0.5);
+		settings->slowMotionMultiplier = static_cast<float>(ini.GetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", 0.5));
 
-		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion", settings->enableSlowMotion, "#  If enabled, the time will slow down when an unpaused menu is open.\n#  Currently it has an issue with the book menu, causing it to have the page turning animation in slow motion too.", true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion", settings->enableSlowMotion, "#  If enabled, the time will slow down when an unpaused menu is open.", true);
 		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "#  This is the multiplier that will affect the game speed when a menu is open. Has no effect if bEnableSlowMotion is disabled\n#  1.0 is no slowdown, 0.5 is half the speed, etc.", true);
 
 		ini.SetValue("COMBAT_ALERT_OVERLAY", nullptr, nullptr, "#  Shows a blinking red overlay when your character is in combat. Especially useful in full screen menus. You can enable or disable it individually for each menu.");
@@ -156,8 +150,8 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("COMBAT_ALERT_OVERLAY", "bShowCAO_CustomMenu", settings->overlayMenus["CustomMenu"], nullptr, true);
 
 		//HUD
-		settings->sneakMeterPosX = ini.GetDoubleValue("HUD", "fSneakMeterPosX", 24.0);
-		settings->sneakMeterPosY = ini.GetDoubleValue("HUD", "fSneakMeterPosY", 120.0);
+		settings->sneakMeterPosX = static_cast<float>(ini.GetDoubleValue("HUD", "fSneakMeterPosX", 24.0));
+		settings->sneakMeterPosY = static_cast<float>(ini.GetDoubleValue("HUD", "fSneakMeterPosY", 120.0));
 
 		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "#  The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosY", settings->sneakMeterPosY, nullptr, true);

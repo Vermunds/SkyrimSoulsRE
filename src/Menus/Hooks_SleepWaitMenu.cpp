@@ -19,7 +19,11 @@ namespace SkyrimSoulsRE
 		{
 			hudMenu->UpdateHUD();
 		}
-		this->UpdateClock();
+		if (!this->PausesGame())
+		{
+			this->UpdateClock();
+		}
+
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 
@@ -44,8 +48,7 @@ namespace SkyrimSoulsRE
 			StartSleepWaitTask(double a_time)
 			{
 				this->sleepWaitTime = a_time;
-				this->beginTime = std::chrono::high_resolution_clock::now();
-				this->delayTimeMS = std::chrono::milliseconds(0);
+				this->beginTime = std::chrono::high_resolution_clock::now();			
 			}
 
 			void Run() override
@@ -65,12 +68,11 @@ namespace SkyrimSoulsRE
 		RE::UI* ui = RE::UI::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
-		static_cast<RE::SleepWaitMenu*>(a_args.GetHandler())->menuFlags |= RE::IMenu::Flag::kPausesGame;
-		ui->numPausesGame++;
-
-		if (SkyrimSoulsRE::SlowMotionHandler::isInSlowMotion)
+		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
+		if (!menu->PausesGame())
 		{
-			SlowMotionHandler::DisableSlowMotion();
+			menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
+			ui->numPausesGame++;
 		}
 
 		StartSleepWaitTask* task = new StartSleepWaitTask(a_args[0].GetNumber());
@@ -96,5 +98,9 @@ namespace SkyrimSoulsRE
 
 		//Hook ProcessMessage
 		_ProcessMessage = vTable.write_vfunc(0x4, &SleepWaitMenuEx::ProcessMessage_Hook);
+
+		//Fix for slow menu in slow motion
+		std::uint32_t ptr = static_cast<std::uint32_t>(Offsets::Misc::SecondsSinceLastFrame_RealTime.address() - (Offsets::Menus::SleepWaitMenu::ProcessMessage.address() + 0x1C0 + 0x8));
+		REL::safe_write(Offsets::Menus::SleepWaitMenu::ProcessMessage.address() + 0x1C0, ptr + 0x4);
 	}
 }

@@ -1,7 +1,7 @@
 #include "AutoCloseManager.h"
-
 #include "Settings.h"
-#include "RE/Skyrim.h"
+
+#include <cmath>
 
 namespace SkyrimSoulsRE
 {
@@ -13,10 +13,34 @@ namespace SkyrimSoulsRE
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
 
-		AutoCloseData* data = _autoCloseDataMap.at(a_menuName.c_str());
+		AutoCloseData* data;
 
-		float maxDistance = data->dialogueMode ? settings->autoCloseDistanceDialogueContext : settings->autoCloseDistance;
-		float tolerance = data->dialogueMode ? 350.0 : 50.0;
+		if (_autoCloseDataMap.find(a_menuName.c_str()) != _autoCloseDataMap.end()) {
+			data = _autoCloseDataMap.at(a_menuName.c_str());
+		}
+		else { return; };
+
+		if (data->dialogueMode)
+		{
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME))
+			{
+				if (!mtm->speaker || !mtm->speaker.get() || mtm->speaker.get().get() != data->target)
+				{
+					uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+				}
+			}
+			else
+			{
+				uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+			}
+			return;
+		}
+
+		float maxDistance = settings->autoCloseDistance;
+		float tolerance = settings->autoCloseTolerance;
 
 		if (data->target)
 		{
@@ -47,7 +71,7 @@ namespace SkyrimSoulsRE
 				}
 				else if (tooFarOnOpen)
 				{
-					//Container was opened when it was too far
+					//Target was opened when it was too far
 					if (currentDistance > maxDistance && currentDistance > (data->minDistance + tolerance)) //Close only if the distance is increasing
 					{
 						uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
@@ -76,42 +100,28 @@ namespace SkyrimSoulsRE
 			data = _autoCloseDataMap.at(menuName);
 		}
 
-		data->dialogueMode = (a_menuName == RE::DialogueMenu::MENU_NAME);
+		// If the dialogue and the menu target matches, close the menu only when the dialogue menu closes
+		RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
 
-		// Check for parent menus -> copy the parent menus autoclose data
-		// Menus we never auto close: Tutorial Menu (maybe possible but I don't care), MessageBox (can't really auto close this one, as there is no way I know of to "cancel" actions. The player has to decide.)
-		// Dialogue -> Container
-		if (a_menuName == RE::ContainerMenu::MENU_NAME)
+		bool isPickpocketMenu = false;
+
+		if (menuName == RE::ContainerMenu::MENU_NAME && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 		{
-			if (CheckMenuStack<RE::DialogueMenu>(data, a_ref))
-				return;
+			RE::ContainerMenu* menu = static_cast<RE::ContainerMenu*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
+			isPickpocketMenu = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
 		}
 
-		// Dialogue -> Gift
-		if (a_menuName == RE::GiftMenu::MENU_NAME)
+		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && mtm->speaker && mtm->speaker.get() && a_ref == mtm->speaker.get().get())
 		{
-			if (CheckMenuStack<RE::DialogueMenu>(data, a_ref))
-				return;
-		}
-
-		// Dialogue -> Barter
-		if (a_menuName == RE::BarterMenu::MENU_NAME)
-		{
-			if (CheckMenuStack<RE::DialogueMenu>(data, a_ref))
-				return;
-		}
-
-		//Dialogue -> Training
-		if (a_menuName == RE::TrainingMenu::MENU_NAME)
-		{
-			if (CheckMenuStack<RE::DialogueMenu>(data, a_ref))
-				return;
+			data->target = a_ref;
+			data->dialogueMode = true;
+			return;
 		}
 
 		// Container -> Book
 		if (a_menuName == RE::BookMenu::MENU_NAME && !a_ref && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 		{
-			//This can fail if the player somehow opens a book that is NOT opened from the container menu
+			//This can fail if the player somehow opens a book that is NOT opened from the current container menu
 			AutoCloseData* containerData = _autoCloseDataMap.at(RE::ContainerMenu::MENU_NAME.data());
 			data->target = containerData->target;
 			data->initialDistance = containerData->initialDistance;
@@ -127,6 +137,7 @@ namespace SkyrimSoulsRE
 		data->minDistance = data->initialDistance;
 		data->initiallyDisabled = a_ref ? a_ref->IsDisabled() : false;
 		data->checkForDeath = a_checkForDeath;
+		data->dialogueMode = false;
 	}
 
 	AutoCloseManager* AutoCloseManager::GetSingleton()
@@ -139,14 +150,14 @@ namespace SkyrimSoulsRE
 		return _singleton;
 	}
 
-	float AutoCloseManager::GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_refPos)
+	float AutoCloseManager::GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_targetPos)
 	{
 		//Get distance from feet and head, return the smaller
-		float distanceHead = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow((a_playerPos.z + a_playerHeight) - a_refPos.z, 2));
-		float distanceFeet = sqrt(pow(a_playerPos.x - a_refPos.x, 2) + pow(a_playerPos.y - a_refPos.y, 2) + pow(a_playerPos.z - a_refPos.z, 2));
+		float distanceHead = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow((a_playerPos.z + a_playerHeight) - a_targetPos.z, 2));
+		float distanceFeet = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow(a_playerPos.z - a_targetPos.z, 2));
 		if (distanceHead < distanceFeet) {
-			return distanceHead;
+			return std::sqrt(distanceHead);
 		}
-		return distanceFeet;
+		return std::sqrt(distanceFeet);
 	}
 }

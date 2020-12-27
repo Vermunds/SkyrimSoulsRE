@@ -26,61 +26,62 @@ namespace SkyrimSoulsRE
 		RE::UserEvents* userEvents = RE::UserEvents::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
-		if (a_event && *a_event && !this->remapMode && !ui->GameIsPaused() && !IsFullScreenMenuOpen() && (GetUnpausedMenuCount() || (ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && settings->enableMovementDialogueMenu)))
+		bool blockInput = ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !settings->isUsingDME;
+
+		if (a_event && *a_event && !this->remapMode && !ui->GameIsPaused() && !IsFullScreenMenuOpen() && GetUnpausedMenuCount())
 		{
 			for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
 			{
 				if (evn && evn->HasIDCode())
 				{
-					RE::ButtonEvent* buttonEvent = static_cast<RE::ButtonEvent*>(evn);
-					RE::ThumbstickEvent* thumbEvent = static_cast<RE::ThumbstickEvent*>(evn);
+					RE::IDEvent* idEvent = static_cast<RE::ButtonEvent*>(evn);
 
 					if (settings->enableMovementInMenus)
 					{
 						//Forward
-						if (buttonEvent->userEvent == userEvents->up && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->forward))
+						if (idEvent->userEvent == userEvents->up && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->forward))
 						{
-							buttonEvent->userEvent = userEvents->forward;
+							idEvent->userEvent = blockInput ? "" : userEvents->forward;
 						}
 						//Back
-						if (buttonEvent->userEvent == userEvents->down && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->back))
+						if (idEvent->userEvent == userEvents->down && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->back))
 						{
-							buttonEvent->userEvent = userEvents->back;
+							idEvent->userEvent = blockInput ? "" : userEvents->back;
 						}
 						//Left
-						if (buttonEvent->userEvent == userEvents->left && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeLeft))
+						if (idEvent->userEvent == userEvents->left && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 						{
-							buttonEvent->userEvent = userEvents->strafeLeft;
+							idEvent->userEvent = blockInput ? "" : userEvents->strafeLeft;
 						}
 						//Right
-						if (buttonEvent->userEvent == userEvents->right && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeRight))
+						if (idEvent->userEvent == userEvents->right && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 						{
-							buttonEvent->userEvent = userEvents->strafeRight;
+							idEvent->userEvent = blockInput ? "" : userEvents->strafeRight;
 						}
 						//SkyUI Favorites menu fix
 						if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME))
 						{
 							//Prevent SkyUI from detecting the key mask
 							//Left
-							if (buttonEvent->userEvent == userEvents->strafeLeft && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeLeft))
+							if (idEvent->userEvent == userEvents->strafeLeft && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 							{
-								buttonEvent->idCode = 0;
+								idEvent->idCode = 0;
 							}
 							//Left
-							if (buttonEvent->userEvent == userEvents->strafeRight && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeRight))
+							if (idEvent->userEvent == userEvents->strafeRight && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 							{
-								buttonEvent->idCode = 0;
+								idEvent->idCode = 0;
 							}
 							//Allow category change with LB and RB when using controllers
-							if (buttonEvent->device == RE::INPUT_DEVICE::kGamepad)
+							if (idEvent->device == RE::INPUT_DEVICE::kGamepad)
 							{
-								if (buttonEvent->idCode == 0x100) //LB
+								if (idEvent->idCode == 0x100) //LB
 								{
-									buttonEvent->userEvent = userEvents->left;
+									idEvent->userEvent = userEvents->left;
 								}
-								if (buttonEvent->idCode == 0x200) //RB
+								if (idEvent->idCode == 0x200) //RB
 								{
-									buttonEvent->userEvent = userEvents->right;
+									idEvent->userEvent = userEvents->right;
 								}
 							}
 						}
@@ -88,21 +89,21 @@ namespace SkyrimSoulsRE
 						if (ui->IsMenuOpen(RE::BookMenu::MENU_NAME))
 						{
 							//Left
-							if (buttonEvent->userEvent == userEvents->prevPage && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeLeft))
+							if (idEvent->userEvent == userEvents->prevPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 							{
-								buttonEvent->userEvent = userEvents->strafeLeft;
+								idEvent->userEvent = blockInput ? "" : userEvents->strafeLeft;
 							}
 							//Right
-							if (buttonEvent->userEvent == userEvents->nextPage && IsMappedToSameButton(buttonEvent->idCode, buttonEvent->device.get(), userEvents->strafeRight))
+							if (idEvent->userEvent == userEvents->nextPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 							{
-								buttonEvent->userEvent = userEvents->strafeRight;
+								idEvent->userEvent = blockInput ? "" : userEvents->strafeRight;
 							}
 						}
 
 						//Controllers
-						if (thumbEvent->userEvent == userEvents->leftStick)
+						if (idEvent->userEvent == userEvents->leftStick)
 						{
-							thumbEvent->userEvent = userEvents->move;
+							idEvent->userEvent = blockInput ? "" : userEvents->move;
 						}
 					}
 
@@ -110,9 +111,9 @@ namespace SkyrimSoulsRE
 					{
 						//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
 						RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
-						if (thumbEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0)
+						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0)
 						{
-							thumbEvent->userEvent = userEvents->look;
+							idEvent->userEvent = userEvents->look;
 						}
 					}
 				}

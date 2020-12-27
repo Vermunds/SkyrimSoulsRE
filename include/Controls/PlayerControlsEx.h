@@ -1,5 +1,5 @@
 #pragma once
-#include "RE/BSDevices/PlayerControls.h"
+#include "RE/P/PlayerControls.h"
 
 namespace SkyrimSoulsRE
 {

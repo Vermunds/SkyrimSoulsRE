@@ -81,10 +81,6 @@ namespace SkyrimSoulsRE
 		{
 			ref = refptr.get();
 		}
-		else
-		{
-			SKSE::log::error("Failed to find Barter Menu target!");
-		}
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)

@@ -3,9 +3,6 @@
 
 namespace Offsets
 {
-	//TODO - remove this
-	static constexpr REL::ID LockpickingMenu_Hook(51071);  // + 0xE0
-
 	namespace ConsoleCommands
 	{
 		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398));		// + 0x5B
@@ -33,19 +30,19 @@ namespace Offsets
 		static constexpr REL::ID RequestItemListUpdate(static_cast<std::uint64_t>(51911));
 
 		static constexpr REL::ID RemoveAllItems(static_cast<std::uint64_t>(15878));
-		static constexpr REL::ID RemoveAllItems_Hook1(static_cast<std::uint64_t>(15881)); // + 0x16
-		static constexpr REL::ID RemoveAllItems_Hook2(static_cast<std::uint64_t>(19382)); // + 0x36
-		static constexpr REL::ID RemoveAllItems_Hook3(static_cast<std::uint64_t>(21523)); // + 0xBA
-		static constexpr REL::ID RemoveAllItems_Hook4(static_cast<std::uint64_t>(36496)); // + 0x230
-		static constexpr REL::ID RemoveAllItems_Hook5(static_cast<std::uint64_t>(55684)); // + 0x46
+		static constexpr REL::ID RemoveAllItems_Hook1(static_cast<std::uint64_t>(15881));  // + 0x16
+		static constexpr REL::ID RemoveAllItems_Hook2(static_cast<std::uint64_t>(19382));  // + 0x36
+		static constexpr REL::ID RemoveAllItems_Hook3(static_cast<std::uint64_t>(21523));  // + 0xBA
+		static constexpr REL::ID RemoveAllItems_Hook4(static_cast<std::uint64_t>(36496));  // + 0x230
+		static constexpr REL::ID RemoveAllItems_Hook5(static_cast<std::uint64_t>(55684));  // + 0x46
 
 		static constexpr REL::ID RemoveItem_Actor(static_cast<std::uint64_t>(36781));
 		static constexpr REL::ID RemoveItem_TESObjectREFR(static_cast<std::uint64_t>(19263));
-		
-		static constexpr REL::ID RemoveItem_Hook1(static_cast<std::uint64_t>(21520)); // + 0x9A (6 call) - Actor - when called from Console (Drop)
-		static constexpr REL::ID RemoveItem_Hook2(static_cast<std::uint64_t>(55596)); // + 0xD9 (6 call) - Actor - when called from Payprus (DropObject)
-		static constexpr REL::ID RemoveItem_Hook3(static_cast<std::uint64_t>(24211)); // + 0x461 (6 call) - Actor - when other NPCs interact
-		static constexpr REL::ID RemoveItem_Hook4(static_cast<std::uint64_t>(17485)); // + 0x268 (6 call) - TESObjectREFR - when other NPCs interact
+
+		static constexpr REL::ID RemoveItem_Hook1(static_cast<std::uint64_t>(21520));  // + 0x9A (6 call) - Actor - when called from Console (Drop)
+		static constexpr REL::ID RemoveItem_Hook2(static_cast<std::uint64_t>(55596));  // + 0xD9 (6 call) - Actor - when called from Payprus (DropObject)
+		static constexpr REL::ID RemoveItem_Hook3(static_cast<std::uint64_t>(24211));  // + 0x461 (6 call) - Actor - when other NPCs interact
+		static constexpr REL::ID RemoveItem_Hook4(static_cast<std::uint64_t>(17485));  // + 0x268 (6 call) - TESObjectREFR - when other NPCs interact
 	}
 
 	namespace Menus
@@ -60,6 +57,8 @@ namespace Offsets
 		namespace BookMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268064));
+
+			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(50118));	 // gSecondsSinceLastFrame_WorldTime hook at + 0xA95
 		}
 
 		namespace Console
@@ -79,8 +78,6 @@ namespace Offsets
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268589));
 
 			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(36540));	// + 0x4F9
-
-			static constexpr REL::ID TargetRefHandle(static_cast<std::uint64_t>(517110));
 		}
 
 		namespace FavoritesMenu
@@ -128,6 +125,7 @@ namespace Offsets
 
 		namespace LockpickingMenu
 		{
+			static constexpr REL::ID Hook(51071);  // + 0xE0
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(269215));
 		}
 
@@ -170,6 +168,7 @@ namespace Offsets
 		namespace SleepWaitMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(269872));
+			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(51614));	 // gSecondsSinceLastFrame_WorldTime hook at + 0x1C0
 		}
 
 		namespace TrainingMenu
@@ -200,6 +199,7 @@ namespace Offsets
 		static constexpr REL::ID CreateSaveScreenshot(static_cast<std::uint64_t>(35886));
 		static constexpr REL::ID CursorPosition(static_cast<std::uint64_t>(525564));
 		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(41259));  // + 0x241
+		static constexpr REL::ID SecondsSinceLastFrame_RealTime(static_cast<std::uint64_t>(523661));
 	}
 
 	namespace Papyrus::IsInMenuMode

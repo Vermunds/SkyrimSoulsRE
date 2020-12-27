@@ -35,7 +35,6 @@ namespace SkyrimSoulsRE::Audio
 
 	void SetListenerRotation_Hook(RE::BSAudioManager* a_audioManager, RE::NiPoint3* a_unk1, RE::NiPoint3* a_unk2)
 	{
-		RE::BSAudioManager* audioManager = RE::BSAudioManager::GetSingleton();
 		RE::UI* ui = RE::UI::GetSingleton();
 		if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
 		{

@@ -14,7 +14,6 @@ namespace SkyrimSoulsRE
 
 		static void UpdateAutoCloseTimer_Hook(uintptr_t a_unk, float a_delta);	// This runs every frame
 
-		static RE::IMenu* Creator();
 		static void InstallHook();
 
 		using AdvanceMovie_t = decltype(&RE::DialogueMenu::AdvanceMovie);

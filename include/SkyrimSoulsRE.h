@@ -1,15 +1,13 @@
 #pragma once
 
-using namespace SKSE::util;
-
 #include "AudioHooks.h"
 #include "ConsoleCommandHooks.h"
+#include "ItemMenuUpdater.h"
 #include "Offsets.h"
 #include "PapyrusHook.h"
 #include "Settings.h"
 #include "SlowMotionHandler.h"
 #include "UnpausedTaskQueue.h"
-#include "ItemMenuUpdater.h"
 
 #include "AutoCloseManager.h"
 

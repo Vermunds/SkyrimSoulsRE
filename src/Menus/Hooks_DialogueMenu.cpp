@@ -35,30 +35,7 @@ namespace SkyrimSoulsRE
 			this->depthPriority = 3;
 		}
 
-		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::DialogueMenu::MENU_NAME);
 		_AdvanceMovie(this, a_interval, a_currentTime);
-	}
-
-	RE::IMenu* DialogueMenuEx::Creator()
-	{
-		RE::DialogueMenu* menu = static_cast<RE::DialogueMenu*>(CreateMenu(RE::DialogueMenu::MENU_NAME));
-
-		std::uint32_t* handle = reinterpret_cast<std::uint32_t*>(Offsets::Menus::DialogueMenu::TargetRefHandle.address() + 0x68);
-		RE::TESObjectREFRPtr refptr = nullptr;
-		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(*handle, refptr))
-		{
-			ref = refptr.get();
-		}
-		else
-		{
-			SKSE::log::error("Failed to find Dialogue Menu target!");
-		}
-
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::DialogueMenu::MENU_NAME, ref, true);
-		
-		return menu;
 	}
 
 	void DialogueMenuEx::InstallHook()

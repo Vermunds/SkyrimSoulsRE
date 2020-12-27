@@ -20,14 +20,11 @@ namespace SkyrimSoulsRE
 
 		//AutoClose
 		bool autoCloseMenus;
-		bool autoCloseDialogueMenus;
-		bool autoCloseSleepWaitMenu;
 		float autoCloseDistance;
-		float autoCloseDistanceDialogueContext;
+		float autoCloseTolerance;
 
 		//Controls
 		bool enableMovementInMenus;
-		bool enableMovementDialogueMenu;
 		bool enableGamepadCameraMove;
 		bool enableCursorCameraMove;
 		float cursorCameraVerticalSpeed;
@@ -49,6 +46,9 @@ namespace SkyrimSoulsRE
 
 		//Combat Alert Overlay
 		std::map<std::string, bool> overlayMenus;
+
+		// Dialogue Movement Enabler compatibility (internal setting)
+		bool isUsingDME = false;
 	};
 
 	extern void LoadSettings();

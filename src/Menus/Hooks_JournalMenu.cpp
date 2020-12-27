@@ -179,8 +179,11 @@ namespace SkyrimSoulsRE
 					menu->uiMovie->GetVariable(&selectedIndex, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.SaveLoadListHolder.selectedIndex");
 					assert(selectedIndex.GetType() != RE::GFxValue::ValueType::kUndefined);
 
-					menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
-					RE::UI::GetSingleton()->numPausesGame++;
+					if (!menu->PausesGame())
+					{
+						menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
+						RE::UI::GetSingleton()->numPausesGame++;
+					}
 
 					//Create save screenshot
 					reinterpret_cast<void(*)()>(Offsets::Misc::CreateSaveScreenshot.address())();

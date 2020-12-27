@@ -17,6 +17,9 @@ namespace SkyrimSoulsRE
 	void GiftMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		this->UpdateBottomBar();
+
+		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
+
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 
@@ -72,10 +75,6 @@ namespace SkyrimSoulsRE
 		{
 			ref = refptr.get();
 		}
-		else
-		{
-			SKSE::log::error("Failed to find Gift Menu target!");
-		}
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)
@@ -93,6 +92,6 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::GiftMenu::Vtbl);
 		_ProcessMessage= vTable.write_vfunc(0x4, &GiftMenuEx::ProcessMessage_Hook);
-		//_AdvanceMovie = vTable.WriteVFunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
+		_AdvanceMovie = vTable.write_vfunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
 	}
 }

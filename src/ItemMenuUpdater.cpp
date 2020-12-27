@@ -27,6 +27,16 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 			RE::TESObjectREFR* ref = nullptr;
 			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
 				targetRef = refptr.get();
+				//if (targetRef->formType == RE::FormType::ActorCharacter)
+				//{
+				//	RE::Actor* vendor = targetRef->As<RE::Actor>();
+				//	RE::TESFaction* vendorFaction = vendor->vendorFaction;
+
+				//	if (vendorFaction && vendorFaction->vendorData.merchantContainer)
+				//	{
+				//		targetRef = vendorFaction->vendorData.merchantContainer;
+				//	}
+				//}
 			}
 		}
 		else if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME))

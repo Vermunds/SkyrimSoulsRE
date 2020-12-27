@@ -1,8 +1,6 @@
 #include "Controls/CameraMovement.h"
 #include <xbyak\xbyak.h>
 
-#define XBYAK64
-
 namespace SkyrimSoulsRE::CameraMovement
 {
 	bool CameraMove_Hook(bool a_result)

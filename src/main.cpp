@@ -1,15 +1,27 @@
 ﻿#include "SkyrimSoulsRE.h"
 #include "version.h"
 
-#include <Windows.h>
-#include <spdlog\include\spdlog\sinks\msvc_sink.h>
-#include <spdlog\include\spdlog\sinks\basic_file_sink.h>
-#include <spdlog\spdlog.h>
 #include <filesystem>
+
+constexpr auto MESSAGE_BOX_TYPE = 0x00001010L; // MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
+
+void MessageHandler_DME(SKSE::MessagingInterface::Message* a_msg)
+{
+	SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
+	settings->isUsingDME = true;
+	SKSE::log::info("Dialogue Movement Enabler detected. Enabling compatibility.");
+}
 
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type) {
+	case SKSE::MessagingInterface::kPostPostLoad:
+		if (!SKSE::GetMessagingInterface()->RegisterListener("Dialogue Movement Enabler", MessageHandler_DME))
+		{
+			SKSE::log::info("Dialogue Movement Enabler not detected. Disabling compatibility.");
+			// disabled by default
+		}
+		break;
 	case SKSE::MessagingInterface::kDataLoaded:
 		SkyrimSoulsRE::InstallMenuHooks();
 		break;
@@ -41,9 +53,9 @@ extern "C" {
 			return false;
 		}
 
-		if (a_skse->RuntimeVersion() != SKSE::RUNTIME_1_5_97) {
+		if (a_skse->RuntimeVersion() < SKSE::RUNTIME_1_5_39) {
 			SKSE::log::critical("Unsupported runtime version " + a_skse->RuntimeVersion().string());
-			MessageBoxA(nullptr, std::string("Unsupported runtime version " + a_skse->RuntimeVersion().string()).c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+			SKSE::WinAPI::MessageBox(nullptr, std::string("Unsupported runtime version " + a_skse->RuntimeVersion().string()).c_str(), "Skyrim Souls RE - Error", MESSAGE_BOX_TYPE);
 			return false;
 		}
 
@@ -53,16 +65,7 @@ extern "C" {
 		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))
 		{
 			SKSE::log::critical("A different version of Skyrim Souls is detected.");
-			MessageBoxA(nullptr, "A different version of Skyrim Souls is detected. The updated version will be disabled.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
-			return false;
-		}
-
-		//Check if Address Library is available
-		std::string fileName = "Data/SKSE/Plugins/version-" + a_skse->RuntimeVersion().string() + ".bin";
-		if (!std::filesystem::exists(fileName))
-		{
-			SKSE::log::critical("A different version of Skyrim Souls is detected. The updated version will be disabled.");
-			MessageBoxA(nullptr, std::string("Address Library for SKSE Plugins not found for current runtime version " + a_skse->RuntimeVersion().string() + "\nThe mod will be disabled.").c_str(), "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+			SKSE::WinAPI::MessageBox(nullptr, "A different version of Skyrim Souls is detected. The updated version will be disabled.", "Skyrim Souls RE - Error", MESSAGE_BOX_TYPE);
 			return false;
 		}
 
@@ -78,7 +81,7 @@ extern "C" {
 			SKSE::log::info("Messaging interface registration successful.");
 		} else {
 			SKSE::log::critical("Messaging interface registration failed.");
-			MessageBoxA(nullptr, "Messaging interface registration failed.", "Skyrim Souls RE - Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+			SKSE::WinAPI::MessageBox(nullptr, "Messaging interface registration failed.", "Skyrim Souls RE - Error", MESSAGE_BOX_TYPE);
 			return false;
 		}
 

@@ -47,7 +47,19 @@ namespace SkyrimSoulsRE
 			closeMenu = true;
 
 			RE::UIMessage* message = new RE::UIMessage(a_message);
-			message->data = nullptr;
+			if (message->data)
+			{
+				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(message->data);
+
+				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
+
+				auto creator = msgFactory->GetCreator(interfaceStrings->bsUIMessageData);
+				RE::BSUIMessageData* newData = static_cast<RE::BSUIMessageData*>(creator->Create());
+				newData->data = oldData->data;
+
+				message->data = newData;
+			}
 
 			ProcessMessageTask* task = new ProcessMessageTask(message);
 

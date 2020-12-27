@@ -35,7 +35,7 @@ namespace SkyrimSoulsRE
 	}
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
-	{		
+	{	
 		RE::UI* ui = RE::UI::GetSingleton();
 		RE::UIBlurManager* blurManager = RE::UIBlurManager::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
@@ -60,6 +60,8 @@ namespace SkyrimSoulsRE
 					menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUnpaused);
 				}
 			}
+
+			RE::PlayerCharacter::GetSingleton()->InterruptCast(true);
 		}
 
 		if (usesOverlay && a_menuName != RE::HUDMenu::MENU_NAME)
@@ -168,7 +170,6 @@ namespace SkyrimSoulsRE
 		menuCreatorMap.emplace("CustomMenu", ui->menuMap.find("CustomMenu")->second.create);
 
 		ui->menuMap.find(RE::ContainerMenu::MENU_NAME)->second.create = ContainerMenuEx::Creator;
-		ui->menuMap.find(RE::DialogueMenu::MENU_NAME)->second.create = DialogueMenuEx::Creator;
 		ui->menuMap.find(RE::InventoryMenu::MENU_NAME)->second.create = InventoryMenuEx::Creator;
 		ui->menuMap.find(RE::MagicMenu::MENU_NAME)->second.create = MagicMenuEx::Creator;
 		ui->menuMap.find(RE::TweenMenu::MENU_NAME)->second.create = TweenMenuEx::Creator;

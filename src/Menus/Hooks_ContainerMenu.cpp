@@ -23,8 +23,7 @@ namespace SkyrimSoulsRE
 			this->UpdatePickpocketChance();
 		}
 
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
+		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
 
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
@@ -143,21 +142,31 @@ namespace SkyrimSoulsRE
 
 				if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 				{
-					RE::IMenu* menu = ui->GetMenu(RE::ContainerMenu::MENU_NAME).get();
+					ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
+					RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
 
-					if (this->hasCount)
+					if (selectedItem)
 					{
-						RE::GFxValue arg[2];
-						arg[0] = this->equipHand;
-						arg[1] = this->count;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
-						ContainerMenuEx::_EquipItem(args);
-					}
-					else
-					{
-						RE::GFxValue arg = this->equipHand;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 2);
-						ContainerMenuEx::_EquipItem(args);
+						if (this->hasCount)
+						{
+							RE::GFxValue arg[2];
+							arg[0] = this->equipHand;
+							arg[1] = this->count;
+							const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
+							ContainerMenuEx::_EquipItem(args);
+						}
+						else
+						{
+							RE::GFxValue arg = this->equipHand;
+							const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 2);
+							ContainerMenuEx::_EquipItem(args);
+						}
+
+						if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
+						{
+							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
+							menu->value = 0;
+						}
 					}
 				}
 			}

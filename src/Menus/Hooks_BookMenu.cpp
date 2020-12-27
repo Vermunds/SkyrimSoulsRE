@@ -33,8 +33,7 @@ namespace SkyrimSoulsRE
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(new AdvanceBookMenuTask(a_interval, a_currentTime));
 
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->CheckAutoClose(RE::BookMenu::MENU_NAME);
+		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BookMenu::MENU_NAME);
 	}
 
 	RE::UI_MESSAGE_RESULTS BookMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
@@ -158,7 +157,8 @@ namespace SkyrimSoulsRE
 		_ProcessMessage = vTable.write_vfunc(0x4, &BookMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &BookMenuEx::AdvanceMovie_Hook);
 
-		//Fix for book menu not appearing
-		//REL::safe_write(Offsets::BookMenu_Hook.address() + 0x5E, std::uint16_t(0x9090));
+		//Fix for book menu animation speed in slow-motion
+		std::uint32_t ptr = static_cast<std::uint32_t>(Offsets::Misc::SecondsSinceLastFrame_RealTime.address() - (Offsets::Menus::BookMenu::ProcessMessage.address() + 0xA95 + 0x8));
+		REL::safe_write(Offsets::Menus::BookMenu::ProcessMessage.address() + 0xA95, ptr + 0x4);
 	}
 }

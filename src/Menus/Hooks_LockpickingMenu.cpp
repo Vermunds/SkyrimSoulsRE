@@ -50,6 +50,6 @@ namespace SkyrimSoulsRE
 		_ProcessMessage = vTable.write_vfunc(0x4, &LockpickingMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &LockpickingMenuEx::AdvanceMovie_Hook);
 
-		REL::safe_write(Offsets::LockpickingMenu_Hook.address() + 0xE0, std::uint16_t(0x9090));
+		REL::safe_write(Offsets::Menus::LockpickingMenu::Hook.address() + 0xE0, std::uint16_t(0x9090));
 	}
 }

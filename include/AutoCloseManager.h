@@ -1,9 +1,5 @@
 #pragma once
 
-#include "RE/BSCore/BSFixedString.h"
-#include "RE/FormComponents/TESForm/TESObjectREFR/TESObjectREFR.h"
-#include "RE/NetImmerse/NiPoint3.h"
-
 #include <map>
 
 namespace SkyrimSoulsRE
@@ -19,12 +15,12 @@ namespace SkyrimSoulsRE
 	private:
 		struct AutoCloseData
 		{
-			RE::TESObjectREFR* target;
-			bool initiallyDisabled;
-			float initialDistance;
-			float minDistance;
-			bool checkForDeath;
-			bool dialogueMode;
+			RE::TESObjectREFR* target = nullptr;
+			bool initiallyDisabled = false;
+			float initialDistance = 0.0f;
+			float minDistance = 0.0f;
+			bool checkForDeath = false;
+			bool dialogueMode = false;
 		};
 
 		template <class T>
