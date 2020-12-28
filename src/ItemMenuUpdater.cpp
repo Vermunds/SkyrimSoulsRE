@@ -123,8 +123,8 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x230, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook5.address() + 0x46, (std::uintptr_t)RemoveAllItems_Hook);
 
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_Actor_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xD9, (std::uintptr_t)RemoveItem_Actor_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xD9, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
 		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook3.address() + 0x461, (std::uintptr_t)RemoveItem_Actor_Hook);
 		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook4.address() + 0x268, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
 	}
