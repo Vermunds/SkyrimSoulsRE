@@ -18,6 +18,7 @@ namespace SkyrimSoulsRE
 		static void InstallHook();
 
 		inline static bool closeMenu = false;
+		inline static bool restoreAutoMove = false;
 
 		using ProcessMessage_t = decltype(&RE::MapMenu::ProcessMessage);
 		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;

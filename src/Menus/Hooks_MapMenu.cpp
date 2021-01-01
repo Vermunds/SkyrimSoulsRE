@@ -41,6 +41,12 @@ namespace SkyrimSoulsRE
 			if (closeMenu)
 			{
 				closeMenu = false;
+				RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
+				if (pc->autoMoveHandler->IsInputEventHandlingEnabled() && RE::ControlMap::GetSingleton()->IsMovementControlsEnabled())
+				{
+					pc->data.autoMove = restoreAutoMove;
+				}
+				restoreAutoMove = false;
 				return RE::UI_MESSAGE_RESULTS::kHandled;
 			}
 
@@ -49,6 +55,8 @@ namespace SkyrimSoulsRE
 			RE::UIMessage* message = new RE::UIMessage(a_message);
 			if (message->data)
 			{
+				// Fast traveling
+				restoreAutoMove = false;
 				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(message->data);
 
 				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
@@ -127,6 +135,9 @@ namespace SkyrimSoulsRE
 	RE::IMenu* MapMenuEx::Creator()
 	{
 		RE::MapMenu* menu = static_cast<RE::MapMenu*>(CreateMenu(RE::MapMenu::MENU_NAME));	
+		RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
+		restoreAutoMove = pc->data.autoMove;
+		pc->data.autoMove = false;
 		return menu;
 	}
 

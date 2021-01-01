@@ -42,7 +42,7 @@ extern "C" {
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("%g(%#): [%^%l%$] %v", spdlog::pattern_time_type::local);
 
-		SKSE::log::info("Skyrim Souls RE - Updated v" + std::string(SKYRIMSOULSRE_VERSION_VERSTRING));
+		SKSE::log::info("Skyrim Souls RE - Updated v" + std::string(SKYRIMSOULSRE_VERSION_VERSTRING) + " - (" + std::string(__TIMESTAMP__) + ")");
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
 		a_info->name = "Skyrim Souls RE";

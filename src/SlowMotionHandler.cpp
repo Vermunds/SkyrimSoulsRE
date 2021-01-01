@@ -13,23 +13,19 @@ namespace SkyrimSoulsRE
 		float* timescaleMult1 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value1.address());
 		float* timescaleMult2 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value2.address());
 
-		if (settings->enableSlowMotion)
+		float multiplier;
+		if (slowMotionMultiplier >= 0.1f && 1.0f >= slowMotionMultiplier)
 		{
-
-			float multiplier;
-			if (slowMotionMultiplier >= 0.1f && 1.0f >= slowMotionMultiplier)
-			{
-				multiplier = slowMotionMultiplier;
-			}
-			else {
-				multiplier = 1.0f;
-			}
-
-			isInSlowMotion = true;
-			currentSlowMotionMultiplier = settings->slowMotionMultiplier;
-			*timescaleMult1 = multiplier * (*timescaleMult1);
-			*timescaleMult2 = *timescaleMult1;
+			multiplier = slowMotionMultiplier;
 		}
+		else {
+			multiplier = 1.0f;
+		}
+
+		isInSlowMotion = true;
+		currentSlowMotionMultiplier = settings->slowMotionMultiplier;
+		*timescaleMult1 = multiplier * (*timescaleMult1);
+		*timescaleMult2 = *timescaleMult1;
 	}
 
 	void SlowMotionHandler::DisableSlowMotion()
@@ -56,12 +52,12 @@ namespace SkyrimSoulsRE
 
 	RE::BSEventNotifyControl SlowMotionHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
 	{
-		std::uint32_t unpausedMenuCount = GetUnpausedMenuCount();
-		if (!isInSlowMotion && unpausedMenuCount)
+		std::uint32_t slowMotionCount = GetSlowMotionCount();
+		if (!isInSlowMotion && slowMotionCount)
 		{
 			EnableSlowMotion();
 		}
-		else if (isInSlowMotion && !unpausedMenuCount)
+		else if (isInSlowMotion && !slowMotionCount)
 		{
 			DisableSlowMotion();
 		}

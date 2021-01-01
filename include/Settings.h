@@ -25,13 +25,14 @@ namespace SkyrimSoulsRE
 
 		//Controls
 		bool enableMovementInMenus;
+		bool enableToggleRun;
 		bool enableGamepadCameraMove;
 		bool enableCursorCameraMove;
 		float cursorCameraVerticalSpeed;
 		float cursorCameraHorizontalSpeed;
 
 		//slow motion
-		bool enableSlowMotion;
+		std::map<std::string, bool> slowMotionMenus;
 		float slowMotionMultiplier;
 
 		//Blur

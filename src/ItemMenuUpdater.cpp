@@ -62,28 +62,32 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 	}
 
 	// Update after RemoveItem for TESObjectREFRs
-	RE::ObjectRefHandle& RemoveItem_TESObjectREFR_Hook(RE::Actor* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
+	RE::ObjectRefHandle& RemoveItem_TESObjectREFR(RE::TESObjectREFR* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
-		using func_t = decltype(&RemoveItem_TESObjectREFR_Hook);
+		using func_t = decltype(&RemoveItem_TESObjectREFR);
 		REL::Relocation<func_t> func(Offsets::ItemMenuUpdater::RemoveItem_TESObjectREFR);
-		RE::ObjectRefHandle& result = func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
-
-		RE::TESObjectREFR* targetRef = GetTargetReference();
-
-		if (a_this == RE::PlayerCharacter::GetSingleton() || a_this == targetRef)
-		{
-			RequestItemListUpdate(a_this, nullptr);
-		}
-
-		return result;
+		return func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
 	}
 
 	// Update after RemoveItem for Actors
-	RE::ObjectRefHandle& RemoveItem_Actor_Hook(RE::Actor* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
+	RE::ObjectRefHandle& RemoveItem_Actor(RE::Actor* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
-		using func_t = decltype(&RemoveItem_Actor_Hook);
+		using func_t = decltype(&RemoveItem_Actor);
 		REL::Relocation<func_t> func(Offsets::ItemMenuUpdater::RemoveItem_Actor);
-		RE::ObjectRefHandle& result = func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
+		return func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
+	}
+
+	RE::ObjectRefHandle& RemoveItem_Hook(RE::TESObjectREFR* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
+	{
+		RE::ObjectRefHandle result;
+		if (a_this->formType == RE::FormType::ActorCharacter)
+		{
+			RemoveItem_Actor(static_cast<RE::Actor*>(a_this), a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
+		}
+		else
+		{
+			RemoveItem_TESObjectREFR(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
+		}
 
 		RE::TESObjectREFR* targetRef = GetTargetReference();
 
@@ -92,7 +96,7 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 			RequestItemListUpdate(a_this, nullptr);
 		}
 
-		return result;
+		return a_handle;
 	}
 
 	// Update after RemoveAllItems
@@ -123,9 +127,9 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x230, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook5.address() + 0x46, (std::uintptr_t)RemoveAllItems_Hook);
 
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xD9, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook3.address() + 0x461, (std::uintptr_t)RemoveItem_Actor_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook4.address() + 0x268, (std::uintptr_t)RemoveItem_TESObjectREFR_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xD9, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook3.address() + 0x461, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook4.address() + 0x268, (std::uintptr_t)RemoveItem_Hook);
 	}
 }

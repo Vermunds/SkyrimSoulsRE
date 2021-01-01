@@ -23,10 +23,14 @@ namespace SkyrimSoulsRE
 	RE::BSEventNotifyControl MenuControlsEx::ProcessEvent_Hook(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent*>* a_source)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
+		RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
+		RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
 		RE::UserEvents* userEvents = RE::UserEvents::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
-
-		bool blockInput = ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !settings->isUsingDME;
+		
+		bool dialogueMode = ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !settings->isUsingDME;
+		bool lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
+		bool movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
 
 		if (a_event && *a_event && !this->remapMode && !ui->GameIsPaused() && !IsFullScreenMenuOpen() && GetUnpausedMenuCount())
 		{
@@ -41,22 +45,22 @@ namespace SkyrimSoulsRE
 						//Forward
 						if (idEvent->userEvent == userEvents->up && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->forward))
 						{
-							idEvent->userEvent = blockInput ? "" : userEvents->forward;
+							idEvent->userEvent = movementControlsEnabled ? userEvents->forward : "";
 						}
 						//Back
 						if (idEvent->userEvent == userEvents->down && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->back))
 						{
-							idEvent->userEvent = blockInput ? "" : userEvents->back;
+							idEvent->userEvent = movementControlsEnabled ? userEvents->back : "";
 						}
 						//Left
 						if (idEvent->userEvent == userEvents->left && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 						{
-							idEvent->userEvent = blockInput ? "" : userEvents->strafeLeft;
+							idEvent->userEvent = movementControlsEnabled ? userEvents->strafeLeft : "";
 						}
 						//Right
 						if (idEvent->userEvent == userEvents->right && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 						{
-							idEvent->userEvent = blockInput ? "" : userEvents->strafeRight;
+							idEvent->userEvent = movementControlsEnabled ? userEvents->strafeRight : "";
 						}
 						//SkyUI Favorites menu fix
 						if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME))
@@ -91,19 +95,25 @@ namespace SkyrimSoulsRE
 							//Left
 							if (idEvent->userEvent == userEvents->prevPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 							{
-								idEvent->userEvent = blockInput ? "" : userEvents->strafeLeft;
+								idEvent->userEvent = movementControlsEnabled ? userEvents->strafeLeft : "";
 							}
 							//Right
 							if (idEvent->userEvent == userEvents->nextPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 							{
-								idEvent->userEvent = blockInput ? "" : userEvents->strafeRight;
+								idEvent->userEvent = movementControlsEnabled ? userEvents->strafeRight : "";
 							}
+						}
+
+						//Toggle Walk/Run
+						if (settings->enableToggleRun && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->toggleRun))
+						{
+							idEvent->userEvent = movementControlsEnabled ? userEvents->toggleRun : "";
 						}
 
 						//Controllers
 						if (idEvent->userEvent == userEvents->leftStick)
 						{
-							idEvent->userEvent = blockInput ? "" : userEvents->move;
+							idEvent->userEvent = movementControlsEnabled ? userEvents->move : "";
 						}
 					}
 
@@ -111,9 +121,9 @@ namespace SkyrimSoulsRE
 					{
 						//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
 						RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
-						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0)
+						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0f)
 						{
-							idEvent->userEvent = userEvents->look;
+							idEvent->userEvent = lookControlsEnabled ? userEvents->look : "";
 						}
 					}
 				}

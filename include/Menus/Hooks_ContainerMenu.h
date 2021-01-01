@@ -19,6 +19,8 @@ namespace SkyrimSoulsRE
 		};
 
 		static inline RE::TESObjectREFR* containerRef;
+		static inline std::wstring toSteal;
+		static inline std::wstring toPlace;
 
 		// Virtual functions
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);	// 04
@@ -36,6 +38,7 @@ namespace SkyrimSoulsRE
 
 		static RE::IMenu* Creator();
 		static void InstallHook();
+		static void ParseTranslations();
 
 		using AdvanceMovie_t = decltype(&RE::ContainerMenu::AdvanceMovie);
 		static inline REL::Relocation<AdvanceMovie_t> _AdvanceMovie;

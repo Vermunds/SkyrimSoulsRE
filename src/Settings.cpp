@@ -86,23 +86,65 @@ namespace SkyrimSoulsRE
 		
 		//Controls
 		settings->enableMovementInMenus = ini.GetBoolValue("CONTROLS", "bEnableMovementInMenus", true);
+		settings->enableToggleRun = ini.GetBoolValue("CONTROLS", "bEnableToggleRun", false);
 		settings->enableGamepadCameraMove = ini.GetBoolValue("CONTROLS", "bEnableGamepadCameraMove", true);
 		settings->enableCursorCameraMove = ini.GetBoolValue("CONTROLS", "bEnableCursorCameraMove", true);
 		settings->cursorCameraVerticalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", 0.15));
 		settings->cursorCameraHorizontalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", 0.25));
 
 		ini.SetBoolValue("CONTROLS", "bEnableMovementInMenus", settings->enableMovementInMenus, "#  If enabled, you will be able to move when a menu is open. Use the mouse (or the D-pad on controllers) to navigate the menus.\n#  (For controllers users) To change tabs in SkyUI favorites menu, use LB and RB buttons.", true);
+		ini.SetBoolValue("CONTROLS", "bEnableToggleRun", settings->enableToggleRun, "#  Allows \"Toggle walk/run\" control to be available when in menus (Caps Lock by default).", true);
 		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "#  If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumb stick.", true);
 		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "#  If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similar to how it works in the dialogue menu).", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", settings->cursorCameraVerticalSpeed, "#  The vertical and horizontal speed the camera moves when bEnableCursorCameraMove is enabled.", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", settings->cursorCameraHorizontalSpeed, nullptr, true);
 
 		//Slowmotion
-		settings->enableSlowMotion = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion", false);
 		settings->slowMotionMultiplier = static_cast<float>(ini.GetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", 0.5));
 
-		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion", settings->enableSlowMotion, "#  If enabled, the time will slow down when an unpaused menu is open.", true);
-		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "#  This is the multiplier that will affect the game speed when a menu is open. Has no effect if bEnableSlowMotion is disabled\n#  1.0 is no slowdown, 0.5 is half the speed, etc.", true);
+		settings->slowMotionMenus[RE::BarterMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_BarterMenu", false);
+		settings->slowMotionMenus[RE::BookMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_BookMenu", false);
+		//settings->slowMotionMenus[RE::Console::MENU_NAME.data()] = ini.GetBoolValue("UNPAUSED_MENUS", "bEnableSlowMotion_Console", false);
+		settings->slowMotionMenus[RE::ContainerMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_ContainerMenu", false);
+		settings->slowMotionMenus[RE::FavoritesMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_FavoritesMenu", false);
+		settings->slowMotionMenus[RE::GiftMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_GiftMenu", false);
+		settings->slowMotionMenus[RE::InventoryMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_InventoryMenu", false);
+		settings->slowMotionMenus[RE::JournalMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_JournalMenu", false);
+		settings->slowMotionMenus[RE::LevelUpMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_LevelUpMenu", false);
+		settings->slowMotionMenus[RE::LockpickingMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_LockpickingMenu", false);
+		settings->slowMotionMenus[RE::MagicMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_MagicMenu", false);
+		settings->slowMotionMenus[RE::MapMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_MapMenu", false);
+		settings->slowMotionMenus[RE::MessageBoxMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_MessageBoxMenu", false);
+		settings->slowMotionMenus[RE::ModManagerMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_ModManagerMenu", false);
+		settings->slowMotionMenus[RE::SleepWaitMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_SleepWaitMenu", false);
+		settings->slowMotionMenus[RE::StatsMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_StatsMenu", false);
+		settings->slowMotionMenus[RE::TrainingMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_TrainingMenu", false);
+		settings->slowMotionMenus[RE::TutorialMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_TutorialMenu", false);
+		settings->slowMotionMenus[RE::TweenMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_TweenMenu", false);
+		settings->slowMotionMenus["CustomMenu"] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", false);
+
+		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "#  This is the multiplier that will affect the game speed when a menu is open.\n#  1.0 is no slowdown, 0.5 is half the speed, etc.", true);
+
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BarterMenu", settings->slowMotionMenus[RE::BarterMenu::MENU_NAME.data()], "#  Enable or disable slow-motion when a menu is open. Configurable on a per-menu basis.", true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BookMenu", settings->slowMotionMenus[RE::BookMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_ContainerMenu", settings->slowMotionMenus[RE::ContainerMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_FavoritesMenu", settings->slowMotionMenus[RE::FavoritesMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_GiftMenu", settings->slowMotionMenus[RE::GiftMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_InventoryMenu", settings->slowMotionMenus[RE::InventoryMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_JournalMenu", settings->slowMotionMenus[RE::JournalMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_LevelUpMenu", settings->slowMotionMenus[RE::LevelUpMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_LockpickingMenu", settings->slowMotionMenus[RE::LockpickingMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_MagicMenu", settings->slowMotionMenus[RE::MagicMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_MapMenu", settings->slowMotionMenus[RE::MapMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_MessageBoxMenu", settings->slowMotionMenus[RE::MessageBoxMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_ModManagerMenu", settings->slowMotionMenus[RE::ModManagerMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_SleepWaitMenu", settings->slowMotionMenus[RE::SleepWaitMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_StatsMenu", settings->slowMotionMenus[RE::StatsMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_TrainingMenu", settings->slowMotionMenus[RE::TrainingMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_TutorialMenu", settings->slowMotionMenus[RE::TutorialMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_TweenMenu", settings->slowMotionMenus[RE::TweenMenu::MENU_NAME.data()], nullptr, true);
+		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", settings->slowMotionMenus["CustomMenu"], nullptr, true);
+
 
 		ini.SetValue("COMBAT_ALERT_OVERLAY", nullptr, nullptr, "#  Shows a blinking red overlay when your character is in combat. Especially useful in full screen menus. You can enable or disable it individually for each menu.");
 

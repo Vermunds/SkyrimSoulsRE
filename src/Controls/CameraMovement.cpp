@@ -8,10 +8,12 @@ namespace SkyrimSoulsRE::CameraMovement
 		Settings* settings = Settings::GetSingleton();
 		RE::UI* ui = RE::UI::GetSingleton();
 		RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
+		RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
 		RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 
 		if (!ui->GameIsPaused() && !ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && settings->enableCursorCameraMove &&
-			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode )
+			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode && 
+			pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled())
 		{
 			RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::Misc::CursorPosition.address());
 			RE::INIPrefSettingCollection* prefs = RE::INIPrefSettingCollection::GetSingleton();

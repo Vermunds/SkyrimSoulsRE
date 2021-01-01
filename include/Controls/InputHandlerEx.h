@@ -37,6 +37,10 @@ namespace SkyrimSoulsRE
 			return _CanProcess(this, a_event);
 		}
 
+		if (settings->enableToggleRun && typeid(T) == typeid(RE::ToggleRunHandler)) {
+			return _CanProcess(this, a_event);
+		}
+
 		if (unpausedMenuCount) {
 			return false;
 		}

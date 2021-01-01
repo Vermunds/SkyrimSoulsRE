@@ -71,42 +71,26 @@ namespace SkyrimSoulsRE
 				std::int32_t chance = CalcPickPocketChance(&item->data);
 
 				RE::GFxValue isViewingContainer;
-				this->uiMovie->Invoke("_root.Menu_mc.isViewingContainer", &isViewingContainer, nullptr, 0);
 
-				if (isViewingContainer.IsUndefined())
-				{
+				if (!this->uiMovie->Invoke("_root.Menu_mc.isViewingContainer", &isViewingContainer, nullptr, 0))
 					return;
-				}
-
-				RE::BSFixedStringW toSteal = L"$ TO STEAL";
-				RE::BSFixedStringW toPlace = L"$ TO PLACE";
-
-				auto translator = this->uiMovie->GetState<RE::GFxTranslator>(RE::GFxState::StateType::kTranslator);
-				RE::GPtr bsTranslator{ skyrim_cast<RE::BSScaleformTranslator*>(translator.get()) };
-				if (bsTranslator) {
-					auto& map = bsTranslator->translator.translationMap;
-					auto it = map.find(toSteal);
-					if (it != map.end()) {
-						toSteal = it->second;
-					}
-					it = map.find(toPlace);
-					if (it != map.end()) {
-						toPlace = it->second;
-					}
-				}
 
 				std::wstring desc;
-
-				desc = isViewingContainer.GetBool() ? desc = toSteal.data() : desc = toPlace.data();
+				desc = isViewingContainer.GetBool() ? toSteal : toPlace;
 
 				std::wstring stealText(L"<font face=\'$EverywhereBoldFont\' size=\'24\' color=\'#FFFFFF\'>" + std::to_wstring(chance) + L"%</font>" + desc);
 
-				RE::GFxValue stealTextValue;
-				this->uiMovie->GetVariable(&stealTextValue, "_root.Menu_mc.itemCardFadeHolder.StealTextInstance.PercentTextInstance");
-				if (!stealTextValue.IsUndefined())
+				RE::GFxValue stealTextObj;
+				RE::GFxValue newText(stealText.c_str());
+				if (this->uiMovie->GetVariable(&stealTextObj, "_root.Menu_mc.itemCardFadeHolder.StealTextInstance.PercentTextInstance"))
 				{
-					RE::GFxValue newText(stealText.c_str());
-					stealTextValue.SetMember("htmlText", newText);
+					//SkyUI
+					stealTextObj.SetMember("htmlText", newText);
+				}
+				else if (this->uiMovie->GetVariable(&stealTextObj, "_root.Menu_mc.ItemCardFadeHolder_mc.StealTextInstance.PercentTextInstance"))
+				{
+					//vanilla
+					stealTextObj.SetMember("htmlText", newText);
 				}
 			}
 		}
@@ -287,10 +271,6 @@ namespace SkyrimSoulsRE
 		{
 			ref = refptr.get();
 		}
-		else
-		{
-			SKSE::log::error("Failed to find Container Menu target!");
-		}
 
 		containerRef = ref;
 
@@ -305,5 +285,102 @@ namespace SkyrimSoulsRE
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::ContainerMenu::Vtbl);
 		_ProcessMessage = vTable.write_vfunc(0x4, &ContainerMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &ContainerMenuEx::AdvanceMovie_Hook);
+	}
+
+	void ContainerMenuEx::ParseTranslations()
+	{
+		toSteal = L"$ TO STEAL";
+		toPlace = L"$ TO PLACE";
+
+		bool foundToSteal = false;
+		bool foundToPlace = false;
+
+		RE::Setting* language = RE::INISettingCollection::GetSingleton()->GetSetting("sLanguage:General");
+		std::string path = "Interface\\";
+
+		// Construct translation filename
+		path += "Translate_";
+		path += (language && language->GetType() == RE::Setting::Type::kString) ? language->data.s : "ENGLISH";
+		path += ".txt";
+
+		SKSE::log::info("Reading translations from " + path + "...");
+
+		RE::BSResourceNiBinaryStream fileStream(path.c_str());
+		if (!fileStream.good())
+		{
+			SKSE::log::error("Failed to read file " + path + ". Aborting.");
+			return;
+		}
+
+		wchar_t bom = 0;
+		bool ret = fileStream.read(&bom, 1);
+		if (!ret)
+		{
+			SKSE::log::error("Empty translation file. Aborting.");
+			return;
+		}
+
+		if (bom != L'\xFEFF')
+		{
+			SKSE::log::error("BOM Error, file must be encoded in UCS-2 LE. Aborting.");
+			return;
+		}
+
+		while (!(foundToSteal && foundToPlace))
+		{
+			std::wstring str;
+
+			bool notEOF = std::getline(fileStream, str);
+			if (!notEOF) // End of file
+			{
+				SKSE::log::error("Unexpected end of file.");
+				break;
+			}
+
+			std::size_t len = str.length();
+
+			wchar_t last = str.at(len - 1);
+			if (last == '\r')
+				len--;
+
+			std::size_t delimIdx = 0;
+			for (std::size_t i = 0; i < len; ++i)
+			{
+				if (str.at(i) == L'\t')
+				{
+					delimIdx = i;
+					break;
+				}
+			}
+
+			if (delimIdx == 0)
+				continue;
+
+			std::wstring key = std::wstring{ str.substr(0, delimIdx) };
+			std::wstring translation = std::wstring{ str.substr(delimIdx + 1, len - delimIdx - 1) };
+
+			if (key == L"$ TO PLACE")
+			{
+				foundToPlace = true;
+				toPlace = translation;
+			}
+			else if (key == L"$ TO STEAL")
+			{
+				foundToSteal = true;
+				toSteal = translation;
+			}
+		}
+
+		if (!foundToPlace)
+		{
+			SKSE::log::error("Failed to find translation for \"$ TO PLACE\".");
+		}	
+
+		if (!foundToSteal)
+		{
+			SKSE::log::error("Failed to find translation for \"$ TO STEAL\".");
+		}	
+
+		SKSE::log::info("Reading translations finished.");
 	}
 }

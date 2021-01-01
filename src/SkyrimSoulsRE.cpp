@@ -50,13 +50,19 @@ namespace SkyrimSoulsRE
 
 		if (menu->PausesGame())
 		{
-
 			if (isUnpaused)
 			{
 				menu->menuFlags &= ~Flag::kPausesGame;
 
 				if (!isConsole)
 				{
+					bool usesSlowMotion = settings->slowMotionMenus[a_menuName.data()];
+
+					if (usesSlowMotion)
+					{
+						menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUsesSlowMotion);
+					}
+
 					menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUnpaused);
 				}
 			}
@@ -79,7 +85,7 @@ namespace SkyrimSoulsRE
 			menu->menuFlags &= ~Flag::kFreezeFrameBackground;
 		}
 
-		if (menu->InventoryItemMenu())
+		if (menu->InventoryItemMenu() && a_menuName != RE::FavoritesMenu::MENU_NAME)
 		{
 			menu->depthPriority = 1;
 		}
@@ -135,6 +141,24 @@ namespace SkyrimSoulsRE
 		return count;
 	}
 
+	std::uint32_t GetSlowMotionCount()
+	{
+		RE::UI* ui = RE::UI::GetSingleton();
+
+		std::uint32_t count = 0;
+
+		for (auto& it : ui->menuStack)
+		{
+			RE::IMenu* menu = it.get();
+			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUsesSlowMotion)) != Flag::kNone)
+			{
+				++count;
+			}
+		}
+
+		return count;
+	}
+
 	bool IsFullScreenMenuOpen()
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
@@ -147,7 +171,6 @@ namespace SkyrimSoulsRE
 		ui->GetEventSource<RE::MenuOpenCloseEvent>()->AddEventSink(&g_slowMotionHandler);
 
 		menuCreatorMap.emplace(RE::ContainerMenu::MENU_NAME, ui->menuMap.find(RE::ContainerMenu::MENU_NAME)->second.create);
-		menuCreatorMap.emplace(RE::DialogueMenu::MENU_NAME, ui->menuMap.find(RE::DialogueMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::InventoryMenu::MENU_NAME, ui->menuMap.find(RE::InventoryMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::MagicMenu::MENU_NAME, ui->menuMap.find(RE::MagicMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::TweenMenu::MENU_NAME, ui->menuMap.find(RE::TweenMenu::MENU_NAME)->second.create);
@@ -192,6 +215,8 @@ namespace SkyrimSoulsRE
 		ui->menuMap.find("CustomMenu")->second.create = CustomMenuEx::Creator;
 
 		ui->Register(CombatAlertOverlayMenu::MENU_NAME, CombatAlertOverlayMenu::Creator);
+
+		ContainerMenuEx::ParseTranslations();
 	}
 
 	void InstallHooks()
