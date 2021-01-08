@@ -70,7 +70,7 @@
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UseFullPaths>false</UseFullPaths>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4061;4200;4265;4266;4371;4514;4582;4583;4623;4625;4626;4710;4711;4820;5026;5027;5045;5053;5204;5220</DisableSpecificWarnings>
@@ -116,7 +116,7 @@
       </OmitFramePointers>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <CompileAs>CompileAsCpp</CompileAs>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <UseFullPaths>false</UseFullPaths>
       <DisableSpecificWarnings>4061;4200;4265;4266;4371;4514;4582;4583;4623;4625;4626;4710;4711;4820;5026;5027;5045;5053;5204;5220</DisableSpecificWarnings>

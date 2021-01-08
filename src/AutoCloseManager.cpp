@@ -1,5 +1,6 @@
 #include "AutoCloseManager.h"
 #include "Settings.h"
+#include "Menus/Hooks_DialogueMenu.h"
 
 #include <cmath>
 
@@ -102,7 +103,6 @@ namespace SkyrimSoulsRE
 
 		// If the dialogue and the menu target matches, close the menu only when the dialogue menu closes
 		RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
-
 		bool isPickpocketMenu = false;
 
 		if (menuName == RE::ContainerMenu::MENU_NAME && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
@@ -111,7 +111,7 @@ namespace SkyrimSoulsRE
 			isPickpocketMenu = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
 		}
 
-		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && mtm->speaker && mtm->speaker.get() && a_ref == mtm->speaker.get().get())
+		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !mtm->isSayingGoodbye && mtm->speaker && mtm->speaker.get() && a_ref == mtm->speaker.get().get())
 		{
 			data->target = a_ref;
 			data->dialogueMode = true;

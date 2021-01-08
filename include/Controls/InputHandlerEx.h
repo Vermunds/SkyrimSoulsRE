@@ -3,6 +3,8 @@
 
 namespace SkyrimSoulsRE
 {
+	extern std::uint32_t GetUnpausedMenuCount();
+
 	template <class T>
 	class InputHandlerEx : public T
 	{
@@ -21,7 +23,7 @@ namespace SkyrimSoulsRE
 		RE::UI* ui = RE::UI::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
-		std::uint32_t unpausedMenuCount = SkyrimSoulsRE::GetUnpausedMenuCount();
+		std::uint32_t unpausedMenuCount = GetUnpausedMenuCount();
 
 		if (settings->enableGamepadCameraMove && typeid(T) == typeid(RE::LookHandler)) {
 			if (a_event->eventType == RE::INPUT_EVENT_TYPE::kThumbstick) {

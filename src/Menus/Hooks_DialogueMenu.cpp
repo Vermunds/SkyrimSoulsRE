@@ -1,21 +1,21 @@
 #include "Menus/Hooks_DialogueMenu.h"
+#include "SkyrimSoulsRE.h"
 
 namespace SkyrimSoulsRE
 {
 	//Prevent dialogue from closing when an another menu is open
-	void DialogueMenuEx::UpdateAutoCloseTimer_Hook(uintptr_t a_unk, float a_delta)
+	void DialogueMenuEx::UpdateAutoCloseTimer_Hook(RE::AIProcess* a_process, float a_delta)
 	{
-		uintptr_t unk = *(reinterpret_cast<uintptr_t*>(a_unk + 0x10));
-		if (unk)
+		RE::HighProcessData* highData = a_process->high;
+		if (highData)
 		{
-			float* timer = reinterpret_cast<float*>(unk + 0x340);
 			if (SkyrimSoulsRE::GetUnpausedMenuCount())
 			{
-				*timer = 120.0;
+				highData->closeDialogueTimer = 120.0;
 			}
 			else
 			{
-				*timer += a_delta; //a_delta is negative
+				highData->closeDialogueTimer += a_delta; //a_delta is negative
 			}
 		}
 	}
@@ -23,13 +23,14 @@ namespace SkyrimSoulsRE
 	void DialogueMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		std::uint32_t unpausedMenuCount = SkyrimSoulsRE::GetUnpausedMenuCount();
+		bool isVisible = this->uiMovie->GetVisible();
 
-		if (this->uiMovie->GetVisible() && unpausedMenuCount)
+		if (isVisible && unpausedMenuCount)
 		{
 			this->uiMovie->SetVisible(false);
 			this->depthPriority = 0;
 		}
-		else if (!(this->uiMovie->GetVisible()) && !unpausedMenuCount)
+		else if (!isVisible && !unpausedMenuCount)
 		{
 			this->uiMovie->SetVisible(true);
 			this->depthPriority = 3;
