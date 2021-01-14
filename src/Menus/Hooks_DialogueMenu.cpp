@@ -25,15 +25,18 @@ namespace SkyrimSoulsRE
 		std::uint32_t unpausedMenuCount = SkyrimSoulsRE::GetUnpausedMenuCount();
 		bool isVisible = this->uiMovie->GetVisible();
 
-		if (isVisible && unpausedMenuCount)
+		if (!RE::UI::GetSingleton()->GameIsPaused())
 		{
-			this->uiMovie->SetVisible(false);
-			this->depthPriority = 0;
-		}
-		else if (!isVisible && !unpausedMenuCount)
-		{
-			this->uiMovie->SetVisible(true);
-			this->depthPriority = 3;
+			if (isVisible && unpausedMenuCount)
+			{
+				this->uiMovie->SetVisible(false);
+				this->depthPriority = 0;
+			}
+			else if (!isVisible && !unpausedMenuCount)
+			{
+				this->uiMovie->SetVisible(true);
+				this->depthPriority = 3;
+			}
 		}
 
 		_AdvanceMovie(this, a_interval, a_currentTime);
