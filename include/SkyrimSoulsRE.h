@@ -37,6 +37,7 @@
 
 #include "Controls/CameraMovement.h"
 #include "Controls/InputHandlerEx.h"
+#include "Controls/MapInputHandlerEx.h"
 #include "Controls/MenuControlsEx.h"
 #include "Controls/PlayerControlsEx.h"
 

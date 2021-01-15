@@ -145,6 +145,22 @@ namespace Offsets
 			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(52206));
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(52225));
+
+			namespace MapLookHandler
+			{
+				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270806));
+			}
+
+			namespace MapMoveHandler
+			{
+				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270807));
+
+			}
+
+			namespace MapZoomHandler
+			{
+				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(270808));
+			}
 		}
 
 		namespace MessageBoxMenu

@@ -252,6 +252,9 @@
     <ClInclude Include="include\ItemMenuUpdater.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Controls\MapInputHandlerEx.h">
+      <Filter>include\Controls</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

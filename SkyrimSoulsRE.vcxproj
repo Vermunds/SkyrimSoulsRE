@@ -189,6 +189,7 @@
     <ClInclude Include="include\ConsoleCommandHooks.h" />
     <ClInclude Include="include\Controls\CameraMovement.h" />
     <ClInclude Include="include\Controls\InputHandlerEx.h" />
+    <ClInclude Include="include\Controls\MapInputHandlerEx.h" />
     <ClInclude Include="include\Controls\MenuControlsEx.h" />
     <ClInclude Include="include\Controls\PlayerControlsEx.h" />
     <ClInclude Include="include\ItemMenuUpdater.h" />
