@@ -1,4 +1,5 @@
 Scriptname PlayerBookShelfContainerScript extends ObjectReference
+{This script has been overhauled to fix several issues listed in USLEEP 3.0.1 - Bug #19515. This overhaul was contributed by Adria.}
 
 import debug
 import utility
@@ -133,6 +134,7 @@ GlobalVariable Property BookShelfGlobal Auto
 {Global showing whether or not the player has ever activated a bookshelf}
 
 
+
 EVENT OnCellLoad()
 	if AlreadyLoaded == FALSE
 		;Trace("BOOKCASE - Running OnCellLoad()")
@@ -164,13 +166,23 @@ EVENT OnCellLoad()
 
 		AlreadyLoaded = TRUE
 	endif
-endEVENT
 
+	; Check if this shelf has already been messed up by vanilla bug, and issue a warning in a log.
+	; Actual healing process will trigger when all books are removed from the display shelf.
+	;if !(CurrentBookAmount >= 0 && CurrentBookAmount <= MaxBooksAllowed && CurrentBookAmount == NumBooksOnShelf())
+	;	Trace("BookShelfFix - An inconsistent bookshelf " + self + " found in " + self.GetCurrentLocation() + ", fix will be applied when you pull out all the books from the shelf.")
+	;endif
+endEVENT
 
 
 EVENT OnActivate(ObjectReference akActionRef)
 	; Removing all items from container as a precaution
 	;Trace("BOOKCASE - I've been ACTIVATED!")
+
+	;USLEEP 3.0.1 - Bug #19515
+	CleanInvalidPlacedBooks()
+	CurrentBookAmount = NumBooksOnShelf()
+
 	BlockActivate()
 	;Trace("BOOKCASE - Blocking activate on all books")
 	;Trace("BOOKCASE - BookShelfTrigger01Ref = " + BookShelfTrigger01Ref)
@@ -203,8 +215,18 @@ EVENT OnActivate(ObjectReference akActionRef)
 	While (Utility.IsInMenuMode())
 		Utility.Wait(0.25)
 	EndWhile
-	
 	; The following will fire when the player leaves inventory
+
+	;USLEEP 3.0.1 - Bug #19515
+	; When display shelf becomes empty, reset it to fix corrupted shelves
+	if NumBooksOnShelf() == 0
+		RemoveAllItems(akTransferTo = Game.GetPlayer(), abRemoveQuestItems = true) ; make sure all the books are transfered into player's inventory
+		ClearDisplayShelf()
+		Wait(0.25) ; wait until RemoveAllItems() is (hopefully) done
+		CurrentBookAmount = 0
+		;Trace("BookShelfFix - Cleaned up bookshelf " + self + ". This is not an error.")
+	endif
+
 	;Trace("BOOKCASE - Out of Inventory so placing all the books")
 	UpdateBooks()
 
@@ -238,7 +260,6 @@ Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemRefe
 			BlockBooks = FALSE
 		endif
 	endif
-
 endEvent
 
 
@@ -398,7 +419,8 @@ endFunction
 
 
 Function RemoveBooks(Form BookBase, Int BookAmount)
-	; Find an empty book form and place the new book there
+	; Find the removed book form(s) and remove it from the display
+
 	While BookAmount > 0
 		if PlacedBook01 == BookBase
 			;Trace("BOOKCASE - PlacedBook01 matches, Removing this book")
@@ -519,7 +541,7 @@ Function AddBooks(Form BookBase, Int BookAmount)
 			;Trace("BOOKCASE - PlacedBook18 is empty, placing book there")
 			PlacedBook18 = BookBase
 		endif
-		
+
 					BookAmount = BookAmount - 1
 
 	endWhile
@@ -576,7 +598,8 @@ ObjectReference Function UpdateSingleBook(Form TargetBook, ObjectReference Place
 	; Note - it would be more efficient to move the book to its home position if the desired
 	; book matches the placed book, but MoveTo doesn't work correctly with multi-part dynamic
 	; objects. So we sidestep the issue by always deleting and placing
-	if PlacedBookRef
+	;USLEEP 3.0.1 - Bug #19515 added form ID check here.
+	if PlacedBookRef && PlacedBookRef.GetFormID()
 		PlacedBookRef.Disable()
 		PlacedBookRef.Delete()
 	endIf
@@ -617,9 +640,373 @@ Function UpdateBooks()
 	GoToState("") ; Now allow books to be updated again
 EndFunction
 
+
 State PlacingBooks
 	Function UpdateBooks()
 		; Already updating books, so ignore
 	EndFunction
 EndState
-	
+
+
+;
+; ;USLEEP 3.0.1 - Bug #19515: Everything past this point is new stuff to support fixing the bookshelf containers.
+;
+Function PickUp(ObjectReference BookRef)
+	;Trace("BookShelfFix " + self + " PickUp() - " + BookRef + ", Base = " + BookRef.GetBaseObject())
+
+	if (BookRef && BookRef.GetBaseObject() as Book)
+
+		; Remove a display book first
+		if RemoveBookByRef(BookRef)
+
+			GoToState("PickingUp")
+			; Then remove a book in container
+			self.RemoveItem(BookRef.GetBaseObject(), 1)
+			Wait(0.25) ; wait for OnItemRemoved() event to fire
+
+			GoToState("")
+		endif
+	endIf
+EndFunction
+
+
+State PickingUp
+	; Used when a book has been picked up directly from the display
+
+	Event OnBeginState() ; You Shall Not Pass!
+		self.BlockActivation(True)
+		BlockActivate()
+		;Trace("BookShelfFix " + self + " PickingUp State - Entered State")
+	EndEvent
+
+	Event OnActivate(ObjectReference akActionRef)
+	EndEvent
+
+	Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
+		;Trace("BookShelfFix " + self + " PickingUp State - Item " + akBaseItem + " removed from shelf inventory")
+		CurrentBookAmount -= aiItemCount
+	EndEvent
+
+	Event OnEndState()
+		;Trace("BookShelfFix " + self + " PickingUp State - Leaving State")
+		UnblockActivate()
+		self.BlockActivation(False)
+	EndEvent
+
+EndState
+
+
+Bool Function RemoveBookByRef(ObjectReference BookRef)
+	; If the book had been picked up directly, and if there were multiple copies of it on the shelf,
+	; we need to determine the exact location of the book rather than the first copy in a list.
+	; Returns True if BookRef has been successfully dismembered from the list or False when the book was missing
+
+	if !BookRef
+		return False
+	endif
+
+	int BookRefID = BookRef.GetFormID()
+
+	; These references could be a derivative of ObjectReference such as DefaultSetStageOnPlayerAcquireItem
+	; and would never match even if they were cast into ObjectReference, so compare their FormIDs rather than comparing them directly.
+	if PlacedBook01Ref && PlacedBook01Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook01 matches, Removing this book")
+		PlacedBook01 = EmptyForm
+		PlacedBook01Ref = EmptyRef
+	elseif PlacedBook02Ref && PlacedBook02Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook02 matches, Removing this book")
+		PlacedBook02 = EmptyForm
+		PlacedBook02Ref = EmptyRef
+	elseif PlacedBook03Ref && PlacedBook03Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook03 matches, Removing this book")
+		PlacedBook03 = EmptyForm
+		PlacedBook03Ref = EmptyRef
+	elseif PlacedBook04Ref && PlacedBook04Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook04 matches, Removing this book")
+		PlacedBook04 = EmptyForm
+		PlacedBook04Ref = EmptyRef
+	elseif PlacedBook05Ref && PlacedBook05Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook05 matches, Removing this book")
+		PlacedBook05 = EmptyForm
+		PlacedBook05Ref = EmptyRef
+	elseif PlacedBook06Ref && PlacedBook06Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook06 matches, Removing this book")
+		PlacedBook06 = EmptyForm
+		PlacedBook06Ref = EmptyRef
+	elseif PlacedBook07Ref && PlacedBook07Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook07 matches, Removing this book")
+		PlacedBook07 = EmptyForm
+		PlacedBook07Ref = EmptyRef
+	elseif PlacedBook08Ref && PlacedBook08Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook08 matches, Removing this book")
+		PlacedBook08 = EmptyForm
+		PlacedBook08Ref = EmptyRef
+	elseif PlacedBook09Ref && PlacedBook09Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook09 matches, Removing this book")
+		PlacedBook09 = EmptyForm
+		PlacedBook09Ref = EmptyRef
+	elseif PlacedBook10Ref && PlacedBook10Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook10 matches, Removing this book")
+		PlacedBook10 = EmptyForm
+		PlacedBook10Ref = EmptyRef
+	elseif PlacedBook11Ref && PlacedBook11Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook11 matches, Removing this book")
+		PlacedBook11 = EmptyForm
+		PlacedBook11Ref = EmptyRef
+	elseif PlacedBook12Ref && PlacedBook12Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook12 matches, Removing this book")
+		PlacedBook12 = EmptyForm
+		PlacedBook12Ref = EmptyRef
+	elseif PlacedBook13Ref && PlacedBook13Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook13 matches, Removing this book")
+		PlacedBook13 = EmptyForm
+		PlacedBook13Ref = EmptyRef
+	elseif PlacedBook14Ref && PlacedBook14Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook14 matches, Removing this book")
+		PlacedBook14 = EmptyForm
+		PlacedBook14Ref = EmptyRef
+	elseif PlacedBook15Ref && PlacedBook15Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook15 matches, Removing this book")
+		PlacedBook15 = EmptyForm
+		PlacedBook15Ref = EmptyRef
+	elseif PlacedBook16Ref && PlacedBook16Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook16 matches, Removing this book")
+		PlacedBook16 = EmptyForm
+		PlacedBook16Ref = EmptyRef
+	elseif PlacedBook17Ref && PlacedBook17Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook17 matches, Removing this book")
+		PlacedBook17 = EmptyForm
+		PlacedBook17Ref = EmptyRef
+	elseif PlacedBook18Ref && PlacedBook18Ref.GetFormID() == BookRefID
+		;Trace("BookShelfFix RemoveBookByRef() - PlacedBook18 matches, Removing this book")
+		PlacedBook18 = EmptyForm
+		PlacedBook18Ref = EmptyRef
+	else
+		return False
+	endif
+
+	return True
+EndFunction
+
+
+Int Function NumBooksOnShelf()
+	; Count number of books displayed on shelf (not ones kept in inventory)
+	int bookCnt = 0
+
+	Form[] PlacedBookAr = new Form[18]
+
+	PlacedBookAr[0]  = PlacedBook01
+	PlacedBookAr[1]  = PlacedBook02
+	PlacedBookAr[2]  = PlacedBook03
+	PlacedBookAr[3]  = PlacedBook04
+	PlacedBookAr[4]  = PlacedBook05
+	PlacedBookAr[5]  = PlacedBook06
+	PlacedBookAr[6]  = PlacedBook07
+	PlacedBookAr[7]  = PlacedBook08
+	PlacedBookAr[8]  = PlacedBook09
+	PlacedBookAr[9]  = PlacedBook10
+	PlacedBookAr[10] = PlacedBook11
+	PlacedBookAr[11] = PlacedBook12
+	PlacedBookAr[12] = PlacedBook13
+	PlacedBookAr[13] = PlacedBook14
+	PlacedBookAr[14] = PlacedBook15
+	PlacedBookAr[15] = PlacedBook16
+	PlacedBookAr[16] = PlacedBook17
+	PlacedBookAr[17] = PlacedBook18
+
+	int i = 0
+
+	while (i < MaxBooksAllowed && i < 18)
+		if PlacedBookAr[i]
+			bookCnt += 1
+		endif
+		i += 1
+	endwhile
+
+	; Note that number of books in inventory could NOT match this number due to bugs in vanilla script
+	return bookCnt
+EndFunction
+
+Function ClearDisplayShelf()
+	; Clear BaseID row for display shelf and give back any books in incorrect slots to player
+
+	ObjectReference player = Game.GetPlayer()
+
+	;Trace("BookShelfFix - ClearDisplayShelf()")
+
+	if (MaxBooksAllowed < 1 && PlacedBook01)
+		player.AddItem(PlacedBook01, 1, true)
+	endif
+	if (MaxBooksAllowed < 2 && PlacedBook02)
+		player.AddItem(PlacedBook02, 1, true)
+	endif
+	if (MaxBooksAllowed < 3 && PlacedBook03)
+		player.AddItem(PlacedBook03, 1, true)
+	endif
+	if (MaxBooksAllowed < 4 && PlacedBook04)
+		player.AddItem(PlacedBook04, 1, true)
+	endif
+	if (MaxBooksAllowed < 5 && PlacedBook05)
+		player.AddItem(PlacedBook05, 1, true)
+	endif
+	if (MaxBooksAllowed < 6 && PlacedBook06)
+		player.AddItem(PlacedBook06, 1, true)
+	endif
+	if (MaxBooksAllowed < 7 && PlacedBook07)
+		player.AddItem(PlacedBook07, 1, true)
+	endif
+	if (MaxBooksAllowed < 8 && PlacedBook08)
+		player.AddItem(PlacedBook08, 1, true)
+	endif
+	if (MaxBooksAllowed < 9 && PlacedBook09)
+		player.AddItem(PlacedBook09, 1, true)
+	endif
+	if (MaxBooksAllowed < 10 && PlacedBook10)
+		player.AddItem(PlacedBook10, 1, true)
+	endif
+	if (MaxBooksAllowed < 11 && PlacedBook11)
+		player.AddItem(PlacedBook11, 1, true)
+	endif
+	if (MaxBooksAllowed < 12 && PlacedBook12)
+		player.AddItem(PlacedBook12, 1, true)
+	endif
+	if (MaxBooksAllowed < 13 && PlacedBook13)
+		player.AddItem(PlacedBook13, 1, true)
+	endif
+	if (MaxBooksAllowed < 14 && PlacedBook14)
+		player.AddItem(PlacedBook14, 1, true)
+	endif
+	if (MaxBooksAllowed < 15 && PlacedBook15)
+		player.AddItem(PlacedBook15, 1, true)
+	endif
+	if (MaxBooksAllowed < 16 && PlacedBook16)
+		player.AddItem(PlacedBook16, 1, true)
+	endif
+	if (MaxBooksAllowed < 17 && PlacedBook17)
+		player.AddItem(PlacedBook17, 1, true)
+	endif
+	if (MaxBooksAllowed < 18 && PlacedBook18)
+		player.AddItem(PlacedBook18, 1, true)
+	endif
+
+	PlacedBook01 = EmptyForm
+	PlacedBook02 = EmptyForm
+	PlacedBook03 = EmptyForm
+	PlacedBook04 = EmptyForm
+	PlacedBook05 = EmptyForm
+	PlacedBook06 = EmptyForm
+	PlacedBook07 = EmptyForm
+	PlacedBook08 = EmptyForm
+	PlacedBook09 = EmptyForm
+	PlacedBook10 = EmptyForm
+	PlacedBook11 = EmptyForm
+	PlacedBook12 = EmptyForm
+	PlacedBook13 = EmptyForm
+	PlacedBook14 = EmptyForm
+	PlacedBook15 = EmptyForm
+	PlacedBook16 = EmptyForm
+	PlacedBook17 = EmptyForm
+	PlacedBook18 = EmptyForm
+EndFunction
+
+
+Function CleanInvalidPlacedBooks()
+	; Clean invalid (nonexistent) forms off PlacedBook**. Invalid forms may be resulted in removed mods.
+	; Cleaning them will prevent them from eating up PlacedBook slots permanently.
+
+	if !(PlacedBook01 && PlacedBook01.GetFormID()) ; nonexistent forms are still cast into True, but their ID are always 0
+		PlacedBook01 = EmptyForm
+	endif
+	if !(PlacedBook02 && PlacedBook02.GetFormID())
+		PlacedBook02 = EmptyForm
+	endif
+	if !(PlacedBook03 && PlacedBook03.GetFormID())
+		PlacedBook03 = EmptyForm
+	endif
+	if !(PlacedBook04 && PlacedBook04.GetFormID())
+		PlacedBook04 = EmptyForm
+	endif
+	if !(PlacedBook05 && PlacedBook05.GetFormID())
+		PlacedBook05 = EmptyForm
+	endif
+	if !(PlacedBook06 && PlacedBook06.GetFormID())
+		PlacedBook06 = EmptyForm
+	endif
+	if !(PlacedBook07 && PlacedBook07.GetFormID())
+		PlacedBook07 = EmptyForm
+	endif
+	if !(PlacedBook08 && PlacedBook08.GetFormID())
+		PlacedBook08 = EmptyForm
+	endif
+	if !(PlacedBook09 && PlacedBook09.GetFormID())
+		PlacedBook09 = EmptyForm
+	endif
+	if !(PlacedBook10 && PlacedBook10.GetFormID())
+		PlacedBook10 = EmptyForm
+	endif
+	if !(PlacedBook11 && PlacedBook11.GetFormID())
+		PlacedBook11 = EmptyForm
+	endif
+	if !(PlacedBook12 && PlacedBook12.GetFormID())
+		PlacedBook12 = EmptyForm
+	endif
+	if !(PlacedBook13 && PlacedBook13.GetFormID())
+		PlacedBook13 = EmptyForm
+	endif
+	if !(PlacedBook14 && PlacedBook14.GetFormID())
+		PlacedBook14 = EmptyForm
+	endif
+	if !(PlacedBook15 && PlacedBook15.GetFormID())
+		PlacedBook15 = EmptyForm
+	endif
+	if !(PlacedBook16 && PlacedBook16.GetFormID())
+		PlacedBook16 = EmptyForm
+	endif
+	if !(PlacedBook17 && PlacedBook17.GetFormID())
+		PlacedBook17 = EmptyForm
+	endif
+	if !(PlacedBook18 && PlacedBook18.GetFormID())
+		PlacedBook18 = EmptyForm
+	endif
+
+EndFunction
+
+;USSEP 4.1.5 Bug #13862 - Added to reset all bookshelf form and reference pointers after the chest has been dumped by the prefabs script.
+Function USSEP_ClearAllBookForms()
+	PlacedBook01 = EmptyForm
+	PlacedBook02 = EmptyForm
+	PlacedBook03 = EmptyForm
+	PlacedBook04 = EmptyForm
+	PlacedBook05 = EmptyForm
+	PlacedBook06 = EmptyForm
+	PlacedBook07 = EmptyForm
+	PlacedBook08 = EmptyForm
+	PlacedBook09 = EmptyForm
+	PlacedBook10 = EmptyForm
+	PlacedBook11 = EmptyForm
+	PlacedBook12 = EmptyForm
+	PlacedBook13 = EmptyForm
+	PlacedBook14 = EmptyForm
+	PlacedBook15 = EmptyForm
+	PlacedBook16 = EmptyForm
+	PlacedBook17 = EmptyForm
+	PlacedBook18 = EmptyForm
+	PlacedBook01Ref = EmptyRef
+	PlacedBook02Ref = EmptyRef
+	PlacedBook03Ref = EmptyRef
+	PlacedBook04Ref = EmptyRef
+	PlacedBook05Ref = EmptyRef
+	PlacedBook06Ref = EmptyRef
+	PlacedBook07Ref = EmptyRef
+	PlacedBook08Ref = EmptyRef
+	PlacedBook09Ref = EmptyRef
+	PlacedBook10Ref = EmptyRef
+	PlacedBook11Ref = EmptyRef
+	PlacedBook12Ref = EmptyRef
+	PlacedBook13Ref = EmptyRef
+	PlacedBook14Ref = EmptyRef
+	PlacedBook15Ref = EmptyRef
+	PlacedBook16Ref = EmptyRef
+	PlacedBook17Ref = EmptyRef
+	PlacedBook18Ref = EmptyRef
+EndFunction

@@ -2,64 +2,9 @@
 ;NEXT FRAGMENT INDEX 107
 Scriptname QF_MQ201_00035D5F Extends Quest Hidden
 
-;BEGIN ALIAS PROPERTY ExteriorGuardDay1
+;BEGIN ALIAS PROPERTY TortureChamberGuard
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardDay1 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY Malborn
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Malborn Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY DungeonEscapeTrapDoor
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_DungeonEscapeTrapDoor Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY Brelas
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Brelas Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY EscapeKey2
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_EscapeKey2 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ExteriorGuardDay2
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardDay2 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY PartyGuard2
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PartyGuard2 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY EscapeKey1
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_EscapeKey1 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY PartyInvitation
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PartyInvitation Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY Prisoner
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Prisoner Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY Gissur
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Gissur Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ElenwenOfficeContainer
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ElenwenOfficeContainer Auto
+ReferenceAlias Property Alias_TortureChamberGuard Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY TortureChamberContainer
@@ -67,69 +12,24 @@ ReferenceAlias Property Alias_ElenwenOfficeContainer Auto
 ReferenceAlias Property Alias_TortureChamberContainer Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY ExteriorGuardNight4
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardNight4 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY PlayerCarriageDriver
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PlayerCarriageDriver Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ElenwenOfficeMarker
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ElenwenOfficeMarker Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY RiverwoodTargetMarker
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_RiverwoodTargetMarker Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ColovianBrandy
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ColovianBrandy Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY MalbornMeet
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_MalbornMeet Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY TortureChamberGuard
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_TortureChamberGuard Auto
-;END ALIAS PROPERTY
-
 ;BEGIN ALIAS PROPERTY PlayerGearContainerHidden
 ;ALIAS PROPERTY TYPE ReferenceAlias
 ReferenceAlias Property Alias_PlayerGearContainerHidden Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY Orgnar
+;BEGIN ALIAS PROPERTY ExteriorGuardDay3
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Orgnar Auto
+ReferenceAlias Property Alias_ExteriorGuardDay3 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY ExteriorGuardNight2
+;BEGIN ALIAS PROPERTY EscapeKey2
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardNight2 Auto
+ReferenceAlias Property Alias_EscapeKey2 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY EscapeSceneGuard1
+;BEGIN ALIAS PROPERTY Player
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_EscapeSceneGuard1 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY DelphineStableMarker
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_DelphineStableMarker Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY PartyCenterMarker
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PartyCenterMarker Auto
+ReferenceAlias Property Alias_Player Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY PartyOutfit
@@ -137,9 +37,9 @@ ReferenceAlias Property Alias_PartyCenterMarker Auto
 ReferenceAlias Property Alias_PartyOutfit Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY PartyBoots
+;BEGIN ALIAS PROPERTY Orgnar
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PartyBoots Auto
+ReferenceAlias Property Alias_Orgnar Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY PartyGuard1
@@ -147,54 +47,29 @@ ReferenceAlias Property Alias_PartyBoots Auto
 ReferenceAlias Property Alias_PartyGuard1 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY PartyExitDoor
+;BEGIN ALIAS PROPERTY ExteriorGuardDay1
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PartyExitDoor Auto
+ReferenceAlias Property Alias_ExteriorGuardDay1 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY Cook
+;BEGIN ALIAS PROPERTY ExteriorGuardNight4
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Cook Auto
+ReferenceAlias Property Alias_ExteriorGuardNight4 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY Elenwen
+;BEGIN ALIAS PROPERTY EscapeSceneGuard2
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Elenwen Auto
+ReferenceAlias Property Alias_EscapeSceneGuard2 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY PlayerCarriageMarker
+;BEGIN ALIAS PROPERTY ExteriorGuardNight3
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PlayerCarriageMarker Auto
+ReferenceAlias Property Alias_ExteriorGuardNight3 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY ExteriorGuardNight1
+;BEGIN ALIAS PROPERTY ExteriorGuardNight2
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardNight1 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY Razelan
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Razelan Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY TortureChamberNote
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_TortureChamberNote Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY PlayerGearContainerDelphine
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PlayerGearContainerDelphine Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ThalmorEmbassy
-;ALIAS PROPERTY TYPE LocationAlias
-LocationAlias Property Alias_ThalmorEmbassy Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY TortureChamberMarker
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_TortureChamberMarker Auto
+ReferenceAlias Property Alias_ExteriorGuardNight2 Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY ElenwenOfficeNote
@@ -202,9 +77,99 @@ ReferenceAlias Property Alias_TortureChamberMarker Auto
 ReferenceAlias Property Alias_ElenwenOfficeNote Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY Player
+;BEGIN ALIAS PROPERTY PartyExitDoor
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_Player Auto
+ReferenceAlias Property Alias_PartyExitDoor Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY PlayerGearContainerDelphine
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_PlayerGearContainerDelphine Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ExteriorGuardDay4
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ExteriorGuardDay4 Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY PlayerGearContainer
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_PlayerGearContainer Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Cook
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Cook Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY DungeonEscapeTrapDoor
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_DungeonEscapeTrapDoor Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Elenwen
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Elenwen Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ElenwenOfficeContainer
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ElenwenOfficeContainer Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY RiverwoodTargetMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_RiverwoodTargetMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY DelphineStableMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_DelphineStableMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Malborn
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Malborn Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY PlayerCarriageMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_PlayerCarriageMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY TortureChamberGuardMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_TortureChamberGuardMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ElenwenOfficeMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ElenwenOfficeMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ThalmorEmbassy
+;ALIAS PROPERTY TYPE LocationAlias
+LocationAlias Property Alias_ThalmorEmbassy Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY MalbornMeet
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_MalbornMeet Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Brelas
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Brelas Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Gissur
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Gissur Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY TortureChamberMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_TortureChamberMarker Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY Delphine
@@ -217,39 +182,29 @@ ReferenceAlias Property Alias_Delphine Auto
 ReferenceAlias Property Alias_Rulindil Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY TortureChamberGuardMarker
+;BEGIN ALIAS PROPERTY PartyGuard2
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_TortureChamberGuardMarker Auto
+ReferenceAlias Property Alias_PartyGuard2 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY EscapeSceneGuard2
+;BEGIN ALIAS PROPERTY PartyBoots
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_EscapeSceneGuard2 Auto
+ReferenceAlias Property Alias_PartyBoots Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY EmbassyFrontDoor
+;BEGIN ALIAS PROPERTY EscapeSceneGuard1
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_EmbassyFrontDoor Auto
+ReferenceAlias Property Alias_EscapeSceneGuard1 Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY PlayerGearContainer
+;BEGIN ALIAS PROPERTY PlayerCarriageDriver
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_PlayerGearContainer Auto
+ReferenceAlias Property Alias_PlayerCarriageDriver Auto
 ;END ALIAS PROPERTY
 
-;BEGIN ALIAS PROPERTY ExteriorGuardDay3
+;BEGIN ALIAS PROPERTY EscapeKey1
 ;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardDay3 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ExteriorGuardDay4
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardDay4 Auto
-;END ALIAS PROPERTY
-
-;BEGIN ALIAS PROPERTY ExteriorGuardNight3
-;ALIAS PROPERTY TYPE ReferenceAlias
-ReferenceAlias Property Alias_ExteriorGuardNight3 Auto
+ReferenceAlias Property Alias_EscapeKey1 Auto
 ;END ALIAS PROPERTY
 
 ;BEGIN ALIAS PROPERTY PartyDrinkMarker
@@ -257,61 +212,67 @@ ReferenceAlias Property Alias_ExteriorGuardNight3 Auto
 ReferenceAlias Property Alias_PartyDrinkMarker Auto
 ;END ALIAS PROPERTY
 
-;BEGIN FRAGMENT Fragment_104
-Function Fragment_104()
+;BEGIN ALIAS PROPERTY ExteriorGuardDay2
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ExteriorGuardDay2 Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY EmbassyFrontDoor
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_EmbassyFrontDoor Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY PartyCenterMarker
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_PartyCenterMarker Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY TortureChamberNote
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_TortureChamberNote Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY PartyInvitation
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_PartyInvitation Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ExteriorGuardNight1
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ExteriorGuardNight1 Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Razelan
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Razelan Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY Prisoner
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_Prisoner Auto
+;END ALIAS PROPERTY
+
+;BEGIN ALIAS PROPERTY ColovianBrandy
+;ALIAS PROPERTY TYPE ReferenceAlias
+ReferenceAlias Property Alias_ColovianBrandy Auto
+;END ALIAS PROPERTY
+
+;BEGIN FRAGMENT Fragment_65
+Function Fragment_65()
 ;BEGIN CODE
-; debug.trace(self + " stage 95")
-; told Delphine you're ready - trigger scene
-Game.DisablePlayerControls()
-CarriageScene.Start()
+; Delphine told player to meet her back in Riverwood
+; transition from MQ106 to 201
+MQ106.setstage(200)
+SetObjectiveDisplayed(5)
+;RegisterForUpdate(5)
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_77
-Function Fragment_77()
+;BEGIN FRAGMENT Fragment_91
+Function Fragment_91()
 ;BEGIN CODE
-; player has accessed gear container
-; failsafe
-setstage(150)
-SetObjectiveCompleted(55)
-SetObjectiveDisplayed(60)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_5
-Function Fragment_5()
-;BEGIN CODE
-; player meets Malborn
-SetObjectiveCompleted (10, 1)
-SetObjectiveDisplayed (20, 1)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_50
-Function Fragment_50()
-;BEGIN CODE
-; Delphine gives player main lore dump
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_56
-Function Fragment_56()
-;BEGIN CODE
-; player has told Delphine about Esbern
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_70
-Function Fragment_70()
-;BEGIN CODE
-; player exits party
-; clean up 
-setstage(110)
+; Elenwen has greeted player
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -327,205 +288,73 @@ Alias_PlayerCarriageMarker.GetRef().Activate(Game.GetPlayer())
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_26
-Function Fragment_26()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
+;BEGIN FRAGMENT Fragment_12
+Function Fragment_12()
 ;BEGIN CODE
-; Malborn closes door behind player, escorts through kitchens
-kmyquest.OpenExitDoor(false, false)
-; debug.trace(self + " start kitchen scene")
-KitchenScene.Start()
-; debug.trace(self + " kitchen scene STARTED")
-KitchenDoor.Lock(false)
-; debug.trace(self + " unlock kitchen door")
-SetObjectiveCompleted(40)
-SetObjectiveCompleted(50)
-SetObjectiveDisplayed(55)
-SetObjectiveDisplayed(60)
-; clear ColovianBrandy alias so player can drink it
-Alias_ColovianBrandy.Clear()
-; make Malborn not show on stealth meter
-Alias_Malborn.GetActorRef().SetNotShowOnStealthMeter(true)
-Alias_Brelas.GetActorRef().SetNotShowOnStealthMeter(true)
-Alias_Prisoner.GetActorRef().SetNotShowOnStealthMeter(true)
-; allow sneaking
-Game.EnablePlayerControls(abSneaking = true, abFighting = false)
-; disable exit party triggers
-ExitPartyTrigger.Disable()
-PartyTrigger.Disable()
-; block activation on party door
-Alias_PartyExitDoor.GetRef().BlockActivation(true)
-; allow waiting again
-Game.SetInChargen(false, false, false)
+; debug.trace("MQ Quickstart " + self)
+MQ106.setstage(1)
+MQ106.setstage(30); turn on Delphine's MQ hellos
+MQ106.setstage(50) ; make Blades allies of player
+MQ106.setstage(80)
+MQ106.setstage(120)
+MQ106.setstage(150)
+MQ106.setstage(160)
+MQ106.setstage(170)
+MQ105.setstage(240)
+MQ105.setstage(290)
+; debug.trace("MQ Quickstart DONE" + self)
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_40
-Function Fragment_40()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
+;BEGIN FRAGMENT Fragment_42
+Function Fragment_42()
 ;BEGIN CODE
-; player escapes from embassy
-SetObjectiveCompleted(80)
-SetObjectiveDisplayed(90)
-; disable no fast travel trigger
-MQ201ThalmorEmbassyNoFastTravelTrigger.Disable()
-; unblock door
-EmbassyFrontDoor.BlockActivation(false)
-; Gissur back to unaggressive
-Alias_Gissur.GetActorRef().SetActorValue("Aggression", 0)
-; clean up party -- maybe move this earlier?
-MQ201Party.Stop()
-; relock embassy door
-EmbassyDoor.Lock(true)
-BarracksDoor.SetLockLevel(0)
-; change lock on front gate
-EmbassyFrontGate.SetOpen(false)
-EmbassyFrontGate.SetLockLevel(50)
-EmbassyFrontGate.SetFactionOwner(ThalmorFaction)
-; disable party sounds
-PartySoundsAfterEscapeMarker.Disable()
-PartySoundMarker.Disable()
-; start MQ202 here so you can go to Esbern
-MQ202.SetStage(5)
-; misc objective to recover your gear
-MQ201RecoverGear.SetStage(10)
-; Malborn post quest
-MQ201Malborn.Start()
-; clear flags:
-Alias_Malborn.GetActorRef().SetNotShowOnStealthMeter(false)
-Alias_Brelas.GetActorRef().SetNotShowOnStealthMeter(false)
-Alias_Prisoner.GetActorRef().SetNotShowOnStealthMeter(false)
-; unblock activation on party door
-Alias_PartyExitDoor.GetRef().BlockActivation(false)
+; player gets information by pretending to interrogate prisoner
+Alias_Prisoner.GetActorReference().SetRelationshipRank(Game.GetPlayer(),-1)
+SetStage(210)
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_63
-Function Fragment_63()
+;BEGIN FRAGMENT Fragment_5
+Function Fragment_5()
 ;BEGIN CODE
-SetStage(1)
+; player meets Malborn
+SetObjectiveCompleted (10, 1)
+SetObjectiveDisplayed (20, 1)
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_74
-Function Fragment_74()
+;BEGIN FRAGMENT Fragment_10
+Function Fragment_10()
 ;BEGIN CODE
-; trigger escape scene
-; move Malborn and set him up
-actor Malborn = Alias_Malborn.GetActorRef()
-malborn.setActorValue("Assistance", 2)
-malborn.moveto(Alias_ElenwenOfficeMarker.GetRef())
-; make him friendly to player
-MalbornFaction.SetAlly(PlayerFaction)
-; he's no longer essential
-malborn.GetActorBase().SetEssential(false)
-; enable guards
-Alias_EscapeSceneGuard1.GetRef().Enable()
-Alias_EscapeSceneGuard2.GetRef().Enable()
-; make them (temporarily) unaggressive
-Alias_EscapeSceneGuard1.GetActorRef().SetActorValue("Aggression", 0)
-Alias_EscapeSceneGuard2.GetActorRef().SetActorValue("Aggression", 0)
-; unlock door malborn & guards use
-DoorToDungeon.Lock(false)
-; start scene
-EscapeScene.Start()
+; player has spoken to Delphine, she gives outfit, invitation
+Game.GetPlayer().additem(Alias_PartyOutfit.GetRef(), 1)
+Game.GetPlayer().additem(Alias_PartyBoots.GetRef(), 1)
+; give player invitation
+UpdateCurrentInstanceGlobal(GameDaysPassed)
+Game.GetPlayer().AddItem(Alias_PartyInvitation.GetRef())
+; move gear from hidden container to "real" container
+Alias_PlayerGearContainerHidden.GetReference().RemoveAllItems(Alias_PlayerGearContainer.GetRef(), true)
+Alias_PlayerGearContainerHidden.GetActorRef().SetPlayerTeammate(false, false)
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_68
-Function Fragment_68()
+;BEGIN FRAGMENT Fragment_50
+Function Fragment_50()
 ;BEGIN CODE
-; optional guests
+; Delphine gives player main lore dump
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_93
-Function Fragment_93()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
+;BEGIN FRAGMENT Fragment_82
+Function Fragment_82()
 ;BEGIN CODE
-; player is out of kitchen, safe to close and lock doors
-UnregisterForUpdate()
-PartyFinalDoor.SetOpen(false)
-PartyFinalDoorLocked.SetOpen(false)
-PartyFinalDoorLocked.SetLockLevel(255)
-PartyFinalDoorLocked.Lock()
-KitchenDoor.SetOpen(false)
-KitchenDoor.SetLockLevel(255)
-KitchenDoor.Lock()
-; if player has no LOS on Malborn, move him back to party
-if Game.GetPlayer().HasLOS(Alias_Malborn.GetActorRef()) == 0
-	Alias_Malborn.GetActorRef().StopCombatAlarm()
-	Alias_Malborn.TryToMoveTo(Alias_PartyCenterMarker.GetRef())
-endif
-; disable triggers
-kmyquest.MQ201PlayerInKitchenTrigger.Disable()
-kmyquest.MQ201MalbornInKitchenTrigger.Disable()
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_35
-Function Fragment_35()
-;BEGIN CODE
-; player gets to interrogation chamber
-ElenwenOfficeScene.Stop()
-TortureChamberScene.Start()
-; in case you skipped Elenwen's office objective:
-setstage(190)
-; make Gissur aggressive
-Alias_Gissur.GetActorRef().SetActorValue("Aggression", 1)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_65
-Function Fragment_65()
-;BEGIN CODE
-; Delphine told player to meet her back in Riverwood
-; transition from MQ106 to 201
-MQ106.setstage(200)
-SetObjectiveDisplayed(5)
-;RegisterForUpdate(5)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_84
-Function Fragment_84()
-;BEGIN CODE
-; player has escape key
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_36
-Function Fragment_36()
-;BEGIN CODE
-; player reaches Elenwen's office
-; kill all other scenes (failsafe)
-LeavePartyScene.Stop()
-KitchenScene.Stop()
-MQ201Party.SetStage(90)
-; trigger scene
-ElenwenOfficeScene.Start()
-; restrain Brelas if appropriate
-Alias_Brelas.GetActorRef().SetRestrained(MQ201Party.GetStageDone(50))
-; make Gissur aggressive
-Alias_Gissur.GetActorRef().SetActorValue("Aggression", 1)
+; Gissur/Rulindil scene ended
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -598,18 +427,115 @@ PartySoundMarker.Enable()
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_10
-Function Fragment_10()
+;BEGIN FRAGMENT Fragment_20
+Function Fragment_20()
 ;BEGIN CODE
-; player has spoken to Delphine, she gives outfit, invitation
-Game.GetPlayer().additem(Alias_PartyOutfit.GetRef(), 1)
-Game.GetPlayer().additem(Alias_PartyBoots.GetRef(), 1)
-; give player invitation
-UpdateCurrentInstanceGlobal(GameDaysPassed)
-Game.GetPlayer().AddItem(Alias_PartyInvitation.GetRef())
-; move gear from hidden container to "real" container
-Alias_PlayerGearContainerHidden.GetReference().RemoveAllItems(Alias_PlayerGearContainer.GetRef(), true)
-Alias_PlayerGearContainerHidden.GetActorRef().SetPlayerTeammate(false, false)
+; start leave party scene
+LeavePartyScene.start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_77
+Function Fragment_77()
+;BEGIN CODE
+; player has accessed gear container
+; failsafe
+setstage(150)
+SetObjectiveCompleted(55)
+SetObjectiveDisplayed(60)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_47
+Function Fragment_47()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; prisoner will escort player
+kmyQuest.PrisonerReleased = 2
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_63
+Function Fragment_63()
+;BEGIN CODE
+SetStage(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_60
+Function Fragment_60()
+;BEGIN CODE
+; complete MQ201 without talking to Delphine
+CompleteAllObjectives()
+; add achievement
+Game.AddAchievement(4)
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_53
+Function Fragment_53()
+;BEGIN CODE
+; Delphine told player about Thalmor as chief suspect
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_7
+Function Fragment_7()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; set fake malborn to be a teammate
+;Alias_PlayerGearContainerHidden.GetActorRef().SetPlayerTeammate()
+;Alias_PlayerGearContainerHidden.GetActorRef().OpenInventory(true)
+; player gives Malborn the equipment
+SetObjectiveCompleted (20, 1)
+SetObjectiveDisplayed (30, 1)
+; temp?
+; Move Delphine into position
+Alias_Delphine.GetReference().moveto(Alias_DelphineStableMarker.GetReference())
+; enable cart
+MQ201PartyCarriageSolitude.Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_104
+Function Fragment_104()
+;BEGIN CODE
+; debug.trace(self + " stage 95")
+; told Delphine you're ready - trigger scene
+Game.DisablePlayerControls()
+CarriageScene.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_36
+Function Fragment_36()
+;BEGIN CODE
+; player reaches Elenwen's office
+; kill all other scenes (failsafe)
+LeavePartyScene.Stop()
+KitchenScene.Stop()
+MQ201Party.SetStage(90)
+; trigger scene
+ElenwenOfficeScene.Start()
+; restrain Brelas if appropriate
+Alias_Brelas.GetActorRef().SetRestrained(MQ201Party.GetStageDone(50))
+; make Gissur aggressive
+Alias_Gissur.GetActorRef().SetActorValue("Aggression", 1)
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -624,10 +550,290 @@ MalbornFaction.SetEnemy(ThalmorFaction)
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_53
-Function Fragment_53()
+;BEGIN FRAGMENT Fragment_33
+Function Fragment_33()
 ;BEGIN CODE
-; Delphine told player about Thalmor as chief suspect
+; player learns of the interrogation chamber
+;SetObjectiveCompleted(60, 1)
+;SetObjectiveDisplayed( 70, 1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_72
+Function Fragment_72()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; free Brelas
+kmyQuest.BrelasReleased = true
+Alias_Brelas.GetActorRef().SetRestrained(false)
+Alias_Brelas.GetActorRef().AddToFaction(MQ201ThalmorEnemyFaction)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_93
+Function Fragment_93()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; player is out of kitchen, safe to close and lock doors
+UnregisterForUpdate()
+PartyFinalDoor.SetOpen(false)
+PartyFinalDoorLocked.SetOpen(false)
+PartyFinalDoorLocked.SetLockLevel(255)
+PartyFinalDoorLocked.Lock()
+KitchenDoor.SetOpen(false)
+KitchenDoor.SetLockLevel(255)
+KitchenDoor.Lock()
+; if player has no LOS on Malborn, move him back to party
+if Game.GetPlayer().HasLOS(Alias_Malborn.GetActorRef()) == 0
+	Alias_Malborn.GetActorRef().StopCombatAlarm()
+	Alias_Malborn.TryToMoveTo(Alias_PartyCenterMarker.GetRef())
+endif
+; disable triggers
+kmyquest.MQ201PlayerInKitchenTrigger.Disable()
+kmyquest.MQ201MalbornInKitchenTrigger.Disable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_84
+Function Fragment_84()
+;BEGIN CODE
+; player has escape key
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_2
+Function Fragment_2()
+;BEGIN CODE
+; Delphine tells of plan to get into Thalmor Embassy
+SetObjectiveCompleted(5)
+SetObjectiveDisplayed(10)
+; Move Malborn into position
+Alias_Malborn.GetReference().moveto(Alias_MalbornMeet.GetReference())
+MQ106DelphineInRoomTrigger.Disable()
+
+;Enable the first batch of dragon mounds.
+dunDragonMoundQST.SetStage(40)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_40
+Function Fragment_40()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; player escapes from embassy
+SetObjectiveCompleted(80)
+SetObjectiveDisplayed(90)
+; disable no fast travel trigger
+MQ201ThalmorEmbassyNoFastTravelTrigger.Disable()
+; unblock door
+EmbassyFrontDoor.BlockActivation(false)
+; Gissur back to unaggressive
+Alias_Gissur.GetActorRef().SetActorValue("Aggression", 0)
+; clean up party -- maybe move this earlier?
+MQ201Party.Stop()
+; relock embassy door
+EmbassyDoor.Lock(true)
+BarracksDoor.SetLockLevel(0)
+; change lock on front gate
+EmbassyFrontGate.SetOpen(false)
+EmbassyFrontGate.SetLockLevel(50)
+EmbassyFrontGate.SetFactionOwner(ThalmorFaction)
+; disable party sounds
+PartySoundsAfterEscapeMarker.Disable()
+PartySoundMarker.Disable()
+; start MQ202 here so you can go to Esbern
+MQ202.SetStage(5)
+; misc objective to recover your gear
+MQ201RecoverGear.SetStage(10)
+; Malborn post quest
+MQ201Malborn.Start()
+; clear flags:
+Alias_Malborn.GetActorRef().SetNotShowOnStealthMeter(false)
+Alias_Brelas.GetActorRef().SetNotShowOnStealthMeter(false)
+Alias_Prisoner.GetActorRef().SetNotShowOnStealthMeter(false)
+; unblock activation on party door
+Alias_PartyExitDoor.GetRef().BlockActivation(false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_94
+Function Fragment_94()
+;BEGIN CODE
+; escape door is unlocked
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_86
+Function Fragment_86()
+;BEGIN CODE
+; make guards aggressive
+Alias_EscapeSceneGuard1.GetActorRef().SetActorValue("Aggression",1)
+Alias_EscapeSceneGuard2.GetActorRef().SetActorValue("Aggression",1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_74
+Function Fragment_74()
+;BEGIN CODE
+; trigger escape scene
+; move Malborn and set him up
+actor Malborn = Alias_Malborn.GetActorRef()
+malborn.setActorValue("Assistance", 2)
+malborn.moveto(Alias_ElenwenOfficeMarker.GetRef())
+; make him friendly to player
+MalbornFaction.SetAlly(PlayerFaction)
+; he's no longer essential
+malborn.GetActorBase().SetEssential(false)
+; enable guards
+Alias_EscapeSceneGuard1.GetRef().Enable()
+Alias_EscapeSceneGuard2.GetRef().Enable()
+; make them (temporarily) unaggressive
+Alias_EscapeSceneGuard1.GetActorRef().SetActorValue("Aggression", 0)
+Alias_EscapeSceneGuard2.GetActorRef().SetActorValue("Aggression", 0)
+; unlock door malborn & guards use
+DoorToDungeon.Lock(false)
+; start scene
+EscapeScene.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_38
+Function Fragment_38()
+;BEGIN CODE
+; player learns information
+; time to get the hell out of here
+SetObjectiveCompleted(60)
+SetObjectiveDisplayed( 80)
+;RegisterForUpdate(1)
+; trigger escape scene - TODO - variant for if everyone is dead?
+SetStage(220)
+; if Rulindil and guard both dead, trigger escape scene:
+;if Alias_Rulindil.GetActorRef().IsDead() && Alias_TortureChamberGuard.GetActorRef().IsDead()
+;SetStage(220)
+;endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_35
+Function Fragment_35()
+;BEGIN CODE
+; player gets to interrogation chamber
+ElenwenOfficeScene.Stop()
+TortureChamberScene.Start()
+; in case you skipped Elenwen's office objective:
+setstage(190)
+; make Gissur aggressive
+Alias_Gissur.GetActorRef().SetActorValue("Aggression", 1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_76
+Function Fragment_76()
+;BEGIN CODE
+; player has spoken to Malborn
+SetObjectiveCompleted(40)
+SetObjectiveDisplayed(50)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_66
+Function Fragment_66()
+;BEGIN CODE
+; player arrives back in Riverwood
+Alias_Delphine.GetActorRef().moveto(DelphineRiverwoodStartMarker)
+IntroScene.Start()
+;UnregisterForUpdate()
+MQ106DelphineInRoomTrigger.Enable() ; to track when you're both in secret room
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_26
+Function Fragment_26()
+;BEGIN AUTOCAST TYPE MQ201QuestScript
+Quest __temp = self as Quest
+MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
+;END AUTOCAST
+;BEGIN CODE
+; Malborn closes door behind player, escorts through kitchens
+kmyquest.OpenExitDoor(false, false)
+; debug.trace(self + " start kitchen scene")
+KitchenScene.Start()
+; debug.trace(self + " kitchen scene STARTED")
+KitchenDoor.Lock(false)
+; debug.trace(self + " unlock kitchen door")
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(50)
+SetObjectiveDisplayed(55)
+SetObjectiveDisplayed(60)
+; clear ColovianBrandy alias so player can drink it
+Alias_ColovianBrandy.Clear()
+; make Malborn not show on stealth meter
+Alias_Malborn.GetActorRef().SetNotShowOnStealthMeter(true)
+Alias_Brelas.GetActorRef().SetNotShowOnStealthMeter(true)
+Alias_Prisoner.GetActorRef().SetNotShowOnStealthMeter(true)
+; allow sneaking
+Game.EnablePlayerControls(abSneaking = true, abFighting = false)
+; disable exit party triggers
+ExitPartyTrigger.Disable()
+;PartyTrigger.Disable() - USKP 2.0 disabled. This object is not defined anywhere.
+; block activation on party door
+Alias_PartyExitDoor.GetRef().BlockActivation(true)
+; allow waiting again
+Game.SetInChargen(false, false, false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_31
+Function Fragment_31()
+;BEGIN CODE
+; Malborn reaches package location
+; turn combat back on
+Game.EnablePlayerControls()
+; restrain prisoner
+Alias_Prisoner.GetActorRef().Enable()
+Alias_Prisoner.GetActorRef().SetRestrained(true)
+;remove everything, put in prisoner outfit
+Alias_Prisoner.GetActorRef().RemoveAllItems()
+Alias_Prisoner.GetActorRef().SetOutfit(PrisonerOutfit)
+;put keys on guards (can't create them in created alias)
+Alias_EscapeSceneGuard1.GetRef().AddItem(Alias_EscapeKey1.GetRef())
+Alias_EscapeSceneGuard2.GetRef().AddItem(Alias_EscapeKey2.GetRef())
+; enable guards in this cell
+EnableCombatGuardsMarker.Enable()
+MQ201ThalmorEmbassy.SetStage(10)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_0
+Function Fragment_0()
+;BEGIN CODE
+; player has gotten power from Sahloknir
+; make Delphine a friend
+Alias_Delphine.GetActorRef().SetRelationshipRank(Game.GetPlayer(), 3) ; make ally
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -657,181 +863,20 @@ PartySoundsAfterEscapeMarker.Enable()
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_12
-Function Fragment_12()
+;BEGIN FRAGMENT Fragment_56
+Function Fragment_56()
 ;BEGIN CODE
-; debug.trace("MQ Quickstart " + self)
-MQ106.setstage(1)
-MQ106.setstage(30); turn on Delphine's MQ hellos
-MQ106.setstage(50) ; make Blades allies of player
-MQ106.setstage(80)
-MQ106.setstage(120)
-MQ106.setstage(150)
-MQ106.setstage(160)
-MQ106.setstage(170)
-MQ105.setstage(240)
-MQ105.setstage(290)
-; debug.trace("MQ Quickstart DONE" + self)
+; player has told Delphine about Esbern
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_66
-Function Fragment_66()
+;BEGIN FRAGMENT Fragment_70
+Function Fragment_70()
 ;BEGIN CODE
-; player arrives back in Riverwood
-Alias_Delphine.GetActorRef().moveto(DelphineRiverwoodStartMarker)
-IntroScene.Start()
-;UnregisterForUpdate()
-MQ106DelphineInRoomTrigger.Enable() ; to track when you're both in secret room
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_55
-Function Fragment_55()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
-;BEGIN CODE
-; complete quest
-SetObjectiveCompleted(90)
-; add achievement
-Game.AddAchievement(4)
-MQ202.SetStage(10)
-MQ202.SetActive()
-
-Stop()
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_38
-Function Fragment_38()
-;BEGIN CODE
-; player learns information
-; time to get the hell out of here
-SetObjectiveCompleted(60)
-SetObjectiveDisplayed( 80)
-;RegisterForUpdate(1)
-; trigger escape scene - TODO - variant for if everyone is dead?
-SetStage(220)
-; if Rulindil and guard both dead, trigger escape scene:
-;if Alias_Rulindil.GetActorRef().IsDead() && Alias_TortureChamberGuard.GetActorRef().IsDead()
-;SetStage(220)
-;endif
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_94
-Function Fragment_94()
-;BEGIN CODE
-; escape door is unlocked
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_47
-Function Fragment_47()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
-;BEGIN CODE
-; prisoner will escort player
-kmyQuest.PrisonerReleased = 2
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_20
-Function Fragment_20()
-;BEGIN CODE
-; start leave party scene
-LeavePartyScene.start()
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_7
-Function Fragment_7()
-;BEGIN AUTOCAST TYPE MQ201QuestScript
-Quest __temp = self as Quest
-MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
-;END AUTOCAST
-;BEGIN CODE
-; set fake malborn to be a teammate
-;Alias_PlayerGearContainerHidden.GetActorRef().SetPlayerTeammate()
-;Alias_PlayerGearContainerHidden.GetActorRef().OpenInventory(true)
-; player gives Malborn the equipment
-SetObjectiveCompleted (20, 1)
-SetObjectiveDisplayed (30, 1)
-; temp?
-; Move Delphine into position
-Alias_Delphine.GetReference().moveto(Alias_DelphineStableMarker.GetReference())
-; enable cart
-MQ201PartyCarriageSolitude.Enable()
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_86
-Function Fragment_86()
-;BEGIN CODE
-; make guards aggressive
-Alias_EscapeSceneGuard1.GetActorRef().SetActorValue("Aggression",1)
-Alias_EscapeSceneGuard2.GetActorRef().SetActorValue("Aggression",1)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_91
-Function Fragment_91()
-;BEGIN CODE
-; Elenwen has greeted player
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_31
-Function Fragment_31()
-;BEGIN CODE
-; Malborn reaches package location
-; turn combat back on
-Game.EnablePlayerControls()
-; restrain prisoner
-Alias_Prisoner.GetActorRef().Enable()
-Alias_Prisoner.GetActorRef().SetRestrained(true)
-;remove everything, put in prisoner outfit
-Alias_Prisoner.GetActorRef().RemoveAllItems()
-Alias_Prisoner.GetActorRef().SetOutfit(PrisonerOutfit)
-;put keys on guards (can't create them in created alias)
-Alias_EscapeSceneGuard1.GetRef().AddItem(Alias_EscapeKey1.GetRef())
-Alias_EscapeSceneGuard2.GetRef().AddItem(Alias_EscapeKey2.GetRef())
-; enable guards in this cell
-EnableCombatGuardsMarker.Enable()
-MQ201ThalmorEmbassy.SetStage(10)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_87
-Function Fragment_87()
-;BEGIN CODE
-; player has gone inside
-MQ201Party.SetStage(12)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_76
-Function Fragment_76()
-;BEGIN CODE
-; player has spoken to Malborn
-SetObjectiveCompleted(40)
-SetObjectiveDisplayed(50)
+; player exits party
+; clean up 
+setstage(110)
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -855,6 +900,15 @@ actor malborn = Alias_Malborn.GetActorRef()
 EndFunction
 ;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_87
+Function Fragment_87()
+;BEGIN CODE
+; player has gone inside
+MQ201Party.SetStage(12)
+;END CODE
+EndFunction
+;END FRAGMENT
+
 ;BEGIN FRAGMENT Fragment_45
 Function Fragment_45()
 ;BEGIN AUTOCAST TYPE MQ201QuestScript
@@ -870,83 +924,29 @@ Alias_Prisoner.GetActorRef().AddToFaction(MQ201ThalmorEnemyFaction)
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_82
-Function Fragment_82()
+;BEGIN FRAGMENT Fragment_68
+Function Fragment_68()
 ;BEGIN CODE
-; Gissur/Rulindil scene ended
+; optional guests
 ;END CODE
 EndFunction
 ;END FRAGMENT
 
-;BEGIN FRAGMENT Fragment_60
-Function Fragment_60()
-;BEGIN CODE
-; complete MQ201 without talking to Delphine
-CompleteAllObjectives()
-; add achievement
-Game.AddAchievement(4)
-Stop()
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_33
-Function Fragment_33()
-;BEGIN CODE
-; player learns of the interrogation chamber
-;SetObjectiveCompleted(60, 1)
-;SetObjectiveDisplayed( 70, 1)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_0
-Function Fragment_0()
-;BEGIN CODE
-; player has gotten power from Sahloknir
-; make Delphine a friend
-Alias_Delphine.GetActorRef().SetRelationshipRank(Game.GetPlayer(), 3) ; make ally
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_72
-Function Fragment_72()
+;BEGIN FRAGMENT Fragment_55
+Function Fragment_55()
 ;BEGIN AUTOCAST TYPE MQ201QuestScript
 Quest __temp = self as Quest
 MQ201QuestScript kmyQuest = __temp as MQ201QuestScript
 ;END AUTOCAST
 ;BEGIN CODE
-; free Brelas
-kmyQuest.BrelasReleased = true
-Alias_Brelas.GetActorRef().SetRestrained(false)
-Alias_Brelas.GetActorRef().AddToFaction(MQ201ThalmorEnemyFaction)
-;END CODE
-EndFunction
-;END FRAGMENT
+; complete quest
+SetObjectiveCompleted(90)
+; add achievement
+Game.AddAchievement(4)
+MQ202.SetStage(10)
+MQ202.SetActive()
 
-;BEGIN FRAGMENT Fragment_42
-Function Fragment_42()
-;BEGIN CODE
-; player gets information by pretending to interrogate prisoner
-Alias_Prisoner.GetActorReference().SetRelationshipRank(Game.GetPlayer(),-1)
-SetStage(210)
-;END CODE
-EndFunction
-;END FRAGMENT
-
-;BEGIN FRAGMENT Fragment_2
-Function Fragment_2()
-;BEGIN CODE
-; Delphine tells of plan to get into Thalmor Embassy
-SetObjectiveCompleted(5)
-SetObjectiveDisplayed(10)
-; Move Malborn into position
-Alias_Malborn.GetReference().moveto(Alias_MalbornMeet.GetReference())
-MQ106DelphineInRoomTrigger.Disable()
-
-;Enable the first batch of dragon mounds.
-dunDragonMoundQST.SetStage(40)
+Stop()
 ;END CODE
 EndFunction
 ;END FRAGMENT
