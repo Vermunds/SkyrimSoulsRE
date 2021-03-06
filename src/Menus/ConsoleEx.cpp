@@ -1,4 +1,4 @@
-#include "Menus/Hooks_Console.h"
+#include "Menus/ConsoleEx.h"
 
 namespace SkyrimSoulsRE
 {

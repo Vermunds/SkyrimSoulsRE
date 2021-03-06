@@ -1,4 +1,4 @@
-#include "Menus/Hooks_MagicMenu.h"
+#include "Menus/MagicMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

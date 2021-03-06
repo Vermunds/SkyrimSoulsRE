@@ -1,4 +1,4 @@
-#include "Menus/Hooks_FavoritesMenu.h"
+#include "Menus/FavoritesMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

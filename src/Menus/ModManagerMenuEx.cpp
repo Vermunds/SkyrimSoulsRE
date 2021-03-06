@@ -1,4 +1,4 @@
-#include "Menus/Hooks_ModManagerMenu.h"
+#include "Menus/ModManagerMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

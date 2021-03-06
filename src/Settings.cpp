@@ -192,9 +192,11 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("COMBAT_ALERT_OVERLAY", "bShowCAO_CustomMenu", settings->overlayMenus["CustomMenu"], nullptr, true);
 
 		//HUD
+		settings->disableHUDModifications = ini.GetBoolValue("HUD", "bDisableHUDModifications", false);
 		settings->sneakMeterPosX = static_cast<float>(ini.GetDoubleValue("HUD", "fSneakMeterPosX", 24.0));
 		settings->sneakMeterPosY = static_cast<float>(ini.GetDoubleValue("HUD", "fSneakMeterPosY", 120.0));
 
+		ini.SetBoolValue("HUD", "bDisableHUDModifications", settings->disableHUDModifications, "# If set to true, SkyrimSouls will not attempt to modify the location of the sneak meter. Use it if you have a compatibility issue with something", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "#  The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosY", settings->sneakMeterPosY, nullptr, true);
 

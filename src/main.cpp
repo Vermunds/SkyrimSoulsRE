@@ -59,7 +59,7 @@ extern "C" {
 			return false;
 		}
 
-		SKSE::AllocTrampoline(1 << 8, true);
+		SKSE::AllocTrampoline(1 << 9, true);
 
 		//Check for kassents version
 		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))

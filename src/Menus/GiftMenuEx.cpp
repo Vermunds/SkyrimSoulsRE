@@ -1,4 +1,4 @@
-#include "Menus/Hooks_GiftMenu.h"
+#include "Menus/GiftMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

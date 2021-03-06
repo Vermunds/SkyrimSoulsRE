@@ -55,7 +55,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		return true;
 	}
 
-	void ServeTime_Hook(RE::PlayerCharacter* a_player)
+	bool ServeTime_Hook(RE::PlayerCharacter* a_player)
 	{
 		class ServeTimeTask : public UnpausedTask
 		{
@@ -72,6 +72,8 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(new ServeTimeTask());
+
+		return true;
 	}
 
 	bool CenterOnCell_Hook(RE::PlayerCharacter* a_player, const char* a_cellName, RE::TESObjectCELL* a_cell)

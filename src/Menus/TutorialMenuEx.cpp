@@ -1,4 +1,4 @@
-#include "Menus/Hooks_TutorialMenu.h"
+#include "Menus/TutorialMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

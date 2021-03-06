@@ -42,6 +42,7 @@ namespace SkyrimSoulsRE
 		std::uint32_t saveDelayMS;
 
 		//HUD
+		bool disableHUDModifications;
 		float sneakMeterPosX;
 		float sneakMeterPosY;
 

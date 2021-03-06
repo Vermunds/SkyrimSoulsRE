@@ -1,4 +1,4 @@
-#include "Menus/Hooks_LockpickingMenu.h"
+#include "Menus/LockpickingMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

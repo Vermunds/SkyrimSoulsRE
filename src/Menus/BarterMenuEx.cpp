@@ -1,4 +1,4 @@
-#include "Menus/Hooks_BarterMenu.h"
+#include "Menus/BarterMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

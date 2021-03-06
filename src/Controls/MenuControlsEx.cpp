@@ -138,7 +138,7 @@ namespace SkyrimSoulsRE
 		REL::Relocation<std::uintptr_t> vTable(Offsets::MenuControls::Vtbl);
 		_ProcessEvent = vTable.write_vfunc(0x1, &MenuControlsEx::ProcessEvent_Hook);
 
-		InputHandlerEx<RE::FavoritesHandler>::InstallHook(RE::Offset::FavoritesHandler::Vtbl, 0x1);
-		InputHandlerEx<RE::MenuOpenHandler>::InstallHook(RE::Offset::MenuOpenHandler::Vtbl, 0x1);
+		InputHandlerEx<RE::FavoritesHandler>::InstallHook(REL::Relocation<std::uintptr_t>(RE::Offset::FavoritesHandler::Vtbl), 0x1);
+		InputHandlerEx<RE::MenuOpenHandler>::InstallHook(REL::Relocation<std::uintptr_t>(RE::Offset::MenuOpenHandler::Vtbl), 0x1);
 	}
 }

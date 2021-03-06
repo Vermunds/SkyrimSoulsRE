@@ -1,6 +1,5 @@
 #include "AutoCloseManager.h"
 #include "Settings.h"
-#include "Menus/Hooks_DialogueMenu.h"
 
 #include <cmath>
 

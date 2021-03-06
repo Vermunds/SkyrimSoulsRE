@@ -1,4 +1,4 @@
-#include "Menus/Hooks_DialogueMenu.h"
+#include "Menus/DialogueMenuEx.h"
 #include "SkyrimSoulsRE.h"
 
 namespace SkyrimSoulsRE

@@ -179,6 +179,8 @@ namespace Offsets
 
 			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(51638));
 			static constexpr REL::ID CanProcess(static_cast<std::uint64_t>(51645));
+
+			static constexpr REL::ID OpenStatsMenuAfterSleep_Hook(static_cast<std::uint64_t>(39346));
 		}
 
 		namespace SleepWaitMenu

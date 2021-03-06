@@ -1,4 +1,5 @@
 #include "PapyrusHook.h"
+#include "Settings.h"
 
 namespace SkyrimSoulsRE
 {

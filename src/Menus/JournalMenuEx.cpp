@@ -1,4 +1,4 @@
-#include "Menus/Hooks_JournalMenu.h"
+#include "Menus/JournalMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

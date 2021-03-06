@@ -1,4 +1,4 @@
-#include "Menus/Hooks_CustomMenu.h"
+#include "Menus/CustomMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

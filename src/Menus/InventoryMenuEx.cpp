@@ -1,4 +1,4 @@
-#include "Menus/Hooks_InventoryMenu.h"
+#include "Menus/InventoryMenuEx.h"
 
 namespace SkyrimSoulsRE
 {

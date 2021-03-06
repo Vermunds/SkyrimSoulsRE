@@ -1,4 +1,4 @@
-#include "Menus/Hooks_SleepWaitMenu.h"
+#include "Menus/SleepWaitMenuEx.h"
 #include "SlowMotionHandler.h"
 
 namespace SkyrimSoulsRE

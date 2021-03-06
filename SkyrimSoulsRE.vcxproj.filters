@@ -13,63 +13,6 @@
     <ClCompile Include="src\SkyrimSoulsRE.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_CustomMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_GiftMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_BarterMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_BookMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_Console.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_ContainerMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_DialogueMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_FavoritesMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_HUDMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_InventoryMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_JournalMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_LockpickingMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_MessageBoxMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_SleepWaitMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_TrainingMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_TutorialMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_TweenMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_ModManagerMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_MagicMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
     <ClCompile Include="src\AutoCloseManager.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -85,18 +28,6 @@
     <ClCompile Include="src\SlowMotionHandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\PayprusHook.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_MapMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_StatsMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Menus\Hooks_LevelUpMenu.cpp">
-      <Filter>src\Menus</Filter>
-    </ClCompile>
     <ClCompile Include="src\Menus\CombatAlertOverlayMenu.cpp">
       <Filter>src\Menus</Filter>
     </ClCompile>
@@ -107,6 +38,75 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ItemMenuUpdater.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\BarterMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\BookMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\ConsoleEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\ContainerMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\CustomMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\DialogueMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\FavoritesMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\GiftMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\HUDMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\InventoryMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\JournalMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\LevelUpMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\LockpickingMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\MagicMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\MapMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\MessageBoxMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\ModManagerMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\SleepWaitMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\StatsMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\TrainingMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\TutorialMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Menus\TweenMenuEx.cpp">
+      <Filter>src\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PapyrusHook.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,63 +150,6 @@
     <ClInclude Include="include\SkyrimSoulsRE.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_BarterMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_BookMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_Console.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_ContainerMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_CustomMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_DialogueMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_FavoritesMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_GiftMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_HUDMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_InventoryMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_JournalMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_LockpickingMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_MagicMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_MessageBoxMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_ModManagerMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_SleepWaitMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_TrainingMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_TutorialMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_TweenMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
     <ClInclude Include="include\PCH.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -228,18 +171,6 @@
     <ClInclude Include="include\SlowMotionHandler.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\PapyrusHook.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_MapMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_StatsMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Menus\Hooks_LevelUpMenu.h">
-      <Filter>include\Menus</Filter>
-    </ClInclude>
     <ClInclude Include="include\ConsoleCommandHooks.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -254,6 +185,75 @@
     </ClInclude>
     <ClInclude Include="include\Controls\MapInputHandlerEx.h">
       <Filter>include\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\BarterMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\BookMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\ConsoleEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\ContainerMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\CustomMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\DialogueMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\FavoritesMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\GiftMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\HUDMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\InventoryMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\JournalMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\LevelUpMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\LockpickingMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\MagicMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\MapMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\MessageBoxMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\ModManagerMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\SleepWaitMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\StatsMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\TrainingMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\TutorialMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Menus\TweenMenuEx.h">
+      <Filter>include\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PapyrusHook.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
