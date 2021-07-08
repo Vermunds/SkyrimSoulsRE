@@ -57,8 +57,6 @@ namespace Offsets
 		namespace BookMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268064));
-
-			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(50118));	 // gSecondsSinceLastFrame_WorldTime hook at + 0xA95
 		}
 
 		namespace Console
@@ -186,7 +184,6 @@ namespace Offsets
 		namespace SleepWaitMenu
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(269872));
-			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(51614));	 // gSecondsSinceLastFrame_WorldTime hook at + 0x1C0
 		}
 
 		namespace TrainingMenu
@@ -217,7 +214,6 @@ namespace Offsets
 		static constexpr REL::ID CreateSaveScreenshot(static_cast<std::uint64_t>(35886));
 		static constexpr REL::ID CursorPosition(static_cast<std::uint64_t>(525564));
 		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(41259));  // + 0x241
-		static constexpr REL::ID SecondsSinceLastFrame_RealTime(static_cast<std::uint64_t>(523661));
 	}
 
 	namespace Papyrus::IsInMenuMode

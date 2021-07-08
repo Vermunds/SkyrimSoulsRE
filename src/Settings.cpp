@@ -92,11 +92,11 @@ namespace SkyrimSoulsRE
 		settings->cursorCameraVerticalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", 0.15));
 		settings->cursorCameraHorizontalSpeed = static_cast<float>(ini.GetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", 0.25));
 
-		ini.SetBoolValue("CONTROLS", "bEnableMovementInMenus", settings->enableMovementInMenus, "#  If enabled, you will be able to move when a menu is open. Use the mouse (or the D-pad on controllers) to navigate the menus.\n#  (For controllers users) To change tabs in SkyUI favorites menu, use LB and RB buttons.", true);
-		ini.SetBoolValue("CONTROLS", "bEnableToggleRun", settings->enableToggleRun, "#  Allows \"Toggle walk/run\" control to be available when in menus (Caps Lock by default).", true);
-		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "#  If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumb stick.", true);
-		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "#  If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similar to how it works in the dialogue menu).", true);
-		ini.SetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", settings->cursorCameraVerticalSpeed, "#  The vertical and horizontal speed the camera moves when bEnableCursorCameraMove is enabled.", true);
+		ini.SetBoolValue("CONTROLS", "bEnableMovementInMenus", settings->enableMovementInMenus, "# If enabled, you will be able to move when a menu is open. Use the mouse (or the D-pad on controllers) to navigate the menus.\n#  (For controllers users) To change tabs in SkyUI favorites menu, use LB and RB buttons.", true);
+		ini.SetBoolValue("CONTROLS", "bEnableToggleRun", settings->enableToggleRun, "# Allows \"Toggle walk/run\" control to be available when in menus (Caps Lock by default).", true);
+		ini.SetBoolValue("CONTROLS", "bEnableGamepadCameraMove", settings->enableGamepadCameraMove, "# If enabled, you will be able to move the camera when using controllers. To rotate items in the inventory, maximize the preview first by pressing on the thumb stick.", true);
+		ini.SetBoolValue("CONTROLS", "bEnableCursorCameraMove", settings->enableCursorCameraMove, "# If enabled, you will be able to move the camera with the mouse by moving it to the edge of the screen (similar to how it works in the dialogue menu).", true);
+		ini.SetDoubleValue("CONTROLS", "fCursorCameraVerticalSpeed", settings->cursorCameraVerticalSpeed, "# The vertical and horizontal speed the camera moves when bEnableCursorCameraMove is enabled.", true);
 		ini.SetDoubleValue("CONTROLS", "fCursorCameraHorizontalSpeed", settings->cursorCameraHorizontalSpeed, nullptr, true);
 
 		//Slowmotion
@@ -123,7 +123,7 @@ namespace SkyrimSoulsRE
 		settings->slowMotionMenus[RE::TweenMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_TweenMenu", false);
 		settings->slowMotionMenus["CustomMenu"] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", false);
 
-		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "#  This is the multiplier that will affect the game speed when a menu is open.\n#  1.0 is no slowdown, 0.5 is half the speed, etc.", true);
+		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "# This is the multiplier that will affect the game speed when a menu is open.\n# 1.0 is no slowdown, 0.5 is half the speed, etc.\n# Too low values can result in dropped items floating in space.", true);
 
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BarterMenu", settings->slowMotionMenus[RE::BarterMenu::MENU_NAME.data()], "#  Enable or disable slow-motion when a menu is open. Configurable on a per-menu basis.", true);
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BookMenu", settings->slowMotionMenus[RE::BookMenu::MENU_NAME.data()], nullptr, true);
@@ -146,7 +146,7 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", settings->slowMotionMenus["CustomMenu"], nullptr, true);
 
 
-		ini.SetValue("COMBAT_ALERT_OVERLAY", nullptr, nullptr, "#  Shows a blinking red overlay when your character is in combat. Especially useful in full screen menus. You can enable or disable it individually for each menu.");
+		ini.SetValue("COMBAT_ALERT_OVERLAY", nullptr, nullptr, "# Shows a blinking red overlay when your character is in combat. Especially useful in full screen menus. You can enable or disable it individually for each menu.");
 
 		//CombatAlertOverlay
 		settings->overlayMenus[RE::BarterMenu::MENU_NAME.data()] = ini.GetBoolValue("COMBAT_ALERT_OVERLAY", "bShowCAO_BarterMenu", true);
@@ -197,19 +197,24 @@ namespace SkyrimSoulsRE
 		settings->sneakMeterPosY = static_cast<float>(ini.GetDoubleValue("HUD", "fSneakMeterPosY", 120.0));
 
 		ini.SetBoolValue("HUD", "bDisableHUDModifications", settings->disableHUDModifications, "# If set to true, SkyrimSouls will not attempt to modify the location of the sneak meter. Use it if you have a compatibility issue with something", true);
-		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "#  The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
+		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "# The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosY", settings->sneakMeterPosY, nullptr, true);
 
 
 		//Blur
 		settings->disableBlur = ini.GetBoolValue("BLUR", "bDisableBlur", false);
 
-		ini.SetBoolValue("BLUR", "bDisableBlur", settings->disableBlur, "#  If this is enabled, background blur will be disabled in menus", true);
+		ini.SetBoolValue("BLUR", "bDisableBlur", settings->disableBlur, "# If this is enabled, background blur will be disabled in menus", true);
 
 		//Saving
 		settings->saveDelayMS = ini.GetLongValue("SAVING", "iSaveDelayMS", 1000);
 
-		ini.SetLongValue("SAVING", "iSaveDelayMS", settings->saveDelayMS, "#  Additional delay (in milliseconds) when saving from the Journal Menu, to make sure that saving happens form a paused state.\n# Larger values will increase the time saving takes.", false, true);
+		ini.SetLongValue("SAVING", "iSaveDelayMS", settings->saveDelayMS, "# Additional delay (in milliseconds) when saving from the Journal Menu, to make sure that saving happens form a paused state.\n# Larger values will increase the time saving takes.", false, true);
+
+		//Messages
+		settings->hideEngineFixesWarning = ini.GetBoolValue("MESSAGES", "bHideEngineFixesWarning", false);
+
+		ini.SetBoolValue("MESSAGES", "bHideEngineFixesWarning", settings->hideEngineFixesWarning, "# Disables the warning message on startup if Engine Fixes is not detected.", true);
 
 		ini.SaveFile(R"(.\Data\SKSE\Plugins\SkyrimSoulsRE.ini)");
 	}

@@ -6,6 +6,6 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
-using namespace SKSE::util;
+using namespace std::literals;
 
 #define DLLEXPORT __declspec(dllexport)

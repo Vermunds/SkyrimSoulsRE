@@ -49,6 +49,9 @@ namespace SkyrimSoulsRE
 		//Combat Alert Overlay
 		std::map<std::string, bool> overlayMenus;
 
+		//Messages
+		bool hideEngineFixesWarning;
+
 		// Dialogue Movement Enabler compatibility (internal setting)
 		bool isUsingDME = false;
 	};

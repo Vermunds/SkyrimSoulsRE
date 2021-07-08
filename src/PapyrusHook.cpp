@@ -10,7 +10,7 @@ namespace SkyrimSoulsRE
 
 		bool IsInMenuMode()
 		{
-			return *isInMenuMode_1 || *isInMenuMode_2 || SkyrimSoulsRE::GetUnpausedMenuCount();
+			return *isInMenuMode_1 || *isInMenuMode_2 || SkyrimSoulsRE::GetUnpausedMenuCount() || RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME);
 		}
 
 		void InstallHook() {

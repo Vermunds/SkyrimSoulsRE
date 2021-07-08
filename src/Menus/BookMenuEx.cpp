@@ -156,9 +156,5 @@ namespace SkyrimSoulsRE
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::BookMenu::Vtbl);
 		_ProcessMessage = vTable.write_vfunc(0x4, &BookMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &BookMenuEx::AdvanceMovie_Hook);
-
-		//Fix for book menu animation speed in slow-motion
-		std::uint32_t ptr = static_cast<std::uint32_t>(Offsets::Misc::SecondsSinceLastFrame_RealTime.address() - (Offsets::Menus::BookMenu::ProcessMessage.address() + 0xA95 + 0x8));
-		REL::safe_write(Offsets::Menus::BookMenu::ProcessMessage.address() + 0xA95, ptr + 0x4);
 	}
 }

@@ -5,6 +5,7 @@ Also available on [Nexus mods](https://www.nexusmods.com/skyrimspecialedition/mo
 ## Build Dependencies
 * [CommonLibSSE](https://github.com/SniffleMan/CommonLibSSE)
 * [Simpleini](https://github.com/brofield/simpleini)
+* [AutoTOML](https://github.com/Ryan-rsm-McKenzie/AutoTOML)
 
 ## End User Dependencies
 * [SKSE64](https://skse.silverlock.org/)

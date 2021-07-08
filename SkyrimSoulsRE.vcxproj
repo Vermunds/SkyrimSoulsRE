@@ -56,7 +56,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;$(SolutionDir)CommonLibSSE\build\vcpkg_installed\x64-windows-static-md\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;$(SolutionDir)CommonLibSSE\build\vcpkg_installed\x64-windows-static-md\include;$(SolutionDir)AutoTOML/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;SPDLOG_COMPILED_LIB;SKSE_SUPPORT_XBYAK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -106,7 +106,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;$(SolutionDir)CommonLibSSE\build\vcpkg_installed\x64-windows-static-md\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..;$(ProjectDir)include;$(SolutionDir)CommonLibSSE\include;$(SolutionDir)SimpleIni;$(SolutionDir)CommonLibSSE\build\vcpkg_installed\x64-windows-static-md\include;$(SolutionDir)AutoTOML/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_EXAMPLE_EXPORTS;SPDLOG_COMPILED_LIB;SKSE_SUPPORT_XBYAK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -198,6 +198,7 @@
     <ClInclude Include="include\Controls\MapInputHandlerEx.h" />
     <ClInclude Include="include\Controls\MenuControlsEx.h" />
     <ClInclude Include="include\Controls\PlayerControlsEx.h" />
+    <ClInclude Include="include\EngineFixesChecker.h" />
     <ClInclude Include="include\ItemMenuUpdater.h" />
     <ClInclude Include="include\Menus\CombatAlertOverlayMenu.h" />
     <ClInclude Include="include\Menus\LevelUpMenuEx.h" />
@@ -236,6 +237,9 @@
     <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AutoTOML\build\AutoTOML.vcxproj">
+      <Project>{551aed86-26a0-3306-a600-54dd03dacf8c}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\CommonLibSSE\build\CommonLibSSE.vcxproj">
       <Project>{79a78623-7759-3e9c-9749-6aedd272de2b}</Project>
     </ProjectReference>

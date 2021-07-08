@@ -255,6 +255,9 @@
     <ClInclude Include="include\PapyrusHook.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\EngineFixesChecker.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />

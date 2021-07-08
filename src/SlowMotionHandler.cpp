@@ -14,7 +14,7 @@ namespace SkyrimSoulsRE
 		float* timescaleMult2 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value2.address());
 
 		float multiplier;
-		if (slowMotionMultiplier >= 0.1f && 1.0f >= slowMotionMultiplier)
+		if (slowMotionMultiplier > 0.0f && 1.0f >= slowMotionMultiplier)
 		{
 			multiplier = slowMotionMultiplier;
 		}

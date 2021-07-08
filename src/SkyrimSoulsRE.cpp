@@ -52,7 +52,7 @@ namespace SkyrimSoulsRE
 		{
 			if (isUnpaused)
 			{
-				menu->menuFlags &= ~Flag::kPausesGame;
+				menu->menuFlags &= static_cast<Flag>(~std::underlying_type_t<Flag>(Flag::kPausesGame));
 
 				if (!isConsole)
 				{
@@ -82,7 +82,7 @@ namespace SkyrimSoulsRE
 
 		if (menu->FreezeFrameBackground() && isUnpaused)
 		{
-			menu->menuFlags &= ~Flag::kFreezeFrameBackground;
+			menu->menuFlags &= static_cast<Flag>(~std::underlying_type_t<Flag>(Flag::kFreezeFrameBackground));
 		}
 
 		if (menu->InventoryItemMenu() && a_menuName != RE::FavoritesMenu::MENU_NAME)

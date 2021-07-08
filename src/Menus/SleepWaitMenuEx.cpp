@@ -98,9 +98,5 @@ namespace SkyrimSoulsRE
 
 		//Hook ProcessMessage
 		_ProcessMessage = vTable.write_vfunc(0x4, &SleepWaitMenuEx::ProcessMessage_Hook);
-
-		//Fix for slow menu in slow motion
-		std::uint32_t ptr = static_cast<std::uint32_t>(Offsets::Misc::SecondsSinceLastFrame_RealTime.address() - (Offsets::Menus::SleepWaitMenu::ProcessMessage.address() + 0x1C0 + 0x8));
-		REL::safe_write(Offsets::Menus::SleepWaitMenu::ProcessMessage.address() + 0x1C0, ptr + 0x4);
 	}
 }
