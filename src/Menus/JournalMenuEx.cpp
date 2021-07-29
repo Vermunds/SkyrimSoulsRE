@@ -64,8 +64,11 @@ namespace SkyrimSoulsRE
 
 		RE::GFxValue dateText;
 		this->uiMovie->GetVariable(&dateText, "_root.QuestJournalFader.Menu_mc.BottomBar_mc.DateText");
-		RE::GFxValue newDate(timeDateString);
-		dateText.SetMember("htmlText", newDate);
+		if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+		{
+			RE::GFxValue newDate(timeDateString);
+			dateText.SetMember("htmlText", newDate);
+		}
 	}
 
 	RE::IMenu* JournalMenuEx::Creator()
@@ -165,11 +168,17 @@ namespace SkyrimSoulsRE
 
 				RE::GFxValue iSaveDelayTimerID;
 				menu->uiMovie->GetVariable(&iSaveDelayTimerID, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.iSaveDelayTimerID");
-				assert(iSaveDelayTimerID.GetType() != RE::GFxValue::ValueType::kUndefined);
 
-				RE::GFxValue result;
-				bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1); // Not sure if this actually does something
-				assert(success);
+				if (iSaveDelayTimerID.GetType() == RE::GFxValue::ValueType::kUndefined)
+				{
+					SKSE::log::error("Unable to get save delay timer ID. Attempting to ignore it.");
+				}
+				else
+				{
+					RE::GFxValue result;
+					bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1); // Not sure if this actually does something
+					assert(success);
+				}
 
 				// This function is normally supposed to close the menu, and it can get called multiple times. Make sure we only save once.
 				if (!isSaving)
@@ -177,7 +186,17 @@ namespace SkyrimSoulsRE
 					isSaving = true;
 					RE::GFxValue selectedIndex;
 					menu->uiMovie->GetVariable(&selectedIndex, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.SaveLoadListHolder.selectedIndex");
-					assert(selectedIndex.GetType() != RE::GFxValue::ValueType::kUndefined);
+
+					if (selectedIndex.GetType() == RE::GFxValue::ValueType::kUndefined)
+					{
+						SKSE::log::critical("Unable to get selected index of selected save game. Aborting save and forcing Journal Menu to close.");
+						RE::DebugNotification("SAVE FAILED - report issue to Skyrim Souls RE author!");
+						RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
+						uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
+						isSaving = false;
+						RE::PlaySound("UIMenuCancel");
+						return;
+					}
 
 					if (!menu->PausesGame())
 					{

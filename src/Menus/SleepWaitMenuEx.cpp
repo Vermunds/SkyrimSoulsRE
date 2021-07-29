@@ -34,8 +34,11 @@ namespace SkyrimSoulsRE
 
 		RE::GFxValue dateText;
 		this->uiMovie->GetVariable(&dateText, "_root.SleepWaitMenu_mc.CurrentTime");
-		RE::GFxValue newDate(timeDateString);
-		dateText.SetMember("htmlText", newDate);
+		if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+		{
+			RE::GFxValue newDate(timeDateString);
+			dateText.SetMember("htmlText", newDate);
+		}
 	}
 
 	void SleepWaitMenuEx::StartSleepWait_Hook(const RE::FxDelegateArgs& a_args)

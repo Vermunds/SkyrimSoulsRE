@@ -52,7 +52,7 @@ namespace SkyrimSoulsRE
 		static RE::IMenu* Creator();
 		static void InstallHook();
 
-		using AdvanceMovie_t = decltype(&RE::TweenMenu::AdvanceMovie);
+		using AdvanceMovie_t = decltype(&RE::JournalMenu::AdvanceMovie);
 		static inline REL::Relocation<AdvanceMovie_t> _AdvanceMovie;
 
 		using ProcessMessage_t = decltype(&RE::JournalMenu::ProcessMessage);

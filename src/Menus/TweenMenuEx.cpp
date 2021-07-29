@@ -16,8 +16,12 @@ namespace SkyrimSoulsRE
 
 		RE::GFxValue dateText;
 		this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
-		RE::GFxValue newDate(timeDateString);
-		dateText.SetMember("htmlText", newDate);
+
+		if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+		{
+			RE::GFxValue newDate(timeDateString);
+			dateText.SetMember("htmlText", newDate);
+		}
 	}
 
 	RE::IMenu* TweenMenuEx::Creator()
