@@ -1,4 +1,4 @@
-﻿#include "EngineFixesChecker.h"
+#include "EngineFixesChecker.h"
 #undef MessageBox
 
 #include "SkyrimSoulsRE.h"
@@ -16,7 +16,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 		SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
 		bool engineFixesPresent = false;
-		if (GetModuleHandle("EngineFixes.dll")) {
+		if (SKSE::WinAPI::GetModuleHandle("EngineFixes.dll")) {
 			if (SkyrimSoulsRE::EngineFixesConfig::load_config("Data/SKSE/Plugins/EngineFixes.toml")) {
 				if (SkyrimSoulsRE::EngineFixesConfig::patchMemoryManager.get() && SkyrimSoulsRE::EngineFixesConfig::fixGlobalTime.get()) {
 					SKSE::log::info("SSE Engine Fixes detected.");
@@ -33,7 +33,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			}
 		}
 
-		if (GetModuleHandle("DialogueMovementEnabler.dll"))
+		if (SKSE::WinAPI::GetModuleHandle("DialogueMovementEnabler.dll"))
 		{
 			SKSE::log::info("Dialogue Movement Enabler detected. Enabling compatibility.");
 			settings->isUsingDME = true;
@@ -53,7 +53,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 }
 
 extern "C" {
-	bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+	__declspec(dllexport) bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
 		assert(SKSE::log::log_directory().has_value());
 		auto path = SKSE::log::log_directory().value() / std::filesystem::path("SkyrimSoulsRE.log");
@@ -66,11 +66,11 @@ extern "C" {
 		spdlog::set_default_logger(std::move(log));
 		spdlog::set_pattern("%g(%#): [%^%l%$] %v", spdlog::pattern_time_type::local);
 
-		SKSE::log::info("Skyrim Souls RE - Updated v" + std::string(SKYRIMSOULSRE_VERSION_VERSTRING) + " - (" + std::string(__TIMESTAMP__) + ")");
+		SKSE::log::info("Skyrim Souls RE - Updated v" + std::string(Version::NAME) + " - (" + std::string(__TIMESTAMP__) + ")");
 
 		a_info->infoVersion = SKSE::PluginInfo::kVersion;
-		a_info->name = "Skyrim Souls RE";
-		a_info->version = SKYRIMSOULSRE_VERSION_MAJOR;
+		a_info->name = Version::PROJECT.data();
+		a_info->version = Version::MAJOR;
 
 		if (a_skse->IsEditor()) {
 			SKSE::log::critical("Loaded in editor, marking as incompatible!");
@@ -96,7 +96,7 @@ extern "C" {
 		return true;
 	}
 
-	bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
+	__declspec(dllexport) bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
 	{
 		SKSE::Init(a_skse);
 
