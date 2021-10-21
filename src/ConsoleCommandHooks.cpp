@@ -15,20 +15,10 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 	{
 		class SaveTask : public UnpausedTask
 		{
+		public:
 			std::int32_t deviceID;
 			std::uint32_t outputStats;
 			std::string fileName;
-		public:
-
-			SaveTask(std::int32_t a_deviceID, std::uint32_t a_outputStats, std::string a_fileName)
-			{
-				this->deviceID = a_deviceID;
-				this->outputStats = a_outputStats;
-				this->fileName = a_fileName;
-				this->usesDelay = true;
-				this->beginTime = std::chrono::high_resolution_clock::now();
-				this->delayTimeMS = std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS);
-			}
 
 			void Run() override
 			{
@@ -45,12 +35,18 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 				RE::UI::GetSingleton()->numPausesGame--;
 			}
 		};
+
 		//Create save screenshot
 		reinterpret_cast<void(*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
 		RE::UI::GetSingleton()->numPausesGame++;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new SaveTask(a_deviceID, a_outputStats, std::string(a_fileName)));
+
+		std::shared_ptr<SaveTask> task = std::make_shared<SaveTask>();
+		task->deviceID = a_deviceID;
+		task->outputStats = a_outputStats;
+		task->fileName = std::string(a_fileName);
+		queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
 
 		return true;
 	}
@@ -60,9 +56,6 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		class ServeTimeTask : public UnpausedTask
 		{
 		public:
-
-			ServeTimeTask() {}
-
 			void Run() override
 			{
 				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
@@ -71,7 +64,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		};
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new ServeTimeTask());
+		queue->AddTask(std::make_shared<ServeTimeTask>());
 
 		return true;
 	}
@@ -80,16 +73,9 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 	{
 		class CenterOnCellTask : public UnpausedTask
 		{
+		public:
 			std::string cellName;
 			RE::TESObjectCELL* cell;
-
-		public:
-
-			CenterOnCellTask(std::string a_cellName, RE::TESObjectCELL* a_cell)
-			{
-				this->cellName = a_cellName;
-				this->cell = a_cell;
-			}
 
 			void Run() override
 			{
@@ -107,8 +93,12 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		};
 		std::string cellName = a_cellName ? std::string(a_cellName) : "";
 
+		std::shared_ptr<CenterOnCellTask> task = std::make_shared<CenterOnCellTask>();
+		task->cellName = cellName;
+		task->cell = a_cell;
+		
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new CenterOnCellTask(cellName, a_cell));
+		queue->AddTask(task);
 
 		return true;
 	}
@@ -118,11 +108,9 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		SKSE::Trampoline& trampoline = SKSE::GetTrampoline();
 
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnCell_Hook.address() + 0x5B, CenterOnCell_Hook);
-
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnWorld_Hook.address() + 0x108, CenterOnCell_Hook);
-
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnExterior_Hook.address() + 0x118, CenterOnCell_Hook);
-
+		
 		trampoline.write_call<5>(Offsets::ConsoleCommands::ServeTime_Hook.address() + 0xE, ServeTime_Hook);
 		REL::safe_write(Offsets::ConsoleCommands::ServeTime_Hook.address() + 0xE + 0x5, std::uint8_t(0x90));
 

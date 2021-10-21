@@ -30,7 +30,6 @@ namespace SkyrimSoulsRE
 
 	void SlowMotionHandler::DisableSlowMotion()
 	{
-		float slowMotionMultiplier = currentSlowMotionMultiplier;
 		float* timescaleMult1 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value1.address());
 		float* timescaleMult2 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value2.address());
 

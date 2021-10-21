@@ -3,7 +3,6 @@
 
 namespace SkyrimSoulsRE
 {
-	UnpausedTaskQueue* UnpausedTaskQueue::_singleton = nullptr;
 
 	void UnpausedTaskQueue::Lock()
 	{
@@ -19,54 +18,52 @@ namespace SkyrimSoulsRE
 		return _mutex.unlock();
 	}
 
-	void UnpausedTaskQueue::AddTask(UnpausedTask* task)
+	void UnpausedTaskQueue::AddTask(std::shared_ptr<UnpausedTask> a_task)
 	{
 		this->Lock();
-		this->_taskQueue.push(task);
+		this->_taskQueue.push(a_task);
+		this->Unlock();
+	}
+
+	void UnpausedTaskQueue::AddDelayedTask(std::shared_ptr<UnpausedTask> a_task, std::chrono::milliseconds a_delayTimeMS)
+	{
+		auto beginTime = std::chrono::high_resolution_clock::now();
+
+		this->Lock();
+		this->_delayedTaskQueue.push_back(std::pair<std::shared_ptr<UnpausedTask>, std::chrono::steady_clock::time_point>{a_task, beginTime + a_delayTimeMS});
 		this->Unlock();
 	}
 
 	void UnpausedTaskQueue::ProcessTasks()
 	{
-		std::list<UnpausedTask*> tasks;
+		std::queue<std::shared_ptr<UnpausedTask>> tasks = std::queue<std::shared_ptr<UnpausedTask>>();
 
 		this->Lock();
-		while (!_taskQueue.empty())
+
+		tasks.swap(_taskQueue);
+
+		auto now = std::chrono::high_resolution_clock::now();
+
+		auto it = _delayedTaskQueue.begin();
+		while (it != _delayedTaskQueue.end())
 		{
-			
-			UnpausedTask* task = _taskQueue.front();
-
-			if (task->usesDelay)
+			auto delayedTask = *it;
+			if (delayedTask.second < now)
 			{
-				auto currTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-				auto startTime = std::chrono::duration_cast<std::chrono::milliseconds>(task->beginTime.time_since_epoch());
-
-				if (currTime - startTime > task->delayTimeMS)
-				{
-					tasks.push_back(task);
-				}
-				else
-				{
-					_nextFrameTaskQueue.push(task);
-				}
+				tasks.push(delayedTask.first);
+				it = _delayedTaskQueue.erase(it);
+				continue;
 			}
-			else
-			{
-				tasks.push_back(task);
-			}
-
-			_taskQueue.pop();
+			++it;
 		}
-		_taskQueue = _nextFrameTaskQueue;
-		std::queue<UnpausedTask*>().swap(_nextFrameTaskQueue);
+
 		this->Unlock();
 
-		for (UnpausedTask * task : tasks)
+		while (!tasks.empty())
 		{
-			task->Run();
-			task->Dispose();
-			
-		}		
+			tasks.front()->Run();
+			tasks.pop();
+		}	
 	}
 
 	void UnpausedTaskQueue::UnpausedTaskQueue_Hook(void* a_unk)
@@ -84,11 +81,7 @@ namespace SkyrimSoulsRE
 
 	UnpausedTaskQueue* UnpausedTaskQueue::GetSingleton()
 	{
-		if (_singleton)
-		{
-			return _singleton;
-		}
-		_singleton = new UnpausedTaskQueue();
-		return _singleton;
+		static UnpausedTaskQueue singleton;
+		return &singleton;
 	}
 }

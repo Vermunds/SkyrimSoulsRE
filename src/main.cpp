@@ -53,7 +53,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 }
 
 extern "C" {
-	__declspec(dllexport) bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+	DLLEXPORT bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 	{
 		assert(SKSE::log::log_directory().has_value());
 		auto path = SKSE::log::log_directory().value() / std::filesystem::path("SkyrimSoulsRE.log");
@@ -85,7 +85,8 @@ extern "C" {
 
 		SKSE::AllocTrampoline(1 << 9, true);
 
-		//Check for kassents version
+		// Check for kassents version
+		// Todo: remove this
 		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))
 		{
 			SKSE::log::critical("A different version of Skyrim Souls is detected.");
@@ -96,7 +97,7 @@ extern "C" {
 		return true;
 	}
 
-	__declspec(dllexport) bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
+	DLLEXPORT bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
 	{
 		SKSE::Init(a_skse);
 

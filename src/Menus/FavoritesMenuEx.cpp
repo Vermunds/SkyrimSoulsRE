@@ -6,12 +6,8 @@ namespace SkyrimSoulsRE
 	{
 		class ItemSelectTask : public UnpausedTask
 		{
-			RE::BGSEquipSlot* slot;
 		public:
-			ItemSelectTask(RE::BGSEquipSlot* a_slot)
-			{
-				this->slot = a_slot;
-			}
+			RE::BGSEquipSlot* slot;
 
 			void Run() override
 			{
@@ -29,7 +25,8 @@ namespace SkyrimSoulsRE
 			}
 		};
 
-		ItemSelectTask* task = new ItemSelectTask(a_slot);
+		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
+		task->slot = a_slot;
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}

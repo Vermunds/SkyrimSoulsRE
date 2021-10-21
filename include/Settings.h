@@ -8,10 +8,6 @@ namespace SkyrimSoulsRE
 {
 	class Settings
 	{
-	private:
-		static Settings* singleton;
-		Settings();
-
 	public:
 		static Settings* GetSingleton();
 
@@ -54,6 +50,12 @@ namespace SkyrimSoulsRE
 
 		// Dialogue Movement Enabler compatibility (internal setting)
 		bool isUsingDME = false;
+
+	private:
+		Settings(){};
+		~Settings(){};
+		Settings(const Settings&) = delete;
+  		Settings& operator=(const Settings&) = delete;
 	};
 
 	extern void LoadSettings();

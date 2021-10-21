@@ -95,7 +95,7 @@ namespace SkyrimSoulsRE
 
 						if (clipPool.GetElement(i, &entry))
 						{
-							RE::GFxValue value = RE::GFxValue{ listEnableState[i] };
+							value = RE::GFxValue{ listEnableState[i] };
 							entry.SetMember("enabled", value);
 
 							value = RE::GFxValue{ listAlphaState[i] };

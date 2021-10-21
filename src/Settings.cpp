@@ -4,22 +4,10 @@
 
 namespace SkyrimSoulsRE
 {
-
-	Settings* Settings::singleton = nullptr;
-
-	Settings::Settings()
-	{
-
-	}
-
 	Settings* Settings::GetSingleton()
 	{
-		if (singleton)
-		{
-			return singleton;
-		}
-		singleton = new Settings();
-		return singleton;
+		static Settings singleton;
+		return &singleton;
 	}
 
 	void LoadSettings()

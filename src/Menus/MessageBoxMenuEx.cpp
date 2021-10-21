@@ -6,14 +6,8 @@ namespace SkyrimSoulsRE
 	{
 		class ButtonPressTask : public UnpausedTask
 		{
-			double selectedIndex;
 		public:
-			ButtonPressTask(double a_selectedIndex)
-			{
-				this->selectedIndex = a_selectedIndex;
-				this->beginTime = std::chrono::high_resolution_clock::now();
-				this->delayTimeMS = std::chrono::milliseconds(0);
-			}
+			double selectedIndex;
 
 			void Run() override
 			{
@@ -31,8 +25,10 @@ namespace SkyrimSoulsRE
 
 		if (a_args.GetArgCount() == 1 && a_args[0].IsNumber())
 		{
+			std::shared_ptr<ButtonPressTask> task = std::make_shared<ButtonPressTask>();
+			task->selectedIndex = a_args[0].GetNumber();
+
 			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-			ButtonPressTask* task = new ButtonPressTask(a_args[0].GetNumber());
 			queue->AddTask(task);
 		}
 	}

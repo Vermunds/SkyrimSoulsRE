@@ -13,7 +13,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			RE::TESObjectREFR* ref = nullptr;
 			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
 				targetRef = refptr.get();
 			}
@@ -24,7 +23,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			RE::TESObjectREFR* ref = nullptr;
 			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
 				targetRef = refptr.get();
 				//if (targetRef->formType == RE::FormType::ActorCharacter)
@@ -45,7 +43,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			RE::TESObjectREFR* ref = nullptr;
 			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
 				targetRef = refptr.get();
 			}
@@ -107,7 +104,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		func(a_unk1, a_containerRef, a_unk3, a_unk4, a_unk5, a_unk6, a_unk7);
 
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		RE::UI* ui = RE::UI::GetSingleton();
 
 		RE::TESObjectREFR* targetRef = GetTargetReference();
 

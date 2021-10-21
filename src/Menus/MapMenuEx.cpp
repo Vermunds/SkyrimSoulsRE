@@ -6,13 +6,8 @@ namespace SkyrimSoulsRE
 	{
 		class ProcessMessageTask : public UnpausedTask
 		{
-			RE::UIMessage* message;
 		public:
-			ProcessMessageTask(RE::UIMessage* a_message)
-			{
-				this->message = a_message;
-				this->usesDelay = false;
-			}
+			RE::UIMessage* message;
 
 			void Run() override
 			{
@@ -26,12 +21,6 @@ namespace SkyrimSoulsRE
 					RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
 					msgQueue->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 				}
-			}
-
-			void Dispose() override
-			{
-				delete this->message;
-				delete this;
 			}
 		};
 
@@ -69,7 +58,8 @@ namespace SkyrimSoulsRE
 				message->data = newData;
 			}
 
-			ProcessMessageTask* task = new ProcessMessageTask(message);
+			std::shared_ptr<ProcessMessageTask> task = std::make_shared<ProcessMessageTask>();
+			task->message = message;
 
 			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 			queue->AddTask(task);
@@ -84,17 +74,9 @@ namespace SkyrimSoulsRE
 	{
 		class AdvanceMapMenuTask : public UnpausedTask
 		{
+		public:
 			float interval;
 			std::uint32_t currentTime;
-
-		public:
-
-			AdvanceMapMenuTask(float a_interval, std::uint32_t a_currentTime)
-			{
-				this->interval = a_interval;
-				this->currentTime = a_currentTime;
-				this->usesDelay = false;
-			}
 
 			void Run() override
 			{
@@ -110,8 +92,12 @@ namespace SkyrimSoulsRE
 			}
 		};
 
+		std::shared_ptr<AdvanceMapMenuTask> task = std::make_shared<AdvanceMapMenuTask>();
+		task->interval = a_interval;
+		task->currentTime = a_currentTime;
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new AdvanceMapMenuTask(a_interval, a_currentTime));	
+		queue->AddTask(task);	
 	}
 
 	void MapMenuEx::UpdateClock()

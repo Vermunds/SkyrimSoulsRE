@@ -25,16 +25,10 @@ namespace SkyrimSoulsRE
 	{
 		class ItemSelectTask : public UnpausedTask
 		{
+		public:
 			double	count;
 			double	value;
 			bool	isViewingVendorItems;
-		public:
-			ItemSelectTask(double a_count, double a_value, bool a_isViewingContainer)
-			{
-				this->count = a_count;
-				this->value = a_value;
-				this->isViewingVendorItems = a_isViewingContainer;
-			}
 
 			void Run() override
 			{
@@ -53,7 +47,12 @@ namespace SkyrimSoulsRE
 				}
 			}
 		};
-		ItemSelectTask* task = new ItemSelectTask(a_args[0].GetNumber(), a_args[1].GetNumber(), a_args[2].GetBool());
+
+		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
+		task->count = a_args[0].GetNumber();
+		task->value = a_args[1].GetNumber();
+		task->isViewingVendorItems = a_args[2].GetBool();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}

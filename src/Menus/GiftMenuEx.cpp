@@ -27,12 +27,8 @@ namespace SkyrimSoulsRE
 	{
 		class ItemSelectTask : public UnpausedTask
 		{
-			double	amount;
 		public:
-			ItemSelectTask(double a_amount)
-			{
-				this->amount = a_amount;
-			}
+			double	amount;
 
 			void Run() override
 			{
@@ -49,8 +45,11 @@ namespace SkyrimSoulsRE
 			}
 		};
 
+		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
+		task->amount = a_args[0].GetNumber();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new ItemSelectTask(a_args[0].GetNumber()));
+		queue->AddTask(task);
 	}
 
 	void GiftMenuEx::UpdateBottomBar()

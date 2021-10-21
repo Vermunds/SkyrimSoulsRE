@@ -45,14 +45,8 @@ namespace SkyrimSoulsRE
 	{
 		class StartSleepWaitTask : public UnpausedTask
 		{
-			double sleepWaitTime;
-
 		public:
-			StartSleepWaitTask(double a_time)
-			{
-				this->sleepWaitTime = a_time;
-				this->beginTime = std::chrono::high_resolution_clock::now();			
-			}
+			double sleepWaitTime;
 
 			void Run() override
 			{
@@ -69,7 +63,6 @@ namespace SkyrimSoulsRE
 		};
 
 		RE::UI* ui = RE::UI::GetSingleton();
-		Settings* settings = Settings::GetSingleton();
 
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
 		if (!menu->PausesGame())
@@ -78,7 +71,9 @@ namespace SkyrimSoulsRE
 			ui->numPausesGame++;
 		}
 
-		StartSleepWaitTask* task = new StartSleepWaitTask(a_args[0].GetNumber());
+		std::shared_ptr<StartSleepWaitTask> task = std::make_shared<StartSleepWaitTask>();
+		task->sleepWaitTime = a_args[0].GetNumber();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}

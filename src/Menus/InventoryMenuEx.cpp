@@ -31,12 +31,8 @@ namespace SkyrimSoulsRE
 	{
 		class ItemDropTask : public UnpausedTask
 		{
-			double count;
 		public:
-			ItemDropTask(double a_count)
-			{
-				this->count = a_count;
-			}
+			double count;
 
 			void Run() override
 			{
@@ -53,7 +49,9 @@ namespace SkyrimSoulsRE
 			}
 		};
 
-		ItemDropTask* task = new ItemDropTask(a_args[0].GetNumber());
+		std::shared_ptr<ItemDropTask> task = std::make_shared<ItemDropTask>();
+		task->count = a_args[0].GetNumber();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}
@@ -62,13 +60,9 @@ namespace SkyrimSoulsRE
 	{
 		class ItemSelectTask : public UnpausedTask
 		{
-			bool	hasSlot;
-			double	slot;
 		public:
-			ItemSelectTask(bool a_hasSlot, double a_slot = 0.0)
-			{
-				this->hasSlot = a_hasSlot;
-				this->slot = a_slot;			}
+			bool	hasSlot;
+			double	slot = 0.0;
 
 			void Run() override
 			{
@@ -93,15 +87,16 @@ namespace SkyrimSoulsRE
 			}
 		};
 
-		ItemSelectTask* task;
+		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
 
 		if (a_args.GetArgCount() == 0)
 		{
-			task = new ItemSelectTask(false);
+			task->hasSlot = false;
 		}
 		else
 		{
-			task = new ItemSelectTask(true, a_args[0].GetNumber());
+			task->hasSlot = true;
+			task->slot = a_args[0].GetNumber();
 		}
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();

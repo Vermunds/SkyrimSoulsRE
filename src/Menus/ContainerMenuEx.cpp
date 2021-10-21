@@ -107,18 +107,10 @@ namespace SkyrimSoulsRE
 	{
 		class EquipItemTask : public UnpausedTask
 		{
+		public:
 			double		equipHand;
 			bool		hasCount;
 			double		count;
-
-		public:
-			EquipItemTask(double a_equipHand, bool a_hasCount, double a_count = 0)
-			{
-				this->equipHand = a_equipHand;
-				this->hasCount = a_hasCount;
-				this->count = a_count;
-				this->usesDelay = false;
-			}
 
 			void Run() override
 			{
@@ -156,15 +148,20 @@ namespace SkyrimSoulsRE
 			}
 		};
 
-		EquipItemTask* task;
+		std::shared_ptr<EquipItemTask> task = std::make_shared<EquipItemTask>();
+		task->equipHand = a_args[0].GetNumber();
+
 		if (a_args.GetArgCount() == 1)
 		{
-			task = new EquipItemTask(a_args[0].GetNumber(), false);
+			task->hasCount = false;
+			task->count = 0;
 		}
 		else
 		{
-			task = new EquipItemTask(a_args[0].GetNumber(), true, a_args[1].GetNumber());
+			task->hasCount = true;
+			task->count = a_args[1].GetNumber();
 		}
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}
@@ -174,11 +171,6 @@ namespace SkyrimSoulsRE
 		class TakeAllItemsTask : public UnpausedTask
 		{
 		public:
-			TakeAllItemsTask()
-			{
-				this->usesDelay = false;
-			}
-
 			void Run() override
 			{
 				RE::UI* ui = RE::UI::GetSingleton();
@@ -192,7 +184,7 @@ namespace SkyrimSoulsRE
 				}
 			}
 		};
-		TakeAllItemsTask* task = new TakeAllItemsTask();
+		std::shared_ptr<UnpausedTask> task = std::make_shared<TakeAllItemsTask>();
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}
@@ -201,15 +193,9 @@ namespace SkyrimSoulsRE
 	{
 		class TransferItemTask : public UnpausedTask
 		{
+		public:
 			double	count;
 			bool	isViewingContainer;
-		public:
-			TransferItemTask(double a_count, bool a_isViewingContainer)
-			{
-				this->count = a_count;
-				this->isViewingContainer = a_isViewingContainer;
-				this->usesDelay = false;
-			}
 
 			void Run() override
 			{
@@ -238,7 +224,10 @@ namespace SkyrimSoulsRE
 				}
 			}
 		};
-		TransferItemTask* task = new TransferItemTask(a_args[0].GetNumber(), a_args[1].GetBool());
+		std::shared_ptr<TransferItemTask> task = std::make_shared<TransferItemTask>();
+		task->count = a_args[0].GetNumber();
+		task->isViewingContainer = a_args[1].GetBool();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}

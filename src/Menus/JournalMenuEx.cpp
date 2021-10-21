@@ -73,11 +73,10 @@ namespace SkyrimSoulsRE
 
 	RE::IMenu* JournalMenuEx::Creator()
 	{
-		class MCMRemapHandler : public RE::GFxFunctionHandler, public RE::BSTEventSink<RE::InputEvent*>, public UnpausedTask
+		class MCMRemapHandler : public RE::GFxFunctionHandler, public RE::BSTEventSink<RE::InputEvent*>
 		{
 		private:
-			RE::GFxValue	scope;
-			std::uint32_t	keyCode;
+			RE::GFxValue scope;
 		public:
 			RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
 			{
@@ -98,7 +97,7 @@ namespace SkyrimSoulsRE
 				a_eventSource->RemoveEventSink(this);
 
 				std::uint32_t keyMask = evn->idCode;
-				std::uint32_t keyCode;
+				std::int32_t keyCode;
 
 				// Mouse
 				switch (deviceType)
@@ -117,12 +116,28 @@ namespace SkyrimSoulsRE
 				if (keyCode >= 282)
 				{
 					keyCode = -1;
-				}	
+				}
 
-				this->keyCode = keyCode;
+				class MCMRemapTask : public UnpausedTask
+				{
+				public:
+					RE::GFxValue scope;
+					std::uint32_t keyCode;
+
+					void Run() override
+					{
+						RE::GFxValue arg;
+						arg.SetNumber(this->keyCode);
+						scope.Invoke("EndRemapMode", nullptr, &arg, 1);
+					}
+				};
+
+				std::shared_ptr<MCMRemapTask> task = std::make_shared<MCMRemapTask>();
+				task->keyCode = keyCode;
+				task->scope = this->scope;
 
 				UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-				queue->AddTask(this);
+				queue->AddTask(task);
 
 				RE::MenuControls::GetSingleton()->remapMode = false;
 				RE::PlayerControls::GetSingleton()->data.remapMode = false;
@@ -142,21 +157,10 @@ namespace SkyrimSoulsRE
 				menuControls->remapMode = true;
 				playerControls->data.remapMode = true;
 			}
-
-			void Run() override
-			{
-				RE::GFxValue arg;
-				arg.SetNumber(this->keyCode);
-				scope.Invoke("EndRemapMode", nullptr, &arg, 1);
-			}
-
-			void Dispose() override {}
 		};
 
-		class SaveGameHandler : public RE::GFxFunctionHandler, public UnpausedTask
+		class SaveGameHandler : public RE::GFxFunctionHandler
 		{
-		private:
-			double selectedIndex;
 		public:
 			void Call(Params& params) override
 			{
@@ -207,37 +211,39 @@ namespace SkyrimSoulsRE
 					//Create save screenshot
 					reinterpret_cast<void(*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
 
-					this->selectedIndex = selectedIndex.GetNumber();
-					this->usesDelay = true;
-					this->beginTime = std::chrono::high_resolution_clock::now();
-					this->delayTimeMS = std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS);
+					class SaveGameTask : public UnpausedTask
+					{
+					public:
+						double selectedIndex;
+
+						void Run() override
+						{
+							RE::UI* ui = RE::UI::GetSingleton();
+
+							if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME)) {
+								RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
+
+								RE::GFxValue selectedIndex = this->selectedIndex;
+
+								RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &selectedIndex, 1);
+								menu->fxDelegate->callbacks.GetAlt("SaveGame")->callback(args);
+
+								RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
+								uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
+								isSaving = false;
+								RE::PlaySound("UIMenuCancel");
+							}
+						}
+					};
+
+					std::shared_ptr<SaveGameTask> task = std::make_shared<SaveGameTask>();
+					task->selectedIndex = selectedIndex.GetNumber();
+					
 					UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-					queue->AddTask(this);
+					queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
 
 				}
 			}
-
-			void Run() override
-			{
-				RE::UI* ui = RE::UI::GetSingleton();
-
-				if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
-				{
-					RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
-
-					RE::GFxValue selectedIndex = this->selectedIndex;
-
-					RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &selectedIndex, 1);
-					menu->fxDelegate->callbacks.GetAlt("SaveGame")->callback(args);
-
-					RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
-					uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
-					isSaving = false;
-					RE::PlaySound("UIMenuCancel");
-				}
-			}
-
-			void Dispose() override {}
 		};
 
 		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(CreateMenu(RE::JournalMenu::MENU_NAME.data()));
@@ -291,15 +297,9 @@ namespace SkyrimSoulsRE
 
 		class RemapTask : public UnpausedTask
 		{
-		private:
+		public:
 			FakeButtonEvent*	evn;
 			RemapHandler*		handler;
-		public:
-			RemapTask(RemapHandler* a_handler, FakeButtonEvent* a_evn)
-			{
-				this->evn = a_evn;
-				this->handler = a_handler;
-			}
 
 			void Run() override
 			{
@@ -317,9 +317,13 @@ namespace SkyrimSoulsRE
 		fakeEvent->idCode = buttonEvent->idCode;
 		fakeEvent->value = buttonEvent->value;
 		fakeEvent->heldDownSecs = buttonEvent->heldDownSecs;
+		
+		std::shared_ptr<RemapTask> task = std::make_shared<RemapTask>();
+		task->evn = fakeEvent;
+		task->handler = this;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(new RemapTask(this, fakeEvent));
+		queue->AddTask(task);
 
 		return RE::BSEventNotifyControl::kContinue;
 	}
