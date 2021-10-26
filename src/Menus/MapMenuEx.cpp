@@ -97,7 +97,7 @@ namespace SkyrimSoulsRE
 		task->currentTime = a_currentTime;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);	
+		queue->AddTask(task);
 	}
 
 	void MapMenuEx::UpdateClock()
@@ -106,12 +106,12 @@ namespace SkyrimSoulsRE
 		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, true);
 
 		RE::GFxValue dateText;
-		if (this->uiMovie->GetVariable(&dateText, "_root.bottomBar.DateText")) //SkyUI
+		if (this->uiMovie->GetVariable(&dateText, "_root.bottomBar.DateText"))  //SkyUI
 		{
 			RE::GFxValue newDate(timeDateString);
 			dateText.SetMember("htmlText", newDate);
 		}
-		else if (this->uiMovie->GetVariable(&dateText, "_root.Bottom.DateText")) // non-SkyUI
+		else if (this->uiMovie->GetVariable(&dateText, "_root.Bottom.DateText"))  // non-SkyUI
 		{
 			RE::GFxValue newDate(timeDateString);
 			dateText.SetMember("htmlText", newDate);

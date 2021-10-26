@@ -25,25 +25,31 @@ namespace SkyrimSoulsRE
 
 		std::uint32_t unpausedMenuCount = GetUnpausedMenuCount();
 
-		if (settings->enableGamepadCameraMove && typeid(T) == typeid(RE::LookHandler)) {
-			if (a_event->eventType == RE::INPUT_EVENT_TYPE::kThumbstick) {
+		if (settings->enableGamepadCameraMove && typeid(T) == typeid(RE::LookHandler))
+		{
+			if (a_event->eventType == RE::INPUT_EVENT_TYPE::kThumbstick)
+			{
 				return _CanProcess(this, a_event);
 			}
 		}
 
-		if (ui->IsMenuOpen(RE::Console::MENU_NAME)) {
+		if (ui->IsMenuOpen(RE::Console::MENU_NAME))
+		{
 			return false;
 		}
 
-		if (settings->enableMovementInMenus && typeid(T) == typeid(RE::MovementHandler)) {
+		if (settings->enableMovementInMenus && typeid(T) == typeid(RE::MovementHandler))
+		{
 			return _CanProcess(this, a_event);
 		}
 
-		if (settings->enableToggleRun && typeid(T) == typeid(RE::ToggleRunHandler)) {
+		if (settings->enableToggleRun && typeid(T) == typeid(RE::ToggleRunHandler))
+		{
 			return _CanProcess(this, a_event);
 		}
 
-		if (unpausedMenuCount) {
+		if (unpausedMenuCount)
+		{
 			return false;
 		}
 

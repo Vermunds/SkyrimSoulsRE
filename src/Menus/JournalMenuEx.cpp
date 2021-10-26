@@ -8,23 +8,40 @@ namespace SkyrimSoulsRE
 
 		switch (a_keyMask)
 		{
-			case Key::kUp:				return 266;
-			case Key::kDown:			return 267;
-			case Key::kLeft:			return 268;
-			case Key::kRight:			return 269;
-			case Key::kStart:			return 270;
-			case Key::kBack:			return 271;
-			case Key::kLeftThumb:		return 272;
-			case Key::kRightThumb:		return 273;
-			case Key::kLeftShoulder:	return 274;
-			case Key::kRightShoulder:	return 275;
-			case Key::kA:				return 276;
-			case Key::kB:				return 277;
-			case Key::kX:				return 278;
-			case Key::kY:				return 279;
-			case Key::kLeftTrigger:		return 280;
-			case Key::kRightTrigger:	return 281;
-			default:					return 282; // Invalid
+		case Key::kUp:
+			return 266;
+		case Key::kDown:
+			return 267;
+		case Key::kLeft:
+			return 268;
+		case Key::kRight:
+			return 269;
+		case Key::kStart:
+			return 270;
+		case Key::kBack:
+			return 271;
+		case Key::kLeftThumb:
+			return 272;
+		case Key::kRightThumb:
+			return 273;
+		case Key::kLeftShoulder:
+			return 274;
+		case Key::kRightShoulder:
+			return 275;
+		case Key::kA:
+			return 276;
+		case Key::kB:
+			return 277;
+		case Key::kX:
+			return 278;
+		case Key::kY:
+			return 279;
+		case Key::kLeftTrigger:
+			return 280;
+		case Key::kRightTrigger:
+			return 281;
+		default:
+			return 282;  // Invalid
 		}
 	}
 
@@ -45,7 +62,7 @@ namespace SkyrimSoulsRE
 		{
 			return _ProcessMessage(this, a_message);
 		}
-		
+
 		RE::BSUIScaleformData* data = static_cast<RE::BSUIScaleformData*>(a_message.data);
 
 		if (JournalMenuEx::isSaving && data->scaleformEvent->type != RE::GFxEvent::EventType::kMouseMove)
@@ -77,10 +94,11 @@ namespace SkyrimSoulsRE
 		{
 		private:
 			RE::GFxValue scope;
+
 		public:
 			RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
 			{
-				RE::ButtonEvent* evn = (RE::ButtonEvent*) * a_event;
+				RE::ButtonEvent* evn = (RE::ButtonEvent*)*a_event;
 
 				if (!evn || evn->eventType != RE::INPUT_EVENT_TYPE::kButton)
 					return RE::BSEventNotifyControl::kContinue;
@@ -180,7 +198,7 @@ namespace SkyrimSoulsRE
 				else
 				{
 					RE::GFxValue result;
-					bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1); // Not sure if this actually does something
+					bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1);  // Not sure if this actually does something
 					assert(success);
 				}
 
@@ -209,7 +227,7 @@ namespace SkyrimSoulsRE
 					}
 
 					//Create save screenshot
-					reinterpret_cast<void(*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
+					reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
 
 					class SaveGameTask : public UnpausedTask
 					{
@@ -220,7 +238,8 @@ namespace SkyrimSoulsRE
 						{
 							RE::UI* ui = RE::UI::GetSingleton();
 
-							if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME)) {
+							if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
+							{
 								RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
 
 								RE::GFxValue selectedIndex = this->selectedIndex;
@@ -238,10 +257,9 @@ namespace SkyrimSoulsRE
 
 					std::shared_ptr<SaveGameTask> task = std::make_shared<SaveGameTask>();
 					task->selectedIndex = selectedIndex.GetNumber();
-					
+
 					UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 					queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
-
 				}
 			}
 		};
@@ -250,7 +268,7 @@ namespace SkyrimSoulsRE
 
 		//fix for remapping from MCM menu
 		RE::GFxValue globals, skse;
-		
+
 		bool result = menu->uiMovie->GetVariable(&globals, "_global");
 		if (result)
 		{
@@ -298,8 +316,8 @@ namespace SkyrimSoulsRE
 		class RemapTask : public UnpausedTask
 		{
 		public:
-			FakeButtonEvent*	evn;
-			RemapHandler*		handler;
+			FakeButtonEvent* evn;
+			RemapHandler* handler;
 
 			void Run() override
 			{
@@ -317,7 +335,7 @@ namespace SkyrimSoulsRE
 		fakeEvent->idCode = buttonEvent->idCode;
 		fakeEvent->value = buttonEvent->value;
 		fakeEvent->heldDownSecs = buttonEvent->heldDownSecs;
-		
+
 		std::shared_ptr<RemapTask> task = std::make_shared<RemapTask>();
 		task->evn = fakeEvent;
 		task->handler = this;

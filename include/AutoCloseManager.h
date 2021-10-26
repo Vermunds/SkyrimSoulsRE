@@ -27,9 +27,11 @@ namespace SkyrimSoulsRE
 		bool CheckMenuStack(AutoCloseData* a_inData, RE::TESObjectREFR* a_ref)
 		{
 			RE::UI* ui = RE::UI::GetSingleton();
-			if (ui->IsMenuOpen(T::MENU_NAME) && _autoCloseDataMap.find(T::MENU_NAME.data()) != _autoCloseDataMap.end()) {
+			if (ui->IsMenuOpen(T::MENU_NAME) && _autoCloseDataMap.find(T::MENU_NAME.data()) != _autoCloseDataMap.end())
+			{
 				AutoCloseData* data = _autoCloseDataMap.at(T::MENU_NAME.data());
-				if (data->target == a_ref) {
+				if (data->target == a_ref)
+				{
 					a_inData->target = data->target;
 					a_inData->initialDistance = data->initialDistance;
 					a_inData->minDistance = data->minDistance;

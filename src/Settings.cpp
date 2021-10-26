@@ -71,7 +71,7 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("AUTOCLOSE", "bAutoCloseMenus", settings->autoCloseMenus, "#  Auto close menus if the distance to the object is larger than the specified value.", true);
 		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", settings->autoCloseDistance, "#  The maximum distance (in in-game units) before the menus will automatically close.\n#  Too small values can cause the menus to close unexpectedly.", true);
 		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseTolerance", settings->autoCloseTolerance, "#  The maximum distance (in in-game units) where the menus NEVER auto-close (in relation to the players initial position when the menu was opened).\n#  This is used as a failsafe when the initial distance is larger than the maximum allowed to prevent the menu from closing immediately (e.g. a container opened by a script).", true);
-		
+
 		//Controls
 		settings->enableMovementInMenus = ini.GetBoolValue("CONTROLS", "bEnableMovementInMenus", true);
 		settings->enableToggleRun = ini.GetBoolValue("CONTROLS", "bEnableToggleRun", false);
@@ -133,7 +133,6 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_TweenMenu", settings->slowMotionMenus[RE::TweenMenu::MENU_NAME.data()], nullptr, true);
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", settings->slowMotionMenus["CustomMenu"], nullptr, true);
 
-
 		ini.SetValue("COMBAT_ALERT_OVERLAY", nullptr, nullptr, "# Shows a blinking red overlay when your character is in combat. Especially useful in full screen menus. You can enable or disable it individually for each menu.");
 
 		//CombatAlertOverlay
@@ -187,7 +186,6 @@ namespace SkyrimSoulsRE
 		ini.SetBoolValue("HUD", "bDisableHUDModifications", settings->disableHUDModifications, "# If set to true, SkyrimSouls will not attempt to modify the location of the sneak meter. Use it if you have a compatibility issue with something", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosX", settings->sneakMeterPosX, "# The position where the sneak meter will appear on the screen when a menu is open. It's necessary as some menu elements would hide it otherwise (eg. lockpicking).\n# The values are a bit arbitrary so just try different values until you find what suits you.", true);
 		ini.SetDoubleValue("HUD", "fSneakMeterPosY", settings->sneakMeterPosY, nullptr, true);
-
 
 		//Blur
 		settings->disableBlur = ini.GetBoolValue("BLUR", "bDisableBlur", false);

@@ -15,7 +15,7 @@ namespace SkyrimSoulsRE
 			}
 			else
 			{
-				highData->closeDialogueTimer += a_delta; //a_delta is negative
+				highData->closeDialogueTimer += a_delta;  //a_delta is negative
 			}
 		}
 	}

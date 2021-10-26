@@ -29,7 +29,7 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
-			case RE::UI_MESSAGE_TYPE::kHide:
+		case RE::UI_MESSAGE_TYPE::kHide:
 			{
 				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 				if (hudMenu)
@@ -38,7 +38,7 @@ namespace SkyrimSoulsRE
 				}
 				break;
 			}
-			case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
+		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
 			{
 				// for SkyUI only
 				if (IsViewingActiveEffects())
@@ -163,7 +163,7 @@ namespace SkyrimSoulsRE
 		{
 			this->UpdateBottomBar();
 		}
-		
+
 		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 

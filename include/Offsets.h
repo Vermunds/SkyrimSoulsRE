@@ -5,11 +5,11 @@ namespace Offsets
 {
 	namespace ConsoleCommands
 	{
-		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398));		// + 0x5B
-		static constexpr REL::ID CenterOnWorld_Hook(static_cast<std::uint64_t>(22401));		// + 0x108
-		static constexpr REL::ID CenterOnExterior_Hook(static_cast<std::uint64_t>(22400));	// + 0x118
-		static constexpr REL::ID ServeTime_Hook(static_cast<std::uint64_t>(22145));			// + 0xE
-		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22465));			// + 0xC4
+		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22398));      // + 0x5B
+		static constexpr REL::ID CenterOnWorld_Hook(static_cast<std::uint64_t>(22401));     // + 0x108
+		static constexpr REL::ID CenterOnExterior_Hook(static_cast<std::uint64_t>(22400));  // + 0x118
+		static constexpr REL::ID ServeTime_Hook(static_cast<std::uint64_t>(22145));         // + 0xE
+		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22465));          // + 0xC4
 	}
 
 	namespace BSAudioManager
@@ -75,7 +75,7 @@ namespace Offsets
 		{
 			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(268589));
 
-			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(36540));	// + 0x4F9
+			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(36540));  // + 0x4F9
 		}
 
 		namespace FavoritesMenu

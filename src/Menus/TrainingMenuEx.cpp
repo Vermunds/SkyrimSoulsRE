@@ -9,6 +9,5 @@ namespace SkyrimSoulsRE
 
 	void TrainingMenuEx::InstallHook()
 	{
-		
 	}
 }

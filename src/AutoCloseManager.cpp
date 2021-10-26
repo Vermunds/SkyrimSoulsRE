@@ -15,10 +15,14 @@ namespace SkyrimSoulsRE
 
 		AutoCloseData* data;
 
-		if (_autoCloseDataMap.find(a_menuName.c_str()) != _autoCloseDataMap.end()) {
+		if (_autoCloseDataMap.find(a_menuName.c_str()) != _autoCloseDataMap.end())
+		{
 			data = _autoCloseDataMap.at(a_menuName.c_str());
 		}
-		else { return; };
+		else
+		{
+			return;
+		};
 
 		if (data->dialogueMode)
 		{
@@ -62,8 +66,8 @@ namespace SkyrimSoulsRE
 				}
 			}
 
-			if (settings->autoCloseMenus) {
-
+			if (settings->autoCloseMenus)
+			{
 				if (!tooFarOnOpen && currentDistance > maxDistance)
 				{
 					//Normal case
@@ -72,7 +76,7 @@ namespace SkyrimSoulsRE
 				else if (tooFarOnOpen)
 				{
 					//Target was opened when it was too far
-					if (currentDistance > maxDistance && currentDistance > (data->minDistance + tolerance)) //Close only if the distance is increasing
+					if (currentDistance > maxDistance && currentDistance > (data->minDistance + tolerance))  //Close only if the distance is increasing
 					{
 						uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 						return;
@@ -92,11 +96,13 @@ namespace SkyrimSoulsRE
 
 		std::string menuName = a_menuName.c_str();
 
-		if (_autoCloseDataMap.find(menuName) == _autoCloseDataMap.end()) {
+		if (_autoCloseDataMap.find(menuName) == _autoCloseDataMap.end())
+		{
 			data = new AutoCloseData();
 			_autoCloseDataMap.emplace(menuName, data);
 		}
-		else {
+		else
+		{
 			data = _autoCloseDataMap.at(menuName);
 		}
 
@@ -154,7 +160,8 @@ namespace SkyrimSoulsRE
 		//Get distance from feet and head, return the smaller
 		float distanceHead = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow((a_playerPos.z + a_playerHeight) - a_targetPos.z, 2));
 		float distanceFeet = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow(a_playerPos.z - a_targetPos.z, 2));
-		if (distanceHead < distanceFeet) {
+		if (distanceHead < distanceFeet)
+		{
 			return std::sqrt(distanceHead);
 		}
 		return std::sqrt(distanceFeet);

@@ -44,17 +44,19 @@ namespace SkyrimSoulsRE
 		}
 
 		std::uint32_t stealValue = targetActor->GetStealValue(a_itemData->objDesc, count, true);
-		
+
 		bool isDetected = targetActor->RequestDetectionLevel(player, RE::DETECTION_PRIORITY::kNormal) > 0;
 		float playerSkill = player->GetActorValue(RE::ActorValue::kPickpocket);
 		float targetSkill = targetActor->GetActorValue(RE::ActorValue::kPickpocket);
 
 		auto chance = RE::AIFormulas::ComputePickpocketSuccess(playerSkill, targetSkill, stealValue, itemWeight, player, targetActor, isDetected, a_itemData->objDesc->object);
 
-		if (chance > 100) {
+		if (chance > 100)
+		{
 			chance = 100;
 		}
-		else if (chance < 0) {
+		else if (chance < 0)
+		{
 			chance = 0;
 		}
 
@@ -108,9 +110,9 @@ namespace SkyrimSoulsRE
 		class EquipItemTask : public UnpausedTask
 		{
 		public:
-			double		equipHand;
-			bool		hasCount;
-			double		count;
+			double equipHand;
+			bool hasCount;
+			double count;
 
 			void Run() override
 			{
@@ -194,8 +196,8 @@ namespace SkyrimSoulsRE
 		class TransferItemTask : public UnpausedTask
 		{
 		public:
-			double	count;
-			bool	isViewingContainer;
+			double count;
+			bool isViewingContainer;
 
 			void Run() override
 			{
@@ -263,7 +265,7 @@ namespace SkyrimSoulsRE
 
 		containerRef = ref;
 
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();		
+		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
 		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket);
 
 		return menu;
@@ -320,7 +322,7 @@ namespace SkyrimSoulsRE
 			std::wstring str;
 
 			bool notEOF = std::getline(fileStream, str);
-			if (!notEOF) // End of file
+			if (!notEOF)  // End of file
 			{
 				SKSE::log::error("Unexpected end of file.");
 				break;
@@ -363,12 +365,12 @@ namespace SkyrimSoulsRE
 		if (!foundToPlace)
 		{
 			SKSE::log::error("Failed to find translation for \"$ TO PLACE\".");
-		}	
+		}
 
 		if (!foundToSteal)
 		{
 			SKSE::log::error("Failed to find translation for \"$ TO STEAL\".");
-		}	
+		}
 
 		SKSE::log::info("Reading translations finished.");
 	}

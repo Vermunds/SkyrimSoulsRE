@@ -35,8 +35,8 @@ namespace SkyrimSoulsRE
 				HUDMenuEx::stealthMeterPosX = displayInfo.GetX();
 				HUDMenuEx::stealthMeterPosY = displayInfo.GetY();
 
-				displayInfo.SetX(settings->sneakMeterPosX); // 24
-				displayInfo.SetY(settings->sneakMeterPosY); // 120
+				displayInfo.SetX(settings->sneakMeterPosX);  // 24
+				displayInfo.SetY(settings->sneakMeterPosY);  // 120
 			}
 			else
 			{
@@ -51,7 +51,7 @@ namespace SkyrimSoulsRE
 
 	void HUDMenuEx::UpdateHUD()
 	{
-		for (RE::HUDObject * obj : this->objects)
+		for (RE::HUDObject* obj : this->objects)
 		{
 			obj->Update();
 		}

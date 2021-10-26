@@ -35,7 +35,7 @@ namespace SkyrimSoulsRE
 	}
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
-	{	
+	{
 		RE::UI* ui = RE::UI::GetSingleton();
 		RE::UIBlurManager* blurManager = RE::UIBlurManager::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
@@ -89,7 +89,7 @@ namespace SkyrimSoulsRE
 		{
 			menu->depthPriority = 1;
 		}
-		
+
 		if (settings->disableBlur)
 		{
 			if (blurManager->blurCount > 0)
@@ -111,7 +111,7 @@ namespace SkyrimSoulsRE
 
 		std::uint32_t count = 0;
 
-		for (auto & it : ui->menuStack)
+		for (auto& it : ui->menuStack)
 		{
 			RE::IMenu* menu = it.get();
 			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUsesCombatAlertOverlay)) != Flag::kNone)
@@ -129,7 +129,7 @@ namespace SkyrimSoulsRE
 
 		std::uint32_t count = 0;
 
-		for (auto & it : ui->menuStack)
+		for (auto& it : ui->menuStack)
 		{
 			RE::IMenu* menu = it.get();
 			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUnpaused)) != Flag::kNone)
@@ -209,7 +209,7 @@ namespace SkyrimSoulsRE
 		ui->menuMap.find(RE::MessageBoxMenu::MENU_NAME)->second.create = MessageBoxMenuEx::Creator;
 		ui->menuMap.find(RE::ModManagerMenu::MENU_NAME)->second.create = ModManagerMenuEx::Creator;
 		ui->menuMap.find(RE::HUDMenu::MENU_NAME)->second.create = HUDMenuEx::Creator;
-		ui->menuMap.find(RE::MapMenu::MENU_NAME)->second.create = MapMenuEx::Creator;;
+		ui->menuMap.find(RE::MapMenu::MENU_NAME)->second.create = MapMenuEx::Creator;
 		ui->menuMap.find(RE::StatsMenu::MENU_NAME)->second.create = StatsMenuEx::Creator;
 		ui->menuMap.find(RE::LevelUpMenu::MENU_NAME)->second.create = LevelUpMenuEx::Creator;
 		ui->menuMap.find("CustomMenu")->second.create = CustomMenuEx::Creator;
@@ -220,8 +220,7 @@ namespace SkyrimSoulsRE
 	}
 
 	void InstallHooks()
-	{	
-
+	{
 		UnpausedTaskQueue::InstallHook();
 
 		Papyrus::InstallHook();
@@ -253,6 +252,6 @@ namespace SkyrimSoulsRE
 		StatsMenuEx::InstallHook();
 		TrainingMenuEx::InstallHook();
 		TutorialMenuEx::InstallHook();
-		TweenMenuEx::InstallHook();	
+		TweenMenuEx::InstallHook();
 	}
 }

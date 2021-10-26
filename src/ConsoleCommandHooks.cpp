@@ -31,13 +31,13 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 				{
 					RE::ConsoleLog::GetSingleton()->Print("Save failed.");
 				}
-				
+
 				RE::UI::GetSingleton()->numPausesGame--;
 			}
 		};
 
 		//Create save screenshot
-		reinterpret_cast<void(*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
+		reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
 		RE::UI::GetSingleton()->numPausesGame++;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
@@ -79,8 +79,8 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 
 			void Run() override
 			{
-				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();		
-				
+				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+
 				if (cellName == "")
 				{
 					player->CenterOnCell(cell);
@@ -96,7 +96,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		std::shared_ptr<CenterOnCellTask> task = std::make_shared<CenterOnCellTask>();
 		task->cellName = cellName;
 		task->cell = a_cell;
-		
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 
@@ -110,7 +110,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnCell_Hook.address() + 0x5B, CenterOnCell_Hook);
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnWorld_Hook.address() + 0x108, CenterOnCell_Hook);
 		trampoline.write_call<5>(Offsets::ConsoleCommands::CenterOnExterior_Hook.address() + 0x118, CenterOnCell_Hook);
-		
+
 		trampoline.write_call<5>(Offsets::ConsoleCommands::ServeTime_Hook.address() + 0xE, ServeTime_Hook);
 		REL::safe_write(Offsets::ConsoleCommands::ServeTime_Hook.address() + 0xE + 0x5, std::uint8_t(0x90));
 

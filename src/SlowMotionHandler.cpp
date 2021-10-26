@@ -18,7 +18,8 @@ namespace SkyrimSoulsRE
 		{
 			multiplier = slowMotionMultiplier;
 		}
-		else {
+		else
+		{
 			multiplier = 1.0f;
 		}
 

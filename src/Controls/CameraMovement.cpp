@@ -12,7 +12,7 @@ namespace SkyrimSoulsRE::CameraMovement
 		RE::MenuControls* mc = RE::MenuControls::GetSingleton();
 
 		if (!ui->GameIsPaused() && (!ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) || settings->isUsingDME) && settings->enableCursorCameraMove &&
-			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode && 
+			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode &&
 			pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled())
 		{
 			RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::Misc::CursorPosition.address());
@@ -64,7 +64,7 @@ namespace SkyrimSoulsRE::CameraMovement
 			}
 		};
 
-		CameraMove_Code code{std::uintptr_t(CameraMove_Hook)};
+		CameraMove_Code code{ std::uintptr_t(CameraMove_Hook) };
 		void* codeLoc = SKSE::GetTrampoline().allocate(code);
 
 		SKSE::GetTrampoline().write_branch<5>(Offsets::Misc::ScreenEdgeCameraMoveHook.address() + 0x241, codeLoc);

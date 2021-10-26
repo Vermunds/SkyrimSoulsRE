@@ -18,7 +18,8 @@ namespace SkyrimSoulsRE
 	inline bool MapInputHandlerEx<T>::CanProcess_Hook(RE::InputEvent* a_event)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
-		if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME)) {
+		if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
+		{
 			return false;
 		}
 		return _CanProcess(this, a_event);

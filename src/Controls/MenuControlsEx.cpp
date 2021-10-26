@@ -27,7 +27,7 @@ namespace SkyrimSoulsRE
 		RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
 		RE::UserEvents* userEvents = RE::UserEvents::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
-		
+
 		bool dialogueMode = ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !settings->isUsingDME;
 		bool lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
 		bool movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
@@ -79,11 +79,11 @@ namespace SkyrimSoulsRE
 							//Allow category change with LB and RB when using controllers
 							if (idEvent->device == RE::INPUT_DEVICE::kGamepad)
 							{
-								if (idEvent->idCode == 0x100) //LB
+								if (idEvent->idCode == 0x100)  //LB
 								{
 									idEvent->userEvent = userEvents->left;
 								}
-								if (idEvent->idCode == 0x200) //RB
+								if (idEvent->idCode == 0x200)  //RB
 								{
 									idEvent->userEvent = userEvents->right;
 								}

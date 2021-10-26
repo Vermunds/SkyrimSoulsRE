@@ -65,7 +65,7 @@ namespace SkyrimSoulsRE
 				_view->SetVisible(false);
 			}
 		}
-		
+
 		std::uint32_t nextFrame = currentFrame == 120 ? 1 : currentFrame + 1;
 		_view->GotoFrame(nextFrame);
 	}

@@ -23,8 +23,8 @@ namespace SkyrimSoulsRE
 		static inline std::wstring toPlace;
 
 		// Virtual functions
-		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);	// 04
-		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);	// 05
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
+		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);  // 05
 
 		// FxDelegate callbacks
 		static void TransferItem_Hook(const RE::FxDelegateArgs& a_args);

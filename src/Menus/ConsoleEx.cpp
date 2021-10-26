@@ -10,6 +10,5 @@ namespace SkyrimSoulsRE
 
 	void ConsoleEx::InstallHook()
 	{
-
 	}
 }

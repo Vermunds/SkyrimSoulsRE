@@ -26,9 +26,9 @@ namespace SkyrimSoulsRE
 		class ItemSelectTask : public UnpausedTask
 		{
 		public:
-			double	count;
-			double	value;
-			bool	isViewingVendorItems;
+			double count;
+			double value;
+			bool isViewingVendorItems;
 
 			void Run() override
 			{

@@ -13,7 +13,8 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
+			if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
+			{
 				targetRef = refptr.get();
 			}
 		}
@@ -23,7 +24,8 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
+			if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
+			{
 				targetRef = refptr.get();
 				//if (targetRef->formType == RE::FormType::ActorCharacter)
 				//{
@@ -43,7 +45,8 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 			RE::RefHandle handle = menu->GetTargetRefHandle();
 			RE::TESObjectREFRPtr refptr = nullptr;
-			if (RE::TESObjectREFR::LookupByHandle(handle, refptr)) {
+			if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
+			{
 				targetRef = refptr.get();
 			}
 		}

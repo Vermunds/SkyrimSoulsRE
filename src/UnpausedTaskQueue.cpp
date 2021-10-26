@@ -3,7 +3,6 @@
 
 namespace SkyrimSoulsRE
 {
-
 	void UnpausedTaskQueue::Lock()
 	{
 		bool locked = false;
@@ -30,7 +29,7 @@ namespace SkyrimSoulsRE
 		auto beginTime = std::chrono::high_resolution_clock::now();
 
 		this->Lock();
-		this->_delayedTaskQueue.push_back(std::pair<std::shared_ptr<UnpausedTask>, std::chrono::steady_clock::time_point>{a_task, beginTime + a_delayTimeMS});
+		this->_delayedTaskQueue.push_back(std::pair<std::shared_ptr<UnpausedTask>, std::chrono::steady_clock::time_point>{ a_task, beginTime + a_delayTimeMS });
 		this->Unlock();
 	}
 
@@ -63,12 +62,12 @@ namespace SkyrimSoulsRE
 		{
 			tasks.front()->Run();
 			tasks.pop();
-		}	
+		}
 	}
 
 	void UnpausedTaskQueue::UnpausedTaskQueue_Hook(void* a_unk)
 	{
-		reinterpret_cast<void(*)(void*)>(Offsets::UnpausedTaskQueue::OriginalFunc.address())(a_unk);
+		reinterpret_cast<void (*)(void*)>(Offsets::UnpausedTaskQueue::OriginalFunc.address())(a_unk);
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->ProcessTasks();

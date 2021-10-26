@@ -2,7 +2,6 @@
 
 namespace SkyrimSoulsRE
 {
-
 	void LockpickingMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());

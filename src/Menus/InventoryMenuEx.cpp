@@ -61,8 +61,8 @@ namespace SkyrimSoulsRE
 		class ItemSelectTask : public UnpausedTask
 		{
 		public:
-			bool	hasSlot;
-			double	slot = 0.0;
+			bool hasSlot;
+			double slot = 0.0;
 
 			void Run() override
 			{

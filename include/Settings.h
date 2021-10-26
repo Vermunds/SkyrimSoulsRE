@@ -55,7 +55,7 @@ namespace SkyrimSoulsRE
 		Settings(){};
 		~Settings(){};
 		Settings(const Settings&) = delete;
-  		Settings& operator=(const Settings&) = delete;
+		Settings& operator=(const Settings&) = delete;
 	};
 
 	extern void LoadSettings();
