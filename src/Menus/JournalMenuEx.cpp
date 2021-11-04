@@ -65,9 +65,9 @@ namespace SkyrimSoulsRE
 
 		RE::BSUIScaleformData* data = static_cast<RE::BSUIScaleformData*>(a_message.data);
 
+		//Block all input when saving, so the menu can't get closed, but let the cursor move around so users don't freak out
 		if (JournalMenuEx::isSaving && data->scaleformEvent->type != RE::GFxEvent::EventType::kMouseMove)
 		{
-			//Block all input when saving, so the menu can't get closed, but let the cursor move around so users don't freak out
 			return RE::UI_MESSAGE_RESULTS::kIgnore;
 		}
 
@@ -88,182 +88,218 @@ namespace SkyrimSoulsRE
 		}
 	}
 
-	RE::IMenu* JournalMenuEx::Creator()
+	RE::BSEventNotifyControl JournalMenuEx::RemapHandlerEx::ProcessEvent_Hook(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent**>* a_eventSource)
 	{
-		class MCMRemapHandler : public RE::GFxFunctionHandler, public RE::BSTEventSink<RE::InputEvent*>
+		if (!a_event || !(*a_event) || (*a_event)->eventType != RE::INPUT_EVENT_TYPE::kButton)
 		{
-		private:
-			RE::GFxValue scope;
+			return RE::BSEventNotifyControl::kContinue;
+		}
 
+		RE::ButtonEvent* evn = (*a_event)->AsButtonEvent();
+
+		if (evn->value == 0 || evn->heldDownSecs != 0.0)
+		{
+			return RE::BSEventNotifyControl::kContinue;
+		}
+
+		RE::BSInputDeviceManager* idm = RE::BSInputDeviceManager::GetSingleton();
+		idm->RemoveEventSink(this);
+
+		class RemapTask : public UnpausedTask
+		{
 		public:
-			RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override
+			std::allocator<RE::ButtonEvent> alloc;
+			RE::ButtonEvent* evn;
+			RemapHandlerEx* handler;
+
+			void Run() override
 			{
-				RE::ButtonEvent* evn = (RE::ButtonEvent*)*a_event;
-
-				if (!evn || evn->eventType != RE::INPUT_EVENT_TYPE::kButton)
-					return RE::BSEventNotifyControl::kContinue;
-
-				RE::INPUT_DEVICE deviceType = evn->device.get();
-
-				RE::BSInputDeviceManager* idm = static_cast<RE::BSInputDeviceManager*>(a_eventSource);
-
-				if ((idm->IsGamepadEnabled() ^ (deviceType == RE::INPUT_DEVICE::kGamepad)) || evn->value == 0 || evn->heldDownSecs != 0.0)
-				{
-					return RE::BSEventNotifyControl::kContinue;
-				}
-
-				a_eventSource->RemoveEventSink(this);
-
-				std::uint32_t keyMask = evn->idCode;
-				std::int32_t keyCode;
-
-				// Mouse
-				switch (deviceType)
-				{
-				case RE::INPUT_DEVICE::kMouse:
-					keyCode = keyMask + 256;
-					break;
-				case RE::INPUT_DEVICE::kGamepad:
-					keyCode = GamepadMaskToKeycode(keyMask);
-					break;
-				default:
-					keyCode = keyMask;
-				}
-
-				// Valid scan code?
-				if (keyCode >= 282)
-				{
-					keyCode = -1;
-				}
-
-				class MCMRemapTask : public UnpausedTask
-				{
-				public:
-					RE::GFxValue scope;
-					std::uint32_t keyCode;
-
-					void Run() override
-					{
-						RE::GFxValue arg;
-						arg.SetNumber(this->keyCode);
-						scope.Invoke("EndRemapMode", nullptr, &arg, 1);
-					}
-				};
-
-				std::shared_ptr<MCMRemapTask> task = std::make_shared<MCMRemapTask>();
-				task->keyCode = keyCode;
-				task->scope = this->scope;
-
-				UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-				queue->AddTask(task);
-
-				RE::MenuControls::GetSingleton()->remapMode = false;
-				RE::PlayerControls::GetSingleton()->data.remapMode = false;
-
-				return RE::BSEventNotifyControl::kContinue;
-			}
-
-			void Call(RE::GFxFunctionHandler::Params& a_args) override
-			{
-				scope = a_args.args[0];
-
-				RE::PlayerControls* playerControls = RE::PlayerControls::GetSingleton();
-				RE::MenuControls* menuControls = RE::MenuControls::GetSingleton();
-				RE::BSInputDeviceManager* inputDeviceManager = RE::BSInputDeviceManager::GetSingleton();
-
-				inputDeviceManager->AddEventSink(this);
-				menuControls->remapMode = true;
-				playerControls->data.remapMode = true;
+				RE::InputEvent* inputEvent = static_cast<RE::InputEvent*>(evn);
+				_ProcessEvent(handler, &inputEvent, nullptr);
+				alloc.deallocate(evn, 1);
 			}
 		};
 
-		class SaveGameHandler : public RE::GFxFunctionHandler
+		const RE::ButtonEvent* buttonEvent = (*a_event)->AsButtonEvent();
+
+		std::shared_ptr<RemapTask> task = std::make_shared<RemapTask>();
+		task->evn = task->alloc.allocate(1);
+		task->evn->device = buttonEvent->device.get();
+		task->evn->eventType = buttonEvent->eventType.get();
+		task->evn->next = nullptr;
+		task->evn->userEvent = buttonEvent->userEvent;
+		task->evn->idCode = buttonEvent->idCode;
+		task->evn->value = buttonEvent->value;
+		task->evn->heldDownSecs = buttonEvent->heldDownSecs;
+
+		task->handler = this;
+
+		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+		queue->AddTask(task);
+
+		return RE::BSEventNotifyControl::kContinue;
+	}
+
+	RE::BSEventNotifyControl JournalMenuEx::MCMRemapHandler::ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource)
+	{
+		if (!a_event || !(*a_event) || (*a_event)->eventType != RE::INPUT_EVENT_TYPE::kButton)
+		{
+			return RE::BSEventNotifyControl::kContinue;
+		}
+
+		RE::ButtonEvent* evn = (*a_event)->AsButtonEvent();
+
+		if (evn->value == 0 || evn->heldDownSecs != 0.0)
+		{
+			return RE::BSEventNotifyControl::kContinue;
+		}
+
+		a_eventSource->RemoveEventSink(this);
+
+		RE::INPUT_DEVICE deviceType = evn->device.get();
+		std::uint32_t keyMask = evn->idCode;
+		std::int32_t keyCode;
+
+		switch (deviceType)
+		{
+		case RE::INPUT_DEVICE::kMouse:
+			keyCode = keyMask + 256;
+			break;
+		case RE::INPUT_DEVICE::kGamepad:
+			keyCode = GamepadMaskToKeycode(keyMask);
+			break;
+		default:
+			keyCode = keyMask;
+		}
+
+		// Valid scan code?
+		if (keyCode >= 282)
+		{
+			keyCode = -1;
+		}
+
+		class MCMRemapTask : public UnpausedTask
 		{
 		public:
-			void Call(Params& params) override
+			RE::GFxValue scope;
+			std::uint32_t keyCode;
+
+			void Run() override
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
-				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+				RE::GFxValue arg;
+				arg.SetNumber(this->keyCode);
+				scope.Invoke("EndRemapMode", nullptr, &arg, 1);
+			}
+		};
 
-				RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(interfaceStrings->journalMenu).get());
-				assert(menu);
+		std::shared_ptr<MCMRemapTask> task = std::make_shared<MCMRemapTask>();
+		task->keyCode = keyCode;
+		task->scope = this->scope;
 
-				RE::GFxValue iSaveDelayTimerID;
-				menu->uiMovie->GetVariable(&iSaveDelayTimerID, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.iSaveDelayTimerID");
+		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+		queue->AddTask(task);
 
-				if (iSaveDelayTimerID.GetType() == RE::GFxValue::ValueType::kUndefined)
+		RE::MenuControls::GetSingleton()->remapMode = false;
+		RE::PlayerControls::GetSingleton()->data.remapMode = false;
+
+		return RE::BSEventNotifyControl::kContinue;
+	}
+
+	void JournalMenuEx::MCMRemapHandler::Call(RE::GFxFunctionHandler::Params& a_args)
+	{
+		scope = a_args.args[0];
+
+		RE::BSInputDeviceManager::GetSingleton()->AddEventSink(this);
+		RE::MenuControls::GetSingleton()->remapMode = true;
+		RE::PlayerControls::GetSingleton()->data.remapMode = true;
+	}
+
+	void JournalMenuEx::SaveGameHandler::Call(Params& params)
+	{
+		RE::UI* ui = RE::UI::GetSingleton();
+		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+
+		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(interfaceStrings->journalMenu).get());
+		assert(menu);
+
+		RE::GFxValue iSaveDelayTimerID;
+		menu->uiMovie->GetVariable(&iSaveDelayTimerID, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.iSaveDelayTimerID");
+
+		if (iSaveDelayTimerID.GetType() == RE::GFxValue::ValueType::kUndefined)
+		{
+			SKSE::log::error("Unable to get save delay timer ID. Attempting to ignore it.");
+		}
+		else
+		{
+			RE::GFxValue result;
+			bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1);  // Not sure if this actually does something
+			assert(success);
+		}
+
+		// This function is normally supposed to close the menu, and it can get called multiple times. Make sure we only save once.
+		if (!isSaving)
+		{
+			isSaving = true;
+			RE::GFxValue selectedIndex;
+			menu->uiMovie->GetVariable(&selectedIndex, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.SaveLoadListHolder.selectedIndex");
+
+			if (selectedIndex.GetType() == RE::GFxValue::ValueType::kUndefined)
+			{
+				SKSE::log::critical("Unable to get selected index of selected save game. Aborting save and forcing Journal Menu to close.");
+				RE::DebugNotification("SAVE FAILED - report issue to Skyrim Souls RE author!");
+				RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
+				uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
+				isSaving = false;
+				RE::PlaySound("UIMenuCancel");
+				return;
+			}
+
+			if (!menu->PausesGame())
+			{
+				menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
+				RE::UI::GetSingleton()->numPausesGame++;
+			}
+
+			//Create save screenshot
+			reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
+
+			class SaveGameTask : public UnpausedTask
+			{
+			public:
+				double selectedIndex;
+
+				void Run() override
 				{
-					SKSE::log::error("Unable to get save delay timer ID. Attempting to ignore it.");
-				}
-				else
-				{
-					RE::GFxValue result;
-					bool success = menu->uiMovie->Invoke("clearInterval", &result, &iSaveDelayTimerID, 1);  // Not sure if this actually does something
-					assert(success);
-				}
+					RE::UI* ui = RE::UI::GetSingleton();
 
-				// This function is normally supposed to close the menu, and it can get called multiple times. Make sure we only save once.
-				if (!isSaving)
-				{
-					isSaving = true;
-					RE::GFxValue selectedIndex;
-					menu->uiMovie->GetVariable(&selectedIndex, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.SaveLoadListHolder.selectedIndex");
-
-					if (selectedIndex.GetType() == RE::GFxValue::ValueType::kUndefined)
+					if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
 					{
-						SKSE::log::critical("Unable to get selected index of selected save game. Aborting save and forcing Journal Menu to close.");
-						RE::DebugNotification("SAVE FAILED - report issue to Skyrim Souls RE author!");
+						RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
+						assert(menu);
+
+						RE::GFxValue selectedIndex = this->selectedIndex;
+
+						RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &selectedIndex, 1);
+						menu->fxDelegate->callbacks.GetAlt("SaveGame")->callback(args);
+
 						RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
 						uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
 						isSaving = false;
 						RE::PlaySound("UIMenuCancel");
-						return;
 					}
-
-					if (!menu->PausesGame())
-					{
-						menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
-						RE::UI::GetSingleton()->numPausesGame++;
-					}
-
-					//Create save screenshot
-					reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
-
-					class SaveGameTask : public UnpausedTask
-					{
-					public:
-						double selectedIndex;
-
-						void Run() override
-						{
-							RE::UI* ui = RE::UI::GetSingleton();
-
-							if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
-							{
-								RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
-
-								RE::GFxValue selectedIndex = this->selectedIndex;
-
-								RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &selectedIndex, 1);
-								menu->fxDelegate->callbacks.GetAlt("SaveGame")->callback(args);
-
-								RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
-								uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
-								isSaving = false;
-								RE::PlaySound("UIMenuCancel");
-							}
-						}
-					};
-
-					std::shared_ptr<SaveGameTask> task = std::make_shared<SaveGameTask>();
-					task->selectedIndex = selectedIndex.GetNumber();
-
-					UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-					queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
 				}
-			}
-		};
+			};
 
+			std::shared_ptr<SaveGameTask> task = std::make_shared<SaveGameTask>();
+			task->selectedIndex = selectedIndex.GetNumber();
+
+			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+			queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
+		}
+	}
+
+	RE::IMenu* JournalMenuEx::Creator()
+	{
 		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(CreateMenu(RE::JournalMenu::MENU_NAME.data()));
 
 		//fix for remapping from MCM menu
@@ -275,8 +311,7 @@ namespace SkyrimSoulsRE
 			result = globals.GetMember("skse", &skse);
 			if (result)
 			{
-				RE::GFxFunctionHandler* fn = nullptr;
-				fn = new MCMRemapHandler();
+				RE::GFxFunctionHandler* fn = mcmRemapHandler;
 				RE::GFxValue fnValue;
 				menu->uiMovie.get()->CreateFunction(&fnValue, fn);
 				skse.SetMember("StartRemapMode", fnValue);
@@ -288,62 +323,11 @@ namespace SkyrimSoulsRE
 		bool success = menu->uiMovie->GetVariable(&obj, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc");
 		assert(success);
 
-		RE::GFxValue func, func2;
-		menu->uiMovie->CreateFunction(&func, new SaveGameHandler());
+		RE::GFxValue func;
+		menu->uiMovie->CreateFunction(&func, saveGameHandler);
 		obj.SetMember("DoSaveGame", func);
 
 		return menu;
-	}
-
-	RE::BSEventNotifyControl JournalMenuEx::RemapHandler::ProcessEvent_Hook(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent**>* a_eventSource)
-	{
-		if (!*a_event || (*a_event)->eventType != RE::INPUT_EVENT_TYPE::kButton)
-		{
-			return RE::BSEventNotifyControl::kContinue;
-		}
-
-		RE::INPUT_DEVICE deviceType = (*a_event)->device.get();
-
-		RE::BSInputDeviceManager* idm = RE::BSInputDeviceManager::GetSingleton();
-
-		if ((idm->IsGamepadEnabled() ^ (deviceType == RE::INPUT_DEVICE::kGamepad)) || (*a_event)->AsButtonEvent()->value == 0 || (*a_event)->AsButtonEvent()->heldDownSecs != 0.0)
-		{
-			return RE::BSEventNotifyControl::kContinue;
-		}
-
-		idm->RemoveEventSink(this);
-
-		class RemapTask : public UnpausedTask
-		{
-		public:
-			FakeButtonEvent* evn;
-			RemapHandler* handler;
-
-			void Run() override
-			{
-				RE::InputEvent* inputEvent = reinterpret_cast<RE::InputEvent*>(evn);
-				_ProcessEvent(handler, &inputEvent, nullptr);
-			}
-		};
-
-		RE::ButtonEvent* buttonEvent = (*a_event)->AsButtonEvent();
-		FakeButtonEvent* fakeEvent = new FakeButtonEvent();
-		fakeEvent->device = buttonEvent->device.get();
-		fakeEvent->eventType = buttonEvent->eventType.get();
-		fakeEvent->next = nullptr;
-		fakeEvent->userEvent = buttonEvent->userEvent;
-		fakeEvent->idCode = buttonEvent->idCode;
-		fakeEvent->value = buttonEvent->value;
-		fakeEvent->heldDownSecs = buttonEvent->heldDownSecs;
-
-		std::shared_ptr<RemapTask> task = std::make_shared<RemapTask>();
-		task->evn = fakeEvent;
-		task->handler = this;
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-
-		return RE::BSEventNotifyControl::kContinue;
 	}
 
 	void JournalMenuEx::InstallHook()
@@ -356,6 +340,13 @@ namespace SkyrimSoulsRE
 		_AdvanceMovie = vTable.write_vfunc(0x5, &JournalMenuEx::AdvanceMovie_Hook);
 
 		REL::Relocation<std::uintptr_t> vTable_remapHandler(Offsets::Menus::JournalMenu::RemapHandler_Vtbl);
-		RemapHandler::_ProcessEvent = vTable_remapHandler.write_vfunc(0x1, &JournalMenuEx::RemapHandler::ProcessEvent_Hook);
+		RemapHandlerEx::_ProcessEvent = vTable_remapHandler.write_vfunc(0x1, &JournalMenuEx::RemapHandlerEx::ProcessEvent_Hook);
+
+		// Create handlers
+		static MCMRemapHandler mcmRemapHandler;
+		JournalMenuEx::mcmRemapHandler = &mcmRemapHandler;
+
+		static SaveGameHandler saveGameHandler;
+		JournalMenuEx::saveGameHandler = &saveGameHandler;
 	}
 };

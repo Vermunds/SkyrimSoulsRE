@@ -11,39 +11,44 @@ namespace SkyrimSoulsRE
 	class JournalMenuEx : public RE::JournalMenu
 	{
 	public:
-		// Journal Menu Remap Handler
-		class RemapHandler : RE::BSTEventSink<RE::InputEvent*>
+		// Journal Menu Remap Handler hooks
+		class RemapHandlerEx : RE::BSTEventSink<RE::InputEvent*>
 		{
 		public:
-			//todo - find a better way to do this
-			class FakeButtonEvent
-			{
-			public:
-				virtual ~FakeButtonEvent() = default;  // 00
-
-				virtual bool HasIDCode() const { return true; };                            // 01
-				virtual const RE::BSFixedString& QUserEvent() const { return userEvent; };  // 02
-
-				// members
-				RE::INPUT_DEVICE device;         // 08
-				RE::INPUT_EVENT_TYPE eventType;  // 0C
-				RE::InputEvent* next;            // 10
-				RE::BSFixedString userEvent;     // 18
-				std::uint32_t idCode;            // 20
-				std::uint32_t pad24;             // 24
-				float value;                     // 28
-				float heldDownSecs;              // 2C
-			};
-			static_assert(sizeof(FakeButtonEvent) == sizeof(RE::ButtonEvent));
-
+			// override (RE::BSTEventSink<RE::InputEvent*>)
 			RE::BSEventNotifyControl ProcessEvent_Hook(RE::InputEvent** a_event, RE::BSTEventSource<RE::InputEvent**>* a_eventSource);
 
 			using ProcessEvent_t = decltype(&ProcessEvent_Hook);
 			static inline REL::Relocation<ProcessEvent_t> _ProcessEvent;
 		};
 
-		static inline bool isSaving = false;
+		// Custom class to handle remapping inside MCM
+		class MCMRemapHandler : public RE::GFxFunctionHandler, public RE::BSTEventSink<RE::InputEvent*>
+		{
+		public:
+			// override (RE::BSTEventSink<RE::InputEvent*>)
+			RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) override;
 
+			// override (RE::GFxFunctionHandler)
+			void Call(RE::GFxFunctionHandler::Params& a_args) override;
+
+		private:
+			RE::GFxValue scope;
+		};
+
+		// Custom class to handle game saves
+		class SaveGameHandler : public RE::GFxFunctionHandler
+		{
+		public:
+			// override (RE::GFxFunctionHandler)
+			void Call(RE::GFxFunctionHandler::Params& params) override;
+		};
+
+		static inline bool isSaving = false;
+		static inline MCMRemapHandler* mcmRemapHandler;
+		static inline SaveGameHandler* saveGameHandler;
+
+		// override (RE::IMenu)
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
 		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);  // 05
 
