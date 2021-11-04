@@ -168,7 +168,7 @@ namespace SkyrimSoulsRE
 	void InstallMenuHooks()
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
-		ui->GetEventSource<RE::MenuOpenCloseEvent>()->AddEventSink(&g_slowMotionHandler);
+		ui->GetEventSource<RE::MenuOpenCloseEvent>()->AddEventSink(SlowMotionHandler::GetSingleton());
 
 		menuCreatorMap.emplace(RE::ContainerMenu::MENU_NAME, ui->menuMap.find(RE::ContainerMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::InventoryMenu::MENU_NAME, ui->menuMap.find(RE::InventoryMenu::MENU_NAME)->second.create);

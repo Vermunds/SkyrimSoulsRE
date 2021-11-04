@@ -65,5 +65,9 @@ namespace SkyrimSoulsRE
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
-	SlowMotionHandler g_slowMotionHandler;
+	SlowMotionHandler* SlowMotionHandler::GetSingleton()
+	{
+		static SlowMotionHandler slowMotionHandler;
+		return &slowMotionHandler;
+	}
 }

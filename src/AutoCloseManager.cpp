@@ -5,15 +5,13 @@
 
 namespace SkyrimSoulsRE
 {
-	AutoCloseManager* AutoCloseManager::_singleton = nullptr;
-
 	void AutoCloseManager::CheckAutoClose(RE::BSFixedString a_menuName)
 	{
 		Settings* settings = Settings::GetSingleton();
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
 
-		AutoCloseData* data;
+		std::shared_ptr<AutoCloseData> data;
 
 		if (_autoCloseDataMap.find(a_menuName.c_str()) != _autoCloseDataMap.end())
 		{
@@ -92,13 +90,13 @@ namespace SkyrimSoulsRE
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		RE::UI* ui = RE::UI::GetSingleton();
 
-		AutoCloseData* data;
+		std::shared_ptr<AutoCloseData> data;
 
 		std::string menuName = a_menuName.c_str();
 
 		if (_autoCloseDataMap.find(menuName) == _autoCloseDataMap.end())
 		{
-			data = new AutoCloseData();
+			data = std::make_shared<AutoCloseData>();
 			_autoCloseDataMap.emplace(menuName, data);
 		}
 		else
@@ -127,7 +125,7 @@ namespace SkyrimSoulsRE
 		if (a_menuName == RE::BookMenu::MENU_NAME && !a_ref && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 		{
 			//This can fail if the player somehow opens a book that is NOT opened from the current container menu
-			AutoCloseData* containerData = _autoCloseDataMap.at(RE::ContainerMenu::MENU_NAME.data());
+			std::shared_ptr<AutoCloseData> containerData = _autoCloseDataMap.at(RE::ContainerMenu::MENU_NAME.data());
 			data->target = containerData->target;
 			data->initialDistance = containerData->initialDistance;
 			data->minDistance = containerData->minDistance;
@@ -147,12 +145,8 @@ namespace SkyrimSoulsRE
 
 	AutoCloseManager* AutoCloseManager::GetSingleton()
 	{
-		if (_singleton)
-		{
-			return _singleton;
-		}
-		_singleton = new AutoCloseManager();
-		return _singleton;
+		static AutoCloseManager singleton;
+		return &singleton;
 	}
 
 	float AutoCloseManager::GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_targetPos)

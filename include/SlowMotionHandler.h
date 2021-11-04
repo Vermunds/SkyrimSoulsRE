@@ -14,7 +14,13 @@ namespace SkyrimSoulsRE
 		static void DisableSlowMotion();
 
 		RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
-	};
 
-	extern SlowMotionHandler g_slowMotionHandler;
+		static SlowMotionHandler* GetSingleton();
+		
+	private:
+		SlowMotionHandler(){};
+		~SlowMotionHandler(){};
+		SlowMotionHandler(const SlowMotionHandler&) = delete;
+		SlowMotionHandler& operator=(const SlowMotionHandler&) = delete;
+	};
 }

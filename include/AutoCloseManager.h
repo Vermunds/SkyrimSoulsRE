@@ -13,6 +13,11 @@ namespace SkyrimSoulsRE
 		static AutoCloseManager* GetSingleton();
 
 	private:
+		AutoCloseManager(){};
+		~AutoCloseManager(){};
+		AutoCloseManager(const AutoCloseManager&) = delete;
+		AutoCloseManager& operator=(const AutoCloseManager&) = delete;
+
 		struct AutoCloseData
 		{
 			RE::TESObjectREFR* target = nullptr;
@@ -44,9 +49,7 @@ namespace SkyrimSoulsRE
 			return false;
 		}
 
-		std::map<std::string, AutoCloseData*> _autoCloseDataMap;
-
-		static AutoCloseManager* _singleton;
+		std::map<std::string, std::shared_ptr<AutoCloseData>> _autoCloseDataMap;
 
 		float GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_refPos);
 	};

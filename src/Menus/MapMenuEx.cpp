@@ -7,7 +7,7 @@ namespace SkyrimSoulsRE
 		class ProcessMessageTask : public UnpausedTask
 		{
 		public:
-			RE::UIMessage* message;
+			RE::UIMessage message;
 
 			void Run() override
 			{
@@ -16,7 +16,7 @@ namespace SkyrimSoulsRE
 				if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
 				{
 					MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
-					menu->_ProcessMessage(menu, *message);
+					menu->_ProcessMessage(menu, message);
 
 					RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
 					msgQueue->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
@@ -41,12 +41,13 @@ namespace SkyrimSoulsRE
 
 			closeMenu = true;
 
-			RE::UIMessage* message = new RE::UIMessage(a_message);
-			if (message->data)
+			std::shared_ptr<ProcessMessageTask> task = std::make_shared<ProcessMessageTask>();
+			task->message = RE::UIMessage{ a_message };
+			if (task->message.data)
 			{
 				// Fast traveling
 				restoreAutoMove = false;
-				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(message->data);
+				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(task->message.data);
 
 				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
@@ -55,11 +56,8 @@ namespace SkyrimSoulsRE
 				RE::BSUIMessageData* newData = static_cast<RE::BSUIMessageData*>(creator->Create());
 				newData->data = oldData->data;
 
-				message->data = newData;
+				task->message.data = newData;
 			}
-
-			std::shared_ptr<ProcessMessageTask> task = std::make_shared<ProcessMessageTask>();
-			task->message = message;
 
 			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 			queue->AddTask(task);
