@@ -280,9 +280,6 @@ namespace SkyrimSoulsRE
 
 	void ContainerMenuEx::ParseTranslations()
 	{
-		toSteal = L"$ TO STEAL";
-		toPlace = L"$ TO PLACE";
-
 		bool foundToSteal = false;
 		bool foundToPlace = false;
 

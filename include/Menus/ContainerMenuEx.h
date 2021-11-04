@@ -19,8 +19,8 @@ namespace SkyrimSoulsRE
 		};
 
 		static inline RE::TESObjectREFR* containerRef;
-		static inline std::wstring toSteal;
-		static inline std::wstring toPlace;
+		static inline std::wstring toSteal = L"$ TO STEAL";
+		static inline std::wstring toPlace = L"$ TO PLACE";
 
 		// Virtual functions
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
