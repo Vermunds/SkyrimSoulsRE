@@ -79,19 +79,19 @@ namespace SkyrimSoulsRE
 			}
 		};
 
-		SleepCheck_Code code{ std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xF45), std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFA9) };
+		SleepCheck_Code code{ std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFC9), std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x102D) };
 		void* codeLoc = SKSE::GetTrampoline().allocate(code);
-		trampoline.write_branch<5>(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xF3C, codeLoc);
+		trampoline.write_branch<5>(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFC0, codeLoc);
 
 		// Fix for menu not appearing
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x929, std::uint32_t(0x90909090));
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x92D, std::uint16_t(0x9090));
+		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x84E, std::uint32_t(0x90909090));
+		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x852, std::uint16_t(0x9090));
 
 		// Prevent setting kFreezeFrameBackground flag
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xAEC, std::uint32_t(0x90909090));
+		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xA10, std::uint32_t(0x90909090));
 
 		// Keep the menu updated
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFBC, std::uint16_t(0x9090));
+		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x1040, std::uint16_t(0x9090));
 
 		// Fix for controls not working
 		REL::safe_write(Offsets::Menus::StatsMenu::CanProcess.address() + 0x46, std::uint32_t(0x90909090));

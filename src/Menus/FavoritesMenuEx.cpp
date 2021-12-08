@@ -41,9 +41,9 @@ namespace SkyrimSoulsRE
 		//Fix for hotkeys not working
 		REL::safe_write(Offsets::Menus::FavoritesMenu::CanProcess.address() + 0x15, std::uint16_t(0x9090));
 
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x122, (uintptr_t)ItemSelect_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x141, (uintptr_t)ItemSelect_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x159, (uintptr_t)ItemSelect_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x13A, (uintptr_t)ItemSelect_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x166, (uintptr_t)ItemSelect_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_1.address() + 0x192, (uintptr_t)ItemSelect_Hook);
 
 		SKSE::GetTrampoline().write_branch<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_2.address() + 0x45, (uintptr_t)ItemSelect_Hook);
 		SKSE::GetTrampoline().write_branch<5>(Offsets::Menus::FavoritesMenu::SelectItem_HookFunc_2.address() + 0x73, (uintptr_t)ItemSelect_Hook);

@@ -15,29 +15,25 @@ namespace SkyrimSoulsRE::CameraMovement
 			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode &&
 			pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled())
 		{
-			RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::Misc::CursorPosition.address());
-			RE::INIPrefSettingCollection* prefs = RE::INIPrefSettingCollection::GetSingleton();
-
-			std::uint32_t resX = prefs->GetSetting("iSize W:DISPLAY")->GetUInt();
-			std::uint32_t resY = prefs->GetSetting("iSize H:DISPLAY")->GetUInt();
+			RE::MenuScreenData* menuScreenData = RE::MenuScreenData::GetSingleton();
 
 			float speedX = settings->cursorCameraHorizontalSpeed;
 			float speedY = settings->cursorCameraVerticalSpeed;
 
-			if (cursorPosition->x == 0)
+			if (menuScreenData->mousePos.x == 0)
 			{
 				pc->data.lookInputVec.x = -speedX;
 			}
-			else if (cursorPosition->x == resX)
+			else if (menuScreenData->mousePos.x == menuScreenData->screenWidth)
 			{
 				pc->data.lookInputVec.x = speedX;
 			}
 
-			if (cursorPosition->y == 0)
+			if (menuScreenData->mousePos.y == 0)
 			{
 				pc->data.lookInputVec.y = speedY;
 			}
-			else if (cursorPosition->y == resY)
+			else if (menuScreenData->mousePos.y == menuScreenData->screenHeight)
 			{
 				pc->data.lookInputVec.y = -speedY;
 			}
@@ -54,7 +50,8 @@ namespace SkyrimSoulsRE::CameraMovement
 			{
 				Xbyak::Label hookAddress;
 
-				add(rsp, 0x30);
+				pop(r13);
+				pop(r12);
 				pop(rdi);
 				mov(rcx, rax);
 				jmp(ptr[rip + hookAddress]);
@@ -67,6 +64,6 @@ namespace SkyrimSoulsRE::CameraMovement
 		CameraMove_Code code{ std::uintptr_t(CameraMove_Hook) };
 		void* codeLoc = SKSE::GetTrampoline().allocate(code);
 
-		SKSE::GetTrampoline().write_branch<5>(Offsets::Misc::ScreenEdgeCameraMoveHook.address() + 0x241, codeLoc);
+		SKSE::GetTrampoline().write_branch<5>(Offsets::Misc::ScreenEdgeCameraMoveHook.address() + 0x6D8, codeLoc);
 	}
 }

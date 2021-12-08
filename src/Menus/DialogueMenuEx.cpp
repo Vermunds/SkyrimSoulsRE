@@ -48,6 +48,6 @@ namespace SkyrimSoulsRE
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::DialogueMenu::Vtbl);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &DialogueMenuEx::AdvanceMovie_Hook);
 
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::DialogueMenu::UpdateAutoCloseTimer_Hook.address() + 0x4F9, (uintptr_t)UpdateAutoCloseTimer_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::DialogueMenu::UpdateAutoCloseTimer_Hook.address() + 0x6E8, (uintptr_t)UpdateAutoCloseTimer_Hook);
 	}
 }

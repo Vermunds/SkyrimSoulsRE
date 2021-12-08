@@ -58,17 +58,15 @@ namespace SkyrimSoulsRE
 
 	RE::UI_MESSAGE_RESULTS JournalMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type != RE::UI_MESSAGE_TYPE::kScaleformEvent)
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kScaleformEvent)
 		{
-			return _ProcessMessage(this, a_message);
-		}
+			RE::BSUIScaleformData* data = static_cast<RE::BSUIScaleformData*>(a_message.data);
 
-		RE::BSUIScaleformData* data = static_cast<RE::BSUIScaleformData*>(a_message.data);
-
-		//Block all input when saving, so the menu can't get closed, but let the cursor move around so users don't freak out
-		if (JournalMenuEx::isSaving && data->scaleformEvent->type != RE::GFxEvent::EventType::kMouseMove)
-		{
-			return RE::UI_MESSAGE_RESULTS::kIgnore;
+			//Block all input when saving, so the menu can't get closed, but let the cursor move around so users don't freak out
+			if (JournalMenuEx::isSaving && data->scaleformEvent->type != RE::GFxEvent::EventType::kMouseMove)
+			{
+				return RE::UI_MESSAGE_RESULTS::kIgnore;
+			}
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -127,7 +125,7 @@ namespace SkyrimSoulsRE
 		task->evn->device = buttonEvent->device.get();
 		task->evn->eventType = buttonEvent->eventType.get();
 		task->evn->next = nullptr;
-		task->evn->userEvent = buttonEvent->userEvent;
+		task->evn->userEvent = RE::BSFixedString{ buttonEvent->userEvent };
 		task->evn->idCode = buttonEvent->idCode;
 		task->evn->value = buttonEvent->value;
 		task->evn->heldDownSecs = buttonEvent->heldDownSecs;

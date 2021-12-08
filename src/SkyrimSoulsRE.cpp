@@ -9,28 +9,24 @@ namespace SkyrimSoulsRE
 	//Used to make sure that the menu can't open with the cursor right at the edge of the screen
 	void CheckCursorPosition()
 	{
-		RE::NiPoint2* cursorPosition = reinterpret_cast<RE::NiPoint2*>(Offsets::Misc::CursorPosition.address());
-		RE::INIPrefSettingCollection* pref = RE::INIPrefSettingCollection::GetSingleton();
+		RE::MenuScreenData* menuScreenData = RE::MenuScreenData::GetSingleton();
 
-		std::uint32_t resX = pref->GetSetting("iSize W:DISPLAY")->GetUInt();
-		std::uint32_t resY = pref->GetSetting("iSize H:DISPLAY")->GetUInt();
-
-		if (cursorPosition->x < 10.0f)
+		if (menuScreenData->mousePos.x < 10.0f)
 		{
-			cursorPosition->x = 10.0f;
+			menuScreenData->mousePos.x = 10.0f;
 		}
-		else if (cursorPosition->x > resX - 10.0f)
+		else if (menuScreenData->mousePos.x > menuScreenData->screenWidth - 10.0f)
 		{
-			cursorPosition->x = resX - 10.0f;
+			menuScreenData->mousePos.x = menuScreenData->screenWidth - 10.0f;
 		}
 
-		if (cursorPosition->y < 10.0f)
+		if (menuScreenData->mousePos.y < 10.0f)
 		{
-			cursorPosition->y = 10.0f;
+			menuScreenData->mousePos.y = 10.0f;
 		}
-		else if (cursorPosition->y > resY - 10.0f)
+		else if (menuScreenData->mousePos.y > menuScreenData->screenHeight - 10.0f)
 		{
-			cursorPosition->x = resY - 10.0f;
+			menuScreenData->mousePos.y = menuScreenData->screenHeight - 10.0f;
 		}
 	}
 

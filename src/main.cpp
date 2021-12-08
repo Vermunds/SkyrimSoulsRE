@@ -4,10 +4,8 @@
 #include "SkyrimSoulsRE.h"
 #include "version.h"
 
-#include <filesystem>
-
-constexpr auto MESSAGEBOX_ERROR = 0x00001010L;    // MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
 constexpr auto MESSAGEBOX_WARNING = 0x00001030L;  // MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL
+
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type)
@@ -58,7 +56,20 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 }
 
 extern "C" {
-	DLLEXPORT bool SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+
+	DLLEXPORT SKSE::PluginVersionData SKSEPlugin_Version = []() {
+		SKSE::PluginVersionData v{};
+		v.PluginVersion(REL::Version{ Version::MAJOR, Version::MINOR, Version::PATCH, 0 });
+		v.PluginName(Version::PROJECT);
+		v.AuthorName("Vermunds"sv);
+		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+
+		v.addressLibrary = true;
+		v.sigScanning = false;
+		return v;
+	}();
+
+	DLLEXPORT bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
 	{
 		assert(SKSE::log::log_directory().has_value());
 		auto path = SKSE::log::log_directory().value() / std::filesystem::path("SkyrimSoulsRE.log");
@@ -73,39 +84,13 @@ extern "C" {
 
 		SKSE::log::info("Skyrim Souls RE - Updated v" + std::string(Version::NAME) + " - (" + std::string(__TIMESTAMP__) + ")");
 
-		a_info->infoVersion = SKSE::PluginInfo::kVersion;
-		a_info->name = Version::PROJECT.data();
-		a_info->version = Version::MAJOR;
-
 		if (a_skse->IsEditor())
 		{
 			SKSE::log::critical("Loaded in editor, marking as incompatible!");
 			return false;
 		}
 
-		if (a_skse->RuntimeVersion() < SKSE::RUNTIME_1_5_39)
-		{
-			SKSE::log::critical("Unsupported runtime version " + a_skse->RuntimeVersion().string());
-			SKSE::WinAPI::MessageBox(nullptr, std::string("Unsupported runtime version " + a_skse->RuntimeVersion().string()).c_str(), "Skyrim Souls RE - Error", MESSAGEBOX_ERROR);
-			return false;
-		}
-
 		SKSE::AllocTrampoline(1 << 9, true);
-
-		// Check for kassents version
-		// Todo: remove this
-		if (std::filesystem::exists("Data/SKSE/Plugins/skyrimsouls.dll"))
-		{
-			SKSE::log::critical("A different version of Skyrim Souls is detected.");
-			SKSE::WinAPI::MessageBox(nullptr, "A different version of Skyrim Souls is detected. The updated version will be disabled.", "Skyrim Souls RE - Error", MESSAGEBOX_ERROR);
-			return false;
-		}
-
-		return true;
-	}
-
-	DLLEXPORT bool SKSEPlugin_Load(SKSE::LoadInterface* a_skse)
-	{
 		SKSE::Init(a_skse);
 
 		auto messaging = SKSE::GetMessagingInterface();
@@ -116,7 +101,6 @@ extern "C" {
 		else
 		{
 			SKSE::log::critical("Messaging interface registration failed.");
-			SKSE::WinAPI::MessageBox(nullptr, "Messaging interface registration failed.", "Skyrim Souls RE - Error", MESSAGEBOX_ERROR);
 			return false;
 		}
 

@@ -2,7 +2,7 @@
 
 namespace SkyrimSoulsRE::Audio
 {
-	void QuaternionToMatrix(RE::NiPoint3& a_v1, RE::NiPoint3& a_v2, RE::NiQuaternion a_quaternion)
+	void QuaternionToMatrix(RE::NiPoint3& a_v1, RE::NiPoint3& a_v2, RE::NiQuaternion& a_quaternion)
 	{
 		// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 		// ( - | v1.x | v2.x )
@@ -53,7 +53,7 @@ namespace SkyrimSoulsRE::Audio
 
 	void InstallHook()
 	{
-		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0xBC, (std::uintptr_t)SetListenerPosition_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0x124, (std::uintptr_t)SetListenerRotation_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0xC6, (std::uintptr_t)SetListenerPosition_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0x12E, (std::uintptr_t)SetListenerRotation_Hook);
 	}
 }

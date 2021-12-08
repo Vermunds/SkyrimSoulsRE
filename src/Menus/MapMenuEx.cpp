@@ -137,7 +137,7 @@ namespace SkyrimSoulsRE
 		REL::safe_write(Offsets::Menus::MapMenu::LocalMapUpdaterFunc.address() + 0x9F, std::uint8_t(0x90));
 
 		// Disable map menu background sound
-		REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x538, std::uint8_t(0xEB));
+		REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x52D, std::uint8_t(0xEB));
 
 		// Fix controls while journal is open
 		MapInputHandlerEx<RE::MapMoveHandler>::InstallHook(Offsets::Menus::MapMenu::MapMoveHandler::Vtbl);

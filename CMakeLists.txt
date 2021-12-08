@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
 	SkyrimSoulsRE
-	VERSION 2.2.2
+	VERSION 2.3.0
 	LANGUAGES CXX
 )
 

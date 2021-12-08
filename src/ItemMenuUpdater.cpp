@@ -27,16 +27,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 			if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
 			{
 				targetRef = refptr.get();
-				//if (targetRef->formType == RE::FormType::ActorCharacter)
-				//{
-				//	RE::Actor* vendor = targetRef->As<RE::Actor>();
-				//	RE::TESFaction* vendorFaction = vendor->vendorFaction;
-
-				//	if (vendorFaction && vendorFaction->vendorData.merchantContainer)
-				//	{
-				//		targetRef = vendorFaction->vendorData.merchantContainer;
-				//	}
-				//}
 			}
 		}
 		else if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME))
@@ -61,7 +51,7 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		return func(a_ref, a_unk);
 	}
 
-	// Update after RemoveItem for TESObjectREFRs
+	// RemoveItem for TESObjectREFRs
 	RE::ObjectRefHandle& RemoveItem_TESObjectREFR(RE::TESObjectREFR* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
 		using func_t = decltype(&RemoveItem_TESObjectREFR);
@@ -69,7 +59,7 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		return func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
 	}
 
-	// Update after RemoveItem for Actors
+	// RemoveItem for Actors
 	RE::ObjectRefHandle& RemoveItem_Actor(RE::Actor* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
 		using func_t = decltype(&RemoveItem_Actor);
@@ -77,6 +67,7 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		return func(a_this, a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
 	}
 
+	// Update after RemoveItem
 	RE::ObjectRefHandle& RemoveItem_Hook(RE::TESObjectREFR* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
 		RE::ObjectRefHandle result;
@@ -123,12 +114,12 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook1.address() + 0x16, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook2.address() + 0x36, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook3.address() + 0xBA, (std::uintptr_t)RemoveAllItems_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x230, (std::uintptr_t)RemoveAllItems_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x255, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook5.address() + 0x46, (std::uintptr_t)RemoveAllItems_Hook);
 
 		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xD9, (std::uintptr_t)RemoveItem_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook3.address() + 0x461, (std::uintptr_t)RemoveItem_Hook);
-		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook4.address() + 0x268, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xDB, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook3.address() + 0x472, (std::uintptr_t)RemoveItem_Hook);
+		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook4.address() + 0x26A, (std::uintptr_t)RemoveItem_Hook);
 	}
 }

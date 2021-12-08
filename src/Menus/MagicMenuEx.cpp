@@ -192,7 +192,7 @@ namespace SkyrimSoulsRE
 		_ProcessMessage = vTable.write_vfunc(0x4, &MagicMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MagicMenuEx::AdvanceMovie_Hook);
 
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x78, AddSpells_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0xC2, AddShouts_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x53, AddSpells_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x9A, AddShouts_Hook);
 	}
 }

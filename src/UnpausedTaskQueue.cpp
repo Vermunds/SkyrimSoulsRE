@@ -75,7 +75,7 @@ namespace SkyrimSoulsRE
 
 	void UnpausedTaskQueue::InstallHook()
 	{
-		SKSE::GetTrampoline().write_call<5>(Offsets::UnpausedTaskQueue::Hook.address() + 0x11F, (uintptr_t)UnpausedTaskQueue::UnpausedTaskQueue_Hook);
+		SKSE::GetTrampoline().write_call<5>(Offsets::UnpausedTaskQueue::Hook.address() + 0x160, (uintptr_t)UnpausedTaskQueue::UnpausedTaskQueue_Hook);
 	}
 
 	UnpausedTaskQueue* UnpausedTaskQueue::GetSingleton()
