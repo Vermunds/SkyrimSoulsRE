@@ -32,7 +32,7 @@ namespace SkyrimSoulsRE
 		bool lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
 		bool movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
 
-		if (a_event && *a_event && !this->remapMode && !ui->GameIsPaused() && !IsFullScreenMenuOpen() && GetUnpausedMenuCount())
+		if (a_event && *a_event && !this->remapMode)
 		{
 			for (RE::InputEvent* evn = *a_event; evn; evn = evn->next)
 			{
@@ -40,90 +40,102 @@ namespace SkyrimSoulsRE
 				{
 					RE::IDEvent* idEvent = static_cast<RE::ButtonEvent*>(evn);
 
-					if (settings->enableMovementInMenus)
+					// Let "Run" always through to fix a game bug where if you open a menu while
+					// the "Run" key is pressed, and the key is released while the menu is open,
+					// the game will not revert the "running" flag, leaving you stuck running (or probably walking since everyone uses bAlwaysRunByDefault)
+					// until you press the Toggle Run key.
+					if (IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->run))
 					{
-						//Forward
-						if (idEvent->userEvent == userEvents->up && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->forward))
+						idEvent->userEvent = userEvents->run;
+					}
+
+					if (!ui->GameIsPaused() && !IsFullScreenMenuOpen() && GetUnpausedMenuCount())
+					{
+						if (settings->enableMovementInMenus)
 						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->forward : "";
-						}
-						//Back
-						if (idEvent->userEvent == userEvents->down && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->back))
-						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->back : "";
-						}
-						//Left
-						if (idEvent->userEvent == userEvents->left && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
-						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->strafeLeft : "";
-						}
-						//Right
-						if (idEvent->userEvent == userEvents->right && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
-						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->strafeRight : "";
-						}
-						//SkyUI Favorites menu fix
-						if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME))
-						{
-							//Prevent SkyUI from detecting the key mask
-							//Left
-							if (idEvent->userEvent == userEvents->strafeLeft && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
+							//Forward
+							if (idEvent->userEvent == userEvents->up && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->forward))
 							{
-								idEvent->idCode = 0;
+								idEvent->userEvent = movementControlsEnabled ? userEvents->forward : "";
+							}
+							//Back
+							if (idEvent->userEvent == userEvents->down && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->back))
+							{
+								idEvent->userEvent = movementControlsEnabled ? userEvents->back : "";
 							}
 							//Left
-							if (idEvent->userEvent == userEvents->strafeRight && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
-							{
-								idEvent->idCode = 0;
-							}
-							//Allow category change with LB and RB when using controllers
-							if (idEvent->device == RE::INPUT_DEVICE::kGamepad)
-							{
-								if (idEvent->idCode == 0x100)  //LB
-								{
-									idEvent->userEvent = userEvents->left;
-								}
-								if (idEvent->idCode == 0x200)  //RB
-								{
-									idEvent->userEvent = userEvents->right;
-								}
-							}
-						}
-						//Book menu fix
-						if (ui->IsMenuOpen(RE::BookMenu::MENU_NAME))
-						{
-							//Left
-							if (idEvent->userEvent == userEvents->prevPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
+							if (idEvent->userEvent == userEvents->left && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
 							{
 								idEvent->userEvent = movementControlsEnabled ? userEvents->strafeLeft : "";
 							}
 							//Right
-							if (idEvent->userEvent == userEvents->nextPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
+							if (idEvent->userEvent == userEvents->right && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
 							{
 								idEvent->userEvent = movementControlsEnabled ? userEvents->strafeRight : "";
 							}
+							//SkyUI Favorites menu fix
+							if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME))
+							{
+								//Prevent SkyUI from detecting the key mask
+								//Left
+								if (idEvent->userEvent == userEvents->strafeLeft && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
+								{
+									idEvent->idCode = 0;
+								}
+								//Left
+								if (idEvent->userEvent == userEvents->strafeRight && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
+								{
+									idEvent->idCode = 0;
+								}
+								//Allow category change with LB and RB when using controllers
+								if (idEvent->device == RE::INPUT_DEVICE::kGamepad)
+								{
+									if (idEvent->idCode == 0x100)  //LB
+									{
+										idEvent->userEvent = userEvents->left;
+									}
+									if (idEvent->idCode == 0x200)  //RB
+									{
+										idEvent->userEvent = userEvents->right;
+									}
+								}
+							}
+							//Book menu fix
+							if (ui->IsMenuOpen(RE::BookMenu::MENU_NAME))
+							{
+								//Left
+								if (idEvent->userEvent == userEvents->prevPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeLeft))
+								{
+									idEvent->userEvent = movementControlsEnabled ? userEvents->strafeLeft : "";
+								}
+								//Right
+								if (idEvent->userEvent == userEvents->nextPage && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->strafeRight))
+								{
+									idEvent->userEvent = movementControlsEnabled ? userEvents->strafeRight : "";
+								}
+							}
+
+							//Toggle Walk/Run
+							if (settings->enableToggleRun && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->toggleRun))
+							{
+								idEvent->userEvent = movementControlsEnabled ? userEvents->toggleRun : "";
+							}
+
+							//Controllers
+							if (idEvent->userEvent == userEvents->leftStick)
+							{
+								idEvent->userEvent = movementControlsEnabled ? userEvents->move : "";
+							}
 						}
 
-						//Toggle Walk/Run
-						if (settings->enableToggleRun && IsMappedToSameButton(idEvent->idCode, idEvent->device.get(), userEvents->toggleRun))
+						if (settings->enableGamepadCameraMove)
 						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->toggleRun : "";
-						}
-
-						//Controllers
-						if (idEvent->userEvent == userEvents->leftStick)
-						{
-							idEvent->userEvent = movementControlsEnabled ? userEvents->move : "";
-						}
-					}
-
-					if (settings->enableGamepadCameraMove)
-					{
-						//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
-						RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
-						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0f)
-						{
-							idEvent->userEvent = lookControlsEnabled ? userEvents->look : "";
+							//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
+							RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
+							if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0f)
+							{
+								idEvent->userEvent = lookControlsEnabled ? userEvents->look : "";
+							}
 						}
 					}
 				}

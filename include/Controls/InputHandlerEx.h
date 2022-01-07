@@ -33,6 +33,11 @@ namespace SkyrimSoulsRE
 			}
 		}
 
+		if (typeid(T) == typeid(RE::RunHandler))
+		{
+			return _CanProcess(this, a_event);
+		}
+
 		if (ui->IsMenuOpen(RE::Console::MENU_NAME))
 		{
 			return false;
