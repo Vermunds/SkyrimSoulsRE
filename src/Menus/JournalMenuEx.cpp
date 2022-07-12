@@ -218,7 +218,12 @@ namespace SkyrimSoulsRE
 		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
 		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(interfaceStrings->journalMenu).get());
-		assert(menu);
+		if (!menu)
+		{
+			SKSE::log::error("Journal Menu instance not found! Aborting save.");
+			RE::DebugNotification("SAVE FAILED - Journal Menu instance not found!");
+			return;
+		}
 
 		RE::GFxValue iSaveDelayTimerID;
 		menu->uiMovie->GetVariable(&iSaveDelayTimerID, "_root.QuestJournalFader.Menu_mc.SystemFader.Page_mc.iSaveDelayTimerID");
@@ -255,7 +260,7 @@ namespace SkyrimSoulsRE
 			if (!menu->PausesGame())
 			{
 				menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
-				RE::UI::GetSingleton()->numPausesGame++;
+				ui->numPausesGame++;
 			}
 
 			//Create save screenshot
@@ -299,6 +304,8 @@ namespace SkyrimSoulsRE
 	RE::IMenu* JournalMenuEx::Creator()
 	{
 		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(CreateMenu(RE::JournalMenu::MENU_NAME.data()));
+		JournalMenuEx::mcmRemapHandler = MCMRemapHandler{};
+		JournalMenuEx::saveGameHandler = SaveGameHandler{};
 
 		//fix for remapping from MCM menu
 		RE::GFxValue globals, skse;
@@ -309,7 +316,7 @@ namespace SkyrimSoulsRE
 			result = globals.GetMember("skse", &skse);
 			if (result)
 			{
-				RE::GFxFunctionHandler* fn = mcmRemapHandler;
+				RE::GFxFunctionHandler* fn = &mcmRemapHandler;
 				RE::GFxValue fnValue;
 				menu->uiMovie.get()->CreateFunction(&fnValue, fn);
 				skse.SetMember("StartRemapMode", fnValue);
@@ -322,7 +329,7 @@ namespace SkyrimSoulsRE
 		assert(success);
 
 		RE::GFxValue func;
-		menu->uiMovie->CreateFunction(&func, saveGameHandler);
+		menu->uiMovie->CreateFunction(&func, &saveGameHandler);
 		obj.SetMember("DoSaveGame", func);
 
 		return menu;
@@ -339,12 +346,5 @@ namespace SkyrimSoulsRE
 
 		REL::Relocation<std::uintptr_t> vTable_remapHandler(Offsets::Menus::JournalMenu::RemapHandler_Vtbl);
 		RemapHandlerEx::_ProcessEvent = vTable_remapHandler.write_vfunc(0x1, &JournalMenuEx::RemapHandlerEx::ProcessEvent_Hook);
-
-		// Create handlers
-		static MCMRemapHandler mcmRemapHandler;
-		JournalMenuEx::mcmRemapHandler = &mcmRemapHandler;
-
-		static SaveGameHandler saveGameHandler;
-		JournalMenuEx::saveGameHandler = &saveGameHandler;
 	}
 };

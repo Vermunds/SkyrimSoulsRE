@@ -45,8 +45,8 @@ namespace SkyrimSoulsRE
 		};
 
 		static inline bool isSaving = false;
-		static inline MCMRemapHandler* mcmRemapHandler;
-		static inline SaveGameHandler* saveGameHandler;
+		static inline MCMRemapHandler mcmRemapHandler;
+		static inline SaveGameHandler saveGameHandler;
 
 		// override (RE::IMenu)
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04

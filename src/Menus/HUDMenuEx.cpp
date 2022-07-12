@@ -61,9 +61,6 @@ namespace SkyrimSoulsRE
 	{
 		RE::HUDMenu* menu = static_cast<RE::HUDMenu*>(CreateMenu(RE::HUDMenu::MENU_NAME));
 
-		//MessagesBlock.InventoryMode = true;
-		//QuestUpdateBaseInstance.InventoryMode = true;
-
 		RE::GFxValue val = true;
 		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
 		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);

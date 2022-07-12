@@ -14,8 +14,14 @@ namespace SkyrimSoulsRE
 
 		auto menu = static_cast<RE::IMenu*>(this);
 		auto scaleformManager = RE::BSScaleformManager::GetSingleton();
-		[[maybe_unused]] const auto success = scaleformManager->LoadMovieEx(menu, FILE_NAME, RE::BSScaleformManager::ScaleModeType::kExactFit, [](RE::GFxMovieDef* a_def) -> void {});
-		assert(success);
+		const bool success = scaleformManager->LoadMovieEx(menu, FILE_NAME, RE::BSScaleformManager::ScaleModeType::kExactFit, [](RE::GFxMovieDef* a_def) -> void {});
+		if (!success)
+		{
+			SKSE::log::critical("Combat Alert Overlay Menu - Failed to load SWF file.");
+
+			// Game shouldn't be loaded at this point yet, so just exit
+			throw new std::runtime_error("Combat Alert Overlay Menu - Failed to load SWF file.");
+		}
 		_view = menu->uiMovie;
 		_view->SetMouseCursorCount(0);
 		menu->menuFlags |= Flag::kAllowSaving;

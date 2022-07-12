@@ -70,7 +70,6 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 	// Update after RemoveItem
 	RE::ObjectRefHandle& RemoveItem_Hook(RE::TESObjectREFR* a_this, RE::ObjectRefHandle& a_handle, RE::TESBoundObject* a_item, std::int32_t a_count, RE::ITEM_REMOVE_REASON a_reason, RE::ExtraDataList* a_extraList, RE::TESObjectREFR* a_moveToRef, const RE::NiPoint3* a_dropLoc = 0, const RE::NiPoint3* a_rotate = 0)
 	{
-		RE::ObjectRefHandle result;
 		if (a_this->formType == RE::FormType::ActorCharacter)
 		{
 			RemoveItem_Actor(static_cast<RE::Actor*>(a_this), a_handle, a_item, a_count, a_reason, a_extraList, a_moveToRef, a_dropLoc, a_rotate);
