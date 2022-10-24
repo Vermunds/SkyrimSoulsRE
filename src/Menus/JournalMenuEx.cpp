@@ -125,7 +125,10 @@ namespace SkyrimSoulsRE
 		task->evn->device = buttonEvent->device.get();
 		task->evn->eventType = buttonEvent->eventType.get();
 		task->evn->next = nullptr;
-		task->evn->userEvent = RE::BSFixedString{ buttonEvent->userEvent };
+
+		const RE::BSFixedString* str = &(task->evn->userEvent);
+		str = &(buttonEvent->userEvent);
+
 		task->evn->idCode = buttonEvent->idCode;
 		task->evn->value = buttonEvent->value;
 		task->evn->heldDownSecs = buttonEvent->heldDownSecs;
