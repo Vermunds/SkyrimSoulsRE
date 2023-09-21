@@ -291,12 +291,12 @@ namespace SkyrimSoulsRE
 		path += (language && language->GetType() == RE::Setting::Type::kString) ? language->data.s : "ENGLISH";
 		path += ".txt";
 
-		SKSE::log::info("Reading translations from " + path + "...");
+		SKSE::log::info("Reading translations from {}", path);
 
 		RE::BSResourceNiBinaryStream fileStream(path.c_str());
 		if (!fileStream.good())
 		{
-			SKSE::log::error("Failed to read file " + path + ". Aborting.");
+			SKSE::log::error("Failed to read file {}. Aborting.", path);
 			return;
 		}
 

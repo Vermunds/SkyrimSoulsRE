@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 3.21)
 
-# Set up project
-
+# Setup project
 project(
 	SkyrimSoulsRE
 	VERSION 2.3.2
 	LANGUAGES CXX
 )
+set(FORMATTED_NAME "Skyrim Souls RE")
+set(LICENSE "MIT License")
+set(AUTHOR "Vermunds")
 
+# Include guards
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+	message(
+		FATAL_ERROR
+			"In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
+	)
+endif()
+
+# Configure files
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
 	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
@@ -20,22 +31,15 @@ configure_file(
 	@ONLY
 )
 
-# Include guards
-if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-	message(
-		FATAL_ERROR
-			"In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
-	)
-endif()
 
+# Include sources
 include(cmake/sourcelist.cmake)
 source_group(
 	TREE "${CMAKE_CURRENT_SOURCE_DIR}"
 	FILES ${SOURCES}
 )
 
-# Globals
-
+# Global compile definitions
 if (MSVC)
 	add_compile_definitions(
 		_UNICODE
@@ -48,13 +52,7 @@ if (MSVC)
 	endif ()
 endif ()
 
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
-
-set(Boost_USE_STATIC_LIBS ON)
-
 # Create DLL
-
 add_library(
 	${PROJECT_NAME}
 	SHARED
@@ -65,12 +63,14 @@ add_library(
 	.editorconfig
 )
 
+# CXX standard
 target_compile_features(
 	${PROJECT_NAME}
 	PRIVATE
-		cxx_std_20
+		cxx_std_23
 )
 
+# Include directories
 target_include_directories(
 	${PROJECT_NAME}
 	PRIVATE
@@ -78,10 +78,21 @@ target_include_directories(
 		${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Dependencies
-option(SIMPLEINI_INCLUDE_DIR "")
-include_directories(${SIMPLEINI_INCLUDE_DIR})
+target_include_directories(
+	${PROJECT_NAME}
+	PUBLIC
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+		"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+)
 
+# Precompile header
+target_precompile_headers(
+	${PROJECT_NAME}
+	PRIVATE
+		"include/PCH.h"
+)
+
+# Find and link dependencies
 find_package(spdlog REQUIRED CONFIG)
 
 target_link_libraries(
@@ -89,9 +100,9 @@ target_link_libraries(
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
 		spdlog::spdlog
-		AutoTOML
 )
 
+# Compile definitions
 if (MSVC)
 	target_compile_options(
 		${PROJECT_NAME}
@@ -161,43 +172,19 @@ target_compile_definitions(
 		"$<$<BOOL:${SKSE_SUPPORT_XBYAK}>:SKSE_SUPPORT_XBYAK=1>"
 )
 
-target_link_libraries(
-	"${PROJECT_NAME}"
-	PUBLIC
-		spdlog::spdlog
-		Version.lib
-)
-
-
-target_precompile_headers(
-	${PROJECT_NAME}
-	PRIVATE
-		include/PCH.h
-)
-
-target_include_directories(
-	"${PROJECT_NAME}"
-	PUBLIC
-		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-		"$<BUILD_INTERFACE:${SIMPLEINI_INCLUDE_DIR}>"
-		"$<BUILD_INTERFACE:${AUTOTOML_INCLUDE_DIR}>"
-		"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-)
-
-# ---- Post build ----
-
-if (SKYRIMSOULSRE_DO_INSTALL)
-	if (DEFINED SKYRIMSOULSRE_INSTALL_PATH)
+# Post build command
+if (DIALOGUEMOVEMENTENABLER_DO_INSTALL)
+	if (DEFINED DIALOGUEMOVEMENTENABLER_INSTALL_PATH)
 		add_custom_command(
 			TARGET ${PROJECT_NAME}
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${SKYRIMSOULSRE_INSTALL_PATH}
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${SKYRIMSOULSRE_INSTALL_PATH}
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${DIALOGUEMOVEMENTENABLER_INSTALL_PATH}
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${DIALOGUEMOVEMENTENABLER_INSTALL_PATH}
 		)
 	else ()
 		message(
 			WARNING
-			"Variable SKYRIMSOULSRE_INSTALL_PATH is not defined. Skipping post-build copy command."
+			"Variable DIALOGUEMOVEMENTENABLER_INSTALL_PATH is not defined. Skipping post-build copy command."
 		)
 	endif ()
 endif ()

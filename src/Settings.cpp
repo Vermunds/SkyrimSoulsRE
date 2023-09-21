@@ -1,6 +1,6 @@
 #include "Settings.h"
 
-#include "SimpleIni.h"
+#include <SimpleIni.h>
 
 namespace SkyrimSoulsRE
 {

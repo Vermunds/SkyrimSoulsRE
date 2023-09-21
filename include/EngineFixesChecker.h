@@ -1,51 +1,28 @@
 #pragma once
-#include "AutoTOML.hpp"
+#include <toml++/toml.h>
 
 namespace SkyrimSoulsRE
 {
 	class EngineFixesConfig
 	{
-	private:
-		using ISetting = AutoTOML::ISetting;
-
 	public:
-		using bSetting = AutoTOML::bSetting;
-		using fSetting = AutoTOML::fSetting;
-		using iSetting = AutoTOML::iSetting;
-
 		// Patches
-		static inline bSetting patchMemoryManager{ "Patches", "MemoryManager", true };
+		static inline bool patchMemoryManager = true;
 
 		// Fixes
-		static inline bSetting fixGlobalTime{ "Fixes", "GlobalTime", true };
+		static inline bool fixGlobalTime = true;
 
 		static bool load_config(const std::string& a_path)
 		{
 			try
 			{
-				const auto table = toml::parse_file(a_path);
-				const auto& settings = ISetting::get_settings();
-				for (const auto& setting : settings)
-				{
-					try
-					{
-						setting->load(table);
-					}
-					catch (const std::exception& e)
-					{
-						SKSE::log::warn(e.what());
-					}
-				}
+				const toml::table tbl = toml::parse_file(a_path);
+				patchMemoryManager = tbl["Patches"]["MemoryManager"].value_or(true);
+				fixGlobalTime = tbl["Fixes"]["GlobalTime"].value_or(true);
 			}
 			catch (const toml::parse_error& e)
 			{
-				std::ostringstream ss;
-				ss
-					<< "Error parsing file \'" << *e.source().path
-					<< "\':\n"
-					<< e.description()
-					<< "\n  (" << e.source().begin << ")\n";
-				SKSE::log::error(ss.str());
+				SKSE::log::error("Error parsing file {}: {}", a_path, e.description());
 				return false;
 			}
 
