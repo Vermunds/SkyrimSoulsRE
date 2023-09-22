@@ -6,28 +6,14 @@ namespace SkyrimSoulsRE
 
 	std::map<std::string, RE::UI::Create_t*> menuCreatorMap;
 
-	//Used to make sure that the menu can't open with the cursor right at the edge of the screen
+	// Make sure that the menu can't open with the cursor right at the edge of the screen.
+	// If the cursor is there, bump it inside by 10 pixels
+	// Otherwise, the camera can move unexpectedly.
 	void CheckCursorPosition()
 	{
 		RE::MenuScreenData* menuScreenData = RE::MenuScreenData::GetSingleton();
-
-		if (menuScreenData->mousePos.x < 10.0f)
-		{
-			menuScreenData->mousePos.x = 10.0f;
-		}
-		else if (menuScreenData->mousePos.x > menuScreenData->screenWidth - 10.0f)
-		{
-			menuScreenData->mousePos.x = menuScreenData->screenWidth - 10.0f;
-		}
-
-		if (menuScreenData->mousePos.y < 10.0f)
-		{
-			menuScreenData->mousePos.y = 10.0f;
-		}
-		else if (menuScreenData->mousePos.y > menuScreenData->screenHeight - 10.0f)
-		{
-			menuScreenData->mousePos.y = menuScreenData->screenHeight - 10.0f;
-		}
+		menuScreenData->mousePos.x = std::clamp(menuScreenData->mousePos.x, 10.0f, menuScreenData->screenWidth - 10.0f);
+		menuScreenData->mousePos.y = std::clamp(menuScreenData->mousePos.y, 10.0f, menuScreenData->screenHeight - 10.0f);
 	}
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
