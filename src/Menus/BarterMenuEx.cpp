@@ -23,35 +23,25 @@ namespace SkyrimSoulsRE
 
 	void BarterMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class ItemSelectTask : public UnpausedTask
-		{
-		public:
-			double count;
-			double value;
-			bool isViewingVendorItems;
+		double count = a_args[0].GetNumber();
+		double value = a_args[1].GetNumber();
+		bool isViewingVendorItems = a_args[2].GetBool();
 
-			void Run() override
+		auto task = [count, value, isViewingVendorItems]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::BarterMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				BarterMenuEx* menu = static_cast<BarterMenuEx*>(ui->GetMenu(RE::BarterMenu::MENU_NAME).get());
 
-				if (ui->IsMenuOpen(RE::BarterMenu::MENU_NAME))
-				{
-					BarterMenuEx* menu = static_cast<BarterMenuEx*>(ui->GetMenu(RE::BarterMenu::MENU_NAME).get());
-
-					RE::GFxValue arg[3];
-					arg[0] = this->count;
-					arg[1] = this->value;
-					arg[2] = this->isViewingVendorItems;
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 3);
-					BarterMenuEx::_ItemSelect(args);
-				}
+				RE::GFxValue arg[3];
+				arg[0] = count;
+				arg[1] = value;
+				arg[2] = isViewingVendorItems;
+				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 3);
+				BarterMenuEx::_ItemSelect(args);
 			}
 		};
-
-		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
-		task->count = a_args[0].GetNumber();
-		task->value = a_args[1].GetNumber();
-		task->isViewingVendorItems = a_args[2].GetBool();
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

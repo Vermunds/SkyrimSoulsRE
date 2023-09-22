@@ -25,28 +25,20 @@ namespace SkyrimSoulsRE
 
 	void GiftMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class ItemSelectTask : public UnpausedTask
-		{
-		public:
-			double amount;
+		double amount = a_args[0].GetNumber();
 
-			void Run() override
+		auto task = [amount]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				RE::IMenu* menu = ui->GetMenu(RE::GiftMenu::MENU_NAME).get();
 
-				if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME))
-				{
-					RE::IMenu* menu = ui->GetMenu(RE::GiftMenu::MENU_NAME).get();
-
-					RE::GFxValue arg = this->amount;
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-					_ItemSelect(args);
-				}
+				RE::GFxValue arg = amount;
+				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+				_ItemSelect(args);
 			}
 		};
-
-		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
-		task->amount = a_args[0].GetNumber();
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

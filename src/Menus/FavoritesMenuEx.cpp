@@ -4,29 +4,20 @@ namespace SkyrimSoulsRE
 {
 	void FavoritesMenuEx::ItemSelect_Hook(RE::FavoritesMenu* a_this, RE::BGSEquipSlot* a_slot)
 	{
-		class ItemSelectTask : public UnpausedTask
-		{
-		public:
-			RE::BGSEquipSlot* slot;
+		auto task = [a_slot]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
-			void Run() override
+			if (ui->IsMenuOpen(interfaceStrings->favoritesMenu))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
-				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+				RE::IMenu* menu = ui->GetMenu(interfaceStrings->favoritesMenu).get();
 
-				if (ui->IsMenuOpen(interfaceStrings->favoritesMenu))
-				{
-					RE::IMenu* menu = ui->GetMenu(interfaceStrings->favoritesMenu).get();
-
-					using func_t = decltype(&FavoritesMenuEx::ItemSelect_Hook);
-					REL::Relocation<func_t> func(Offsets::Menus::FavoritesMenu::ItemSelect);
-					func(static_cast<RE::FavoritesMenu*>(menu), this->slot);
-				}
+				using func_t = decltype(&FavoritesMenuEx::ItemSelect_Hook);
+				REL::Relocation<func_t> func(Offsets::Menus::FavoritesMenu::ItemSelect);
+				func(static_cast<RE::FavoritesMenu*>(menu), a_slot);
 			}
 		};
 
-		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
-		task->slot = a_slot;
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}

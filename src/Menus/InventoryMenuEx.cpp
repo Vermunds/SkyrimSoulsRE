@@ -29,28 +29,20 @@ namespace SkyrimSoulsRE
 
 	void InventoryMenuEx::ItemDrop_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class ItemDropTask : public UnpausedTask
-		{
-		public:
-			double count;
+		double count = a_args[0].GetNumber();
 
-			void Run() override
+		auto task = [count]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
 
-				if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
-				{
-					RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
-
-					RE::GFxValue arg = this->count;
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-					_ItemDrop(args);
-				}
+				RE::GFxValue arg = count;
+				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+				InventoryMenuEx::_ItemDrop(args);
 			}
 		};
-
-		std::shared_ptr<ItemDropTask> task = std::make_shared<ItemDropTask>();
-		task->count = a_args[0].GetNumber();
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
@@ -58,46 +50,29 @@ namespace SkyrimSoulsRE
 
 	void InventoryMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class ItemSelectTask : public UnpausedTask
-		{
-		public:
-			bool hasSlot;
-			double slot = 0.0;
+		bool hasSlot = (a_args.GetArgCount() > 0);
+		double slot = hasSlot ? a_args[0].GetNumber() : 0.0;
 
-			void Run() override
+		auto task = [hasSlot, slot]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
 
-				if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
+				if (hasSlot)
 				{
-					RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
-
-					if (this->hasSlot)
-					{
-						RE::GFxValue arg = this->slot;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-						_ItemSelect(args);
-					}
-					else
-					{
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
-						_ItemSelect(args);
-					}
+					RE::GFxValue arg = slot;
+					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+					_ItemSelect(args);
+				}
+				else
+				{
+					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
+					_ItemSelect(args);
 				}
 			}
 		};
-
-		std::shared_ptr<ItemSelectTask> task = std::make_shared<ItemSelectTask>();
-
-		if (a_args.GetArgCount() == 0)
-		{
-			task->hasSlot = false;
-		}
-		else
-		{
-			task->hasSlot = true;
-			task->slot = a_args[0].GetNumber();
-		}
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

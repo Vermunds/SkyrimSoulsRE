@@ -226,6 +226,5 @@ namespace Offsets
 	namespace UnpausedTaskQueue
 	{
 		static constexpr REL::ID Hook(static_cast<std::uint64_t>(36544));          // + 0x160
-		static constexpr REL::ID OriginalFunc(static_cast<std::uint64_t>(36564));
 	}
 }

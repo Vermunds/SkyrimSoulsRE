@@ -107,62 +107,50 @@ namespace SkyrimSoulsRE
 
 	void ContainerMenuEx::EquipItem_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class EquipItemTask : public UnpausedTask
-		{
-		public:
-			double equipHand;
-			bool hasCount;
-			double count;
+		double equipHand = a_args[0].GetNumber();
+		bool hasCount = (a_args.GetArgCount() == 2);
+		double count = hasCount ? a_args[1].GetNumber() : 0;
 
-			void Run() override
+		auto task = [equipHand, hasCount, count]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
+				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
 
-				if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
+				if (selectedItem)
 				{
-					ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-					RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
-
-					if (selectedItem)
+					if (hasCount)
 					{
-						if (this->hasCount)
-						{
-							RE::GFxValue arg[2];
-							arg[0] = this->equipHand;
-							arg[1] = this->count;
-							const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
-							ContainerMenuEx::_EquipItem(args);
-						}
-						else
-						{
-							RE::GFxValue arg = this->equipHand;
-							const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 2);
-							ContainerMenuEx::_EquipItem(args);
-						}
+						RE::GFxValue arg[2];
+						arg[0] = equipHand;
+						arg[1] = count;
+						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
+						ContainerMenuEx::_EquipItem(args);
+					}
+					else
+					{
+						RE::GFxValue arg = equipHand;
+						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
+						ContainerMenuEx::_EquipItem(args);
+					}
 
-						if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
+					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
+					{
+						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
 							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
 							menu->value = 0;
+						}
+						else
+						{
+							SKSE::log::error("Failed to send steam alarm.");
 						}
 					}
 				}
 			}
 		};
-
-		std::shared_ptr<EquipItemTask> task = std::make_shared<EquipItemTask>();
-		task->equipHand = a_args[0].GetNumber();
-
-		if (a_args.GetArgCount() == 1)
-		{
-			task->hasCount = false;
-			task->count = 0;
-		}
-		else
-		{
-			task->hasCount = true;
-			task->count = a_args[1].GetNumber();
-		}
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
@@ -170,65 +158,59 @@ namespace SkyrimSoulsRE
 
 	void ContainerMenuEx::TakeAllItems_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class TakeAllItemsTask : public UnpausedTask
-		{
-		public:
-			void Run() override
+		auto task = []() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
 
-				if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
-				{
-					ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
-					ContainerMenuEx::_TakeAllItems(args);
-				}
+				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
+				ContainerMenuEx::_TakeAllItems(args);
 			}
 		};
-		std::shared_ptr<UnpausedTask> task = std::make_shared<TakeAllItemsTask>();
+
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
 	}
 
 	void ContainerMenuEx::TransferItem_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class TransferItemTask : public UnpausedTask
-		{
-		public:
-			double count;
-			bool isViewingContainer;
+		double count = a_args[0].GetNumber();
+		bool isViewingContainer = a_args[1].GetBool();
 
-			void Run() override
+		auto task = [count, isViewingContainer]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
 
-				if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
+				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
+
+				if (selectedItem)
 				{
-					ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
+					RE::GFxValue arg[2];
+					arg[0] = count;
+					arg[1] = isViewingContainer;
+					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
+					ContainerMenuEx::_TransferItem(args);
 
-					RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
-
-					if (selectedItem)
+					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 					{
-						RE::GFxValue arg[2];
-						arg[0] = this->count;
-						arg[1] = this->isViewingContainer;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
-						ContainerMenuEx::_TransferItem(args);
-
-						if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
+						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
 							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
 							menu->value = 0;
+						}
+						else
+						{
+							SKSE::log::error("Failed to send steam alarm.");
 						}
 					}
 				}
 			}
 		};
-		std::shared_ptr<TransferItemTask> task = std::make_shared<TransferItemTask>();
-		task->count = a_args[0].GetNumber();
-		task->isViewingContainer = a_args[1].GetBool();
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

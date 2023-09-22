@@ -11,41 +11,29 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		}
 	};
 
-	bool Save_Hook(RE::BGSSaveLoadManager* a_this, std::int32_t a_deviceID, std::uint32_t a_outputStats, const char* a_fileName)
+bool Save_Hook(RE::BGSSaveLoadManager* a_this, std::int32_t a_deviceID, std::uint32_t a_outputStats, const char* a_fileName)
 	{
-		class SaveTask : public UnpausedTask
-		{
-		public:
-			std::int32_t deviceID;
-			std::uint32_t outputStats;
-			std::string fileName;
-
-			void Run() override
-			{
-				BGSSaveLoadManagerEx* saveLoadManager = static_cast<BGSSaveLoadManagerEx*>(RE::BGSSaveLoadManager::GetSingleton());
-				if (saveLoadManager->Save_Impl(deviceID, outputStats, fileName.c_str()))
-				{
-					RE::ConsoleLog::GetSingleton()->Print("Saved.");
-				}
-				else
-				{
-					RE::ConsoleLog::GetSingleton()->Print("Save failed.");
-				}
-
-				RE::UI::GetSingleton()->numPausesGame--;
-			}
-		};
-
-		//Create save screenshot
+		// Create save screenshot
 		reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();
 		RE::UI::GetSingleton()->numPausesGame++;
 
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
+		std::string fileName(a_fileName);
 
-		std::shared_ptr<SaveTask> task = std::make_shared<SaveTask>();
-		task->deviceID = a_deviceID;
-		task->outputStats = a_outputStats;
-		task->fileName = std::string(a_fileName);
+		auto task = [a_deviceID, a_outputStats, fileName]() {
+			BGSSaveLoadManagerEx* saveLoadManager = static_cast<BGSSaveLoadManagerEx*>(RE::BGSSaveLoadManager::GetSingleton());
+			if (saveLoadManager->Save_Impl(a_deviceID, a_outputStats, fileName.c_str()))
+			{
+				RE::ConsoleLog::GetSingleton()->Print("Saved.");
+			}
+			else
+			{
+				RE::ConsoleLog::GetSingleton()->Print("Save failed.");
+			}
+
+			RE::UI::GetSingleton()->numPausesGame--;
+		};
+
+		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddDelayedTask(task, std::chrono::milliseconds(Settings::GetSingleton()->saveDelayMS));
 
 		return true;
@@ -53,49 +41,33 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 
 	bool ServeTime_Hook(RE::PlayerCharacter* a_player)
 	{
-		class ServeTimeTask : public UnpausedTask
-		{
-		public:
-			void Run() override
-			{
-				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-				return player->ServePrisonTime();
-			}
+		auto task = []() {
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+			return player->ServePrisonTime();
 		};
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(std::make_shared<ServeTimeTask>());
+		queue->AddTask(task);
 
 		return true;
 	}
 
 	bool CenterOnCell_Hook(RE::PlayerCharacter* a_player, const char* a_cellName, RE::TESObjectCELL* a_cell)
 	{
-		class CenterOnCellTask : public UnpausedTask
-		{
-		public:
-			std::string cellName;
-			RE::TESObjectCELL* cell;
+		std::string cellName(a_cellName);
 
-			void Run() override
+		auto task = [cellName, a_cell]() {
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+
+			if (cellName == "")
 			{
-				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-
-				if (cellName == "")
-				{
-					player->CenterOnCell(cell);
-				}
-				else
-				{
-					player->CenterOnCell(cellName.c_str());
-				}
+				player->CenterOnCell(a_cell);
+			}
+			else
+			{
+				player->CenterOnCell(cellName.c_str());
 			}
 		};
-		std::string cellName = a_cellName ? std::string(a_cellName) : "";
-
-		std::shared_ptr<CenterOnCellTask> task = std::make_shared<CenterOnCellTask>();
-		task->cellName = cellName;
-		task->cell = a_cell;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

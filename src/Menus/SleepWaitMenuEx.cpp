@@ -43,25 +43,6 @@ namespace SkyrimSoulsRE
 
 	void SleepWaitMenuEx::StartSleepWait_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class StartSleepWaitTask : public UnpausedTask
-		{
-		public:
-			double sleepWaitTime;
-
-			void Run() override
-			{
-				RE::UI* ui = RE::UI::GetSingleton();
-
-				if (ui->IsMenuOpen(RE::SleepWaitMenu::MENU_NAME))
-				{
-					RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(ui->GetMenu(RE::SleepWaitMenu::MENU_NAME).get());
-					RE::GFxValue time = this->sleepWaitTime;
-					RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &time, 1);
-					_StartSleepWait(args);
-				}
-			}
-		};
-
 		RE::UI* ui = RE::UI::GetSingleton();
 
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
@@ -71,8 +52,19 @@ namespace SkyrimSoulsRE
 			ui->numPausesGame++;
 		}
 
-		std::shared_ptr<StartSleepWaitTask> task = std::make_shared<StartSleepWaitTask>();
-		task->sleepWaitTime = a_args[0].GetNumber();
+		double sleepWaitTime = a_args[0].GetNumber();
+
+		auto task = [sleepWaitTime]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::SleepWaitMenu::MENU_NAME))
+			{
+				RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(ui->GetMenu(RE::SleepWaitMenu::MENU_NAME).get());
+				RE::GFxValue time = sleepWaitTime;
+				RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &time, 1);
+				_StartSleepWait(args);
+			}
+		};
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

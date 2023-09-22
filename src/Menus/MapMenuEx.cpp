@@ -4,23 +4,25 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		class ProcessMessageTask : public UnpausedTask
-		{
-		public:
-			RE::UIMessage message;
+		std::shared_ptr<RE::UIMessage> modifiedMessage = std::make_shared<RE::UIMessage>(a_message);
 
-			void Run() override
+		auto task = [modifiedMessage]() {
+			RE::UI* ui = RE::UI::GetSingleton();
+
+			if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
+				menu->_ProcessMessage(menu, *modifiedMessage);
 
-				if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
-				{
-					MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
-					menu->_ProcessMessage(menu, message);
+				RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
+				msgQueue->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+			}
 
-					RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
-					msgQueue->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-				}
+			if (modifiedMessage->data)
+			{
+				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
+				auto creator = msgFactory->GetCreator(RE::InterfaceStrings::GetSingleton()->bsUIMessageData);
+				creator->Destroy(modifiedMessage->data);
 			}
 		};
 
@@ -41,13 +43,11 @@ namespace SkyrimSoulsRE
 
 			closeMenu = true;
 
-			std::shared_ptr<ProcessMessageTask> task = std::make_shared<ProcessMessageTask>();
-			task->message = RE::UIMessage{ a_message };
-			if (task->message.data)
+			if (modifiedMessage->data)
 			{
 				// Fast traveling
 				restoreAutoMove = false;
-				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(task->message.data);
+				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(modifiedMessage->data);
 
 				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
@@ -56,7 +56,7 @@ namespace SkyrimSoulsRE
 				RE::BSUIMessageData* newData = static_cast<RE::BSUIMessageData*>(creator->Create());
 				newData->data = oldData->data;
 
-				task->message.data = newData;
+				modifiedMessage->data = newData;
 			}
 
 			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
@@ -70,29 +70,17 @@ namespace SkyrimSoulsRE
 
 	void MapMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
 	{
-		class AdvanceMapMenuTask : public UnpausedTask
-		{
-		public:
-			float interval;
-			std::uint32_t currentTime;
+		auto task = [a_interval, a_currentTime]() {
+			RE::UI* ui = RE::UI::GetSingleton();
 
-			void Run() override
+			if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
 			{
-				RE::UI* ui = RE::UI::GetSingleton();
+				MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
 
-				if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
-				{
-					MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
-
-					menu->UpdateClock();
-					menu->_AdvanceMovie(menu, interval, currentTime);
-				}
+				menu->UpdateClock();
+				menu->_AdvanceMovie(menu, a_interval, a_currentTime);
 			}
 		};
-
-		std::shared_ptr<AdvanceMapMenuTask> task = std::make_shared<AdvanceMapMenuTask>();
-		task->interval = a_interval;
-		task->currentTime = a_currentTime;
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);

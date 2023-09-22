@@ -4,29 +4,21 @@ namespace SkyrimSoulsRE
 {
 	void MessageBoxMenuEx::ButtonPress_Hook(const RE::FxDelegateArgs& a_args)
 	{
-		class ButtonPressTask : public UnpausedTask
+		if (a_args.GetArgCount() == 1 && a_args[0].IsNumber())
 		{
-		public:
-			double selectedIndex;
+			double selectedIndex = a_args[0].GetNumber();
 
-			void Run() override
-			{
+			auto task = [selectedIndex]() {
 				RE::UI* ui = RE::UI::GetSingleton();
 
 				if (ui->IsMenuOpen(RE::MessageBoxMenu::MENU_NAME))
 				{
 					RE::MessageBoxMenu* menu = static_cast<RE::MessageBoxMenu*>(ui->GetMenu(RE::MessageBoxMenu::MENU_NAME).get());
-					RE::GFxValue index = this->selectedIndex;
+					RE::GFxValue index = selectedIndex;
 					RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &index, 1);
 					_ButtonPress(args);
 				}
-			}
-		};
-
-		if (a_args.GetArgCount() == 1 && a_args[0].IsNumber())
-		{
-			std::shared_ptr<ButtonPressTask> task = std::make_shared<ButtonPressTask>();
-			task->selectedIndex = a_args[0].GetNumber();
+			};
 
 			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 			queue->AddTask(task);

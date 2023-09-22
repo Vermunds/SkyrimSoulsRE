@@ -8,17 +8,8 @@ namespace SkyrimSoulsRE
 	class UnpausedTaskQueue
 	{
 	public:
-		class UnpausedTask
-		{
-		public:
-			virtual void Run() = 0;
-		};
-
-		void Lock();
-		void Unlock();
-
-		void AddTask(std::shared_ptr<UnpausedTask> a_task);
-		void AddDelayedTask(std::shared_ptr<UnpausedTask> a_task, std::chrono::milliseconds a_delayTimeMS);
+		void AddTask(std::function<void()> a_task);
+		void AddDelayedTask(std::function<void()> a_task, std::chrono::milliseconds a_delayTimeMS);
 
 		void ProcessTasks();
 
@@ -33,10 +24,10 @@ namespace SkyrimSoulsRE
 		UnpausedTaskQueue(const UnpausedTaskQueue&) = delete;
 		UnpausedTaskQueue& operator=(const UnpausedTaskQueue&) = delete;
 
-		std::queue<std::shared_ptr<UnpausedTask>> _taskQueue;
-		std::list<std::pair<std::shared_ptr<UnpausedTask>, std::chrono::steady_clock::time_point>> _delayedTaskQueue;
+		std::queue<std::function<void()>> _taskQueue;
+		std::list<std::pair<std::function<void()>, std::chrono::steady_clock::time_point>> _delayedTaskQueue;
 		std::mutex _mutex;
-	};
 
-	using UnpausedTask = UnpausedTaskQueue::UnpausedTask;
+		static inline uintptr_t _originalFunc;
+	};
 }
