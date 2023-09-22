@@ -40,6 +40,10 @@ namespace SkyrimSoulsRE
 
 		if (settings->enableMovementInMenus && typeid(T) == typeid(RE::MovementHandler))
 		{
+			if (ui->IsMenuOpen(RE::CraftingMenu::MENU_NAME))
+			{
+				return false;
+			}
 			return _CanProcess(this, a_event);
 		}
 
