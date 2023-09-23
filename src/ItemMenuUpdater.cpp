@@ -2,6 +2,11 @@
 
 namespace SkyrimSoulsRE::ItemMenuUpdater
 {
+	// These hooks are used to send update events to the item menus when something occurs.
+	// By default the game sends no updates for these events, causing the lists to retain old data (and possibly crash because of unloaded 3D models).
+	// This is especially problematic when unpaused as external events can add or remove objects at any time.
+	// Note: this does not necessarily cover all cases.
+
 	RE::TESObjectREFR* GetTargetReference()
 	{
 		RE::TESObjectREFR* targetRef = nullptr;

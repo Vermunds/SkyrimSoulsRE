@@ -2,6 +2,11 @@
 
 namespace SkyrimSoulsRE::Audio
 {
+	// These hooks are necessary for the Map Menu.
+	// By default if the menu is unpaused and the player opens the map, audio will stop working.
+	// This is because the listener position is linked to the camera, which is now far up in the sky.
+	// These functions set position and rotation back to its expected values manually.
+
 	void QuaternionToMatrix(RE::NiPoint3& a_v1, RE::NiPoint3& a_v2, RE::NiQuaternion& a_quaternion)
 	{
 		// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
