@@ -54,7 +54,11 @@ bool Save_Hook(RE::BGSSaveLoadManager* a_this, std::int32_t a_deviceID, std::uin
 
 	bool CenterOnCell_Hook(RE::PlayerCharacter* a_player, const char* a_cellName, RE::TESObjectCELL* a_cell)
 	{
-		std::string cellName(a_cellName);
+		std::string cellName;
+		if (a_cellName)
+		{
+			cellName = a_cellName;
+		}
 
 		auto task = [cellName, a_cell]() {
 			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
