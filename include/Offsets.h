@@ -12,6 +12,11 @@ namespace Offsets
 		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22940));          // + 0xC4
 	}
 
+	namespace BGSTerrainManager
+	{
+		static constexpr REL::ID TerrainManager_UpdateFunc(static_cast<std::uint64_t>(39102));  // + 0x5D
+	}
+
 	namespace BSAudioManager
 	{
 		static constexpr REL::ID Hook(static_cast<std::uint64_t>(40449));                 // + 0xC6; + 0x12E
@@ -144,6 +149,7 @@ namespace Offsets
 			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(53093));   // + 0x52D
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(53112));  // + 0x53; + 0x9D; + 0x9F
+			static constexpr REL::ID UpdateClouds_Hook(static_cast<std::uint64_t>(53148));    // + 0x10E
 
 			namespace MapLookHandler
 			{
@@ -225,6 +231,6 @@ namespace Offsets
 
 	namespace UnpausedTaskQueue
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(36544));          // + 0x160
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(36544));  // + 0x160
 	}
 }

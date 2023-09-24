@@ -113,6 +113,25 @@ namespace SkyrimSoulsRE
 		return menu;
 	}
 
+	void MapMenuEx::BGSTerrainManager_Update_Hook(RE::BGSTerrainManager* a_this, std::uint64_t a_unk1, std::uint64_t a_unk2)
+	{
+		RE::UI* ui = RE::UI::GetSingleton();
+
+		if (!ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
+		{
+			_TerrainManagerUpdate(a_this, a_unk1, a_unk2);
+		}
+	}
+
+	bool MapMenuEx::UpdateClouds_Hook(RE::NiAVObject* a_obj, RE::NiUpdateData* a_data)
+	{
+		_UpdateClouds(a_obj, a_data);
+		std::uint32_t* updateValue = reinterpret_cast<std::uint32_t*>(REL::ID{ 391006 }.address());
+		*updateValue ^= 1;
+
+		return false; // do not update again
+	}
+
 	void MapMenuEx::InstallHook()
 	{
 		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::MapMenu::Vtbl);
@@ -131,5 +150,12 @@ namespace SkyrimSoulsRE
 		MapInputHandlerEx<RE::MapMoveHandler>::InstallHook(Offsets::Menus::MapMenu::MapMoveHandler::Vtbl);
 		MapInputHandlerEx<RE::MapZoomHandler>::InstallHook(Offsets::Menus::MapMenu::MapZoomHandler::Vtbl);
 		MapInputHandlerEx<RE::MapLookHandler>::InstallHook(Offsets::Menus::MapMenu::MapLookHandler::Vtbl);
+
+		// Prevent TerrainManager from updating while the menu is open.
+		// This prevents child worldspaces from rendering on top of their parents. Possibly avoids other issues as well.
+		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*> (SKSE::GetTrampoline().write_call<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x5D, (std::uintptr_t)BGSTerrainManager_Update_Hook));
+
+		// Fix for flickering/non-moving clouds
+		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
 	}
 }
