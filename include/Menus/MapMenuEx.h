@@ -17,9 +17,6 @@ namespace SkyrimSoulsRE
 		static RE::IMenu* Creator();
 		static void InstallHook();
 
-		inline static bool closeMenu = false;
-		inline static bool restoreAutoMove = false;
-
 		static void BGSTerrainManager_Update_Hook(RE::BGSTerrainManager* a_this, std::uint64_t a_unk1, std::uint64_t a_unk2);
 		static bool UpdateClouds_Hook(RE::NiAVObject* a_obj, RE::NiUpdateData* a_data);
 

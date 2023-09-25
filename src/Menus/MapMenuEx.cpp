@@ -4,67 +4,6 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		std::shared_ptr<RE::UIMessage> modifiedMessage = std::make_shared<RE::UIMessage>(a_message);
-
-		auto task = [modifiedMessage]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-
-			if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
-			{
-				MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
-				menu->_ProcessMessage(menu, *modifiedMessage);
-
-				RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
-				msgQueue->AddMessage(RE::MapMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-			}
-
-			if (modifiedMessage->data)
-			{
-				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
-				auto creator = msgFactory->GetCreator(RE::InterfaceStrings::GetSingleton()->bsUIMessageData);
-				creator->Destroy(modifiedMessage->data);
-			}
-		};
-
-		// Fix for disappearing first person model after closing menu
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
-		{
-			if (closeMenu)
-			{
-				closeMenu = false;
-				RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
-				if (pc->autoMoveHandler->IsInputEventHandlingEnabled() && RE::ControlMap::GetSingleton()->IsMovementControlsEnabled())
-				{
-					pc->data.autoMove = restoreAutoMove;
-				}
-				restoreAutoMove = false;
-				return RE::UI_MESSAGE_RESULTS::kHandled;
-			}
-
-			closeMenu = true;
-
-			if (modifiedMessage->data)
-			{
-				// Fast traveling
-				restoreAutoMove = false;
-				RE::BSUIMessageData* oldData = static_cast<RE::BSUIMessageData*>(modifiedMessage->data);
-
-				RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
-				RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
-
-				auto creator = msgFactory->GetCreator(interfaceStrings->bsUIMessageData);
-				RE::BSUIMessageData* newData = static_cast<RE::BSUIMessageData*>(creator->Create());
-				newData->data = oldData->data;
-
-				modifiedMessage->data = newData;
-			}
-
-			UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-			queue->AddTask(task);
-
-			return RE::UI_MESSAGE_RESULTS::kIgnore;
-		}
-
 		return _ProcessMessage(this, a_message);
 	}
 
@@ -107,9 +46,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* MapMenuEx::Creator()
 	{
 		RE::MapMenu* menu = static_cast<RE::MapMenu*>(CreateMenu(RE::MapMenu::MENU_NAME));
-		RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
-		restoreAutoMove = pc->data.autoMove;
-		pc->data.autoMove = false;
 		return menu;
 	}
 
