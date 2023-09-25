@@ -4,6 +4,31 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		{
+			// Fix disappearing first person model after closing the menu
+			auto task = []() {
+				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+				RE::PlayerCamera* camera = RE::PlayerCamera::GetSingleton();
+				if (!player || !camera)
+				{
+					return;
+				}
+
+				RE::NiAVObject* player3d = player->Get3D1(true);
+				if (player3d && camera->currentState == camera->cameraStates[RE::CameraStates::kFirstPerson])
+				{
+					if (player3d->flags.all(RE::NiAVObject::Flag::kHidden))
+					{
+						player3d->flags.reset(RE::NiAVObject::Flag::kHidden);
+					}
+					camera->Update();
+				}
+			};
+
+			UnpausedTaskQueue::GetSingleton()->AddTask(task);
+		}
+
 		return _ProcessMessage(this, a_message);
 	}
 
