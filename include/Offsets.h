@@ -153,6 +153,7 @@ namespace Offsets
 			static constexpr REL::ID UpdateClouds_UpdateValue(static_cast<std::uint64_t>(391006));
 
 			static constexpr REL::ID PlayerMarkerRefHandle(static_cast<std::uint64_t>(406633));
+			static constexpr REL::ID UpdatePlayerMarkerPosFunc(static_cast<std::uint64_t>(53021));
 
 
 			namespace MapLookHandler
