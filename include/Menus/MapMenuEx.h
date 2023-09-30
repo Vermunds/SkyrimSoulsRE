@@ -12,6 +12,7 @@ namespace SkyrimSoulsRE
 		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);  // 05
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
 
+		void UpdatePlayerMarkerPosition();
 		void UpdateClock();
 
 		static RE::IMenu* Creator();

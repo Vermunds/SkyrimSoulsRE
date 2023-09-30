@@ -150,6 +150,10 @@ namespace Offsets
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(53112));  // + 0x53; + 0x9D; + 0x9F
 			static constexpr REL::ID UpdateClouds_Hook(static_cast<std::uint64_t>(53148));    // + 0x10E
+			static constexpr REL::ID UpdateClouds_UpdateValue(static_cast<std::uint64_t>(391006));
+
+			static constexpr REL::ID PlayerMarkerRefHandle(static_cast<std::uint64_t>(406633));
+
 
 			namespace MapLookHandler
 			{

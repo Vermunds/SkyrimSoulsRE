@@ -42,12 +42,32 @@ namespace SkyrimSoulsRE
 				MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
 
 				menu->UpdateClock();
+				menu->UpdatePlayerMarkerPosition();
+
 				menu->_AdvanceMovie(menu, a_interval, a_currentTime);
 			}
 		};
 
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask(task);
+	}
+
+	void MapMenuEx::UpdatePlayerMarkerPosition()
+	{
+		// This function should handle any edge-cases (interiors, child worldspaces, etc.)
+		auto func = reinterpret_cast<bool (*)(RE::MapCamera*, RE::NiPoint3&, RE::NiAVObject*)>(Offsets::Menus::MapMenu::UpdatePlayerMarkerPosFunc.address());
+		func(&this->camera, this->playerMarkerPosition, nullptr);
+
+		// Now we need to update the marker position
+		RE::RefHandle playerMarkerHandle = *reinterpret_cast<RE::RefHandle*>(Offsets::Menus::MapMenu::PlayerMarkerRefHandle.address());
+		RE::TESObjectREFRPtr playerMarkerRefPtr = nullptr;
+
+		if (RE::TESObjectREFR::LookupByHandle(playerMarkerHandle, playerMarkerRefPtr))
+		{
+			// Do not use SetPosition as there is no objectReference, but setting the position directly is enough
+			// Rotation is already updating so no special handling is necessary
+			playerMarkerRefPtr->data.location = this->playerMarkerPosition;
+		}
 	}
 
 	void MapMenuEx::UpdateClock()
@@ -87,10 +107,10 @@ namespace SkyrimSoulsRE
 	bool MapMenuEx::UpdateClouds_Hook(RE::NiAVObject* a_obj, RE::NiUpdateData* a_data)
 	{
 		_UpdateClouds(a_obj, a_data);
-		std::uint32_t* updateValue = reinterpret_cast<std::uint32_t*>(REL::ID{ 391006 }.address());
+		std::uint32_t* updateValue = reinterpret_cast<std::uint32_t*>(Offsets::Menus::MapMenu::UpdateClouds_UpdateValue.address());
 		*updateValue ^= 1;
 
-		return false; // do not update again
+		return false;  // do not update again
 	}
 
 	void MapMenuEx::InstallHook()
@@ -112,11 +132,13 @@ namespace SkyrimSoulsRE
 		MapInputHandlerEx<RE::MapZoomHandler>::InstallHook(Offsets::Menus::MapMenu::MapZoomHandler::Vtbl);
 		MapInputHandlerEx<RE::MapLookHandler>::InstallHook(Offsets::Menus::MapMenu::MapLookHandler::Vtbl);
 
+		auto& trampoline = SKSE::GetTrampoline();
+
 		// Prevent TerrainManager from updating while the menu is open.
 		// This prevents child worldspaces from rendering on top of their parents. Possibly avoids other issues as well.
-		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*> (SKSE::GetTrampoline().write_call<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x5D, (std::uintptr_t)BGSTerrainManager_Update_Hook));
+		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*>(trampoline.write_call<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x5D, (std::uintptr_t)BGSTerrainManager_Update_Hook));
 
 		// Fix for flickering/non-moving clouds
-		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
+		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(trampoline.write_call<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
 	}
 }
