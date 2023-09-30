@@ -83,7 +83,7 @@ namespace SkyrimSoulsRE
 	void SleepWaitMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::SleepWaitMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_SleepWaitMenu[0]);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &SleepWaitMenuEx::AdvanceMovie_Hook);
 
 		//Hook ProcessMessage

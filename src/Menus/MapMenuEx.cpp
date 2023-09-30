@@ -115,7 +115,7 @@ namespace SkyrimSoulsRE
 
 	void MapMenuEx::InstallHook()
 	{
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::MapMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MapMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MapMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MapMenuEx::AdvanceMovie_Hook);
 
@@ -128,9 +128,9 @@ namespace SkyrimSoulsRE
 		REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x52D, std::uint8_t(0xEB));
 
 		// Fix controls while journal is open
-		MapInputHandlerEx<RE::MapMoveHandler>::InstallHook(Offsets::Menus::MapMenu::MapMoveHandler::Vtbl);
-		MapInputHandlerEx<RE::MapZoomHandler>::InstallHook(Offsets::Menus::MapMenu::MapZoomHandler::Vtbl);
-		MapInputHandlerEx<RE::MapLookHandler>::InstallHook(Offsets::Menus::MapMenu::MapLookHandler::Vtbl);
+		MapInputHandlerEx<RE::MapMoveHandler>::InstallHook(RE::VTABLE_MapMoveHandler[0]);
+		MapInputHandlerEx<RE::MapZoomHandler>::InstallHook(RE::VTABLE_MapZoomHandler[0]);
+		MapInputHandlerEx<RE::MapLookHandler>::InstallHook(RE::VTABLE_MapLookHandler[0]);
 
 		auto& trampoline = SKSE::GetTrampoline();
 

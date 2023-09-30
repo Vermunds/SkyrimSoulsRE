@@ -32,10 +32,8 @@ namespace SkyrimSoulsRE
 
 	void OpenStatsMenuAfterSleep_Hook(RE::UIMessageQueue* a_queue, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
 	{
-		using FlagBD9 = RE::PlayerCharacter::FlagBD9;
-
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		if (player->unkBD9.all(FlagBD9::kIsSleeping))
+		if (player->playerFlags.sleeping)
 		{
 			StatsMenuEx::isSleeping = true;
 		}
@@ -98,7 +96,7 @@ namespace SkyrimSoulsRE
 		REL::safe_write(Offsets::Menus::StatsMenu::CanProcess.address() + 0x4A, std::uint16_t(0x9090));
 
 		//Hook ProcessMessage and AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::StatsMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_StatsMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &StatsMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &StatsMenuEx::AdvanceMovie_Hook);
 	}

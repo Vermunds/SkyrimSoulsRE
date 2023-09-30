@@ -11,9 +11,9 @@ namespace SkyrimSoulsRE
 	// Otherwise, the camera can move unexpectedly.
 	void CheckCursorPosition()
 	{
-		RE::MenuScreenData* menuScreenData = RE::MenuScreenData::GetSingleton();
-		menuScreenData->mousePos.x = std::clamp(menuScreenData->mousePos.x, 10.0f, menuScreenData->screenWidth - 10.0f);
-		menuScreenData->mousePos.y = std::clamp(menuScreenData->mousePos.y, 10.0f, menuScreenData->screenHeight - 10.0f);
+		RE::MenuCursor* menuCursor = RE::MenuCursor::GetSingleton();
+		menuCursor->cursorPosX = std::clamp(menuCursor->cursorPosX, 10.0f, menuCursor->screenWidthX - 10.0f);
+		menuCursor->cursorPosY = std::clamp(menuCursor->cursorPosY, 10.0f, menuCursor->screenWidthY - 10.0f);
 	}
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)

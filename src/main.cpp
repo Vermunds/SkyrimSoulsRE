@@ -56,17 +56,14 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	}
 }
 
-extern "C" {
-
+extern "C"
+{
 	DLLEXPORT SKSE::PluginVersionData SKSEPlugin_Version = []() {
 		SKSE::PluginVersionData v{};
 		v.PluginVersion(REL::Version{ Version::MAJOR, Version::MINOR, Version::PATCH, 0 });
 		v.PluginName(Version::NAME);
 		v.AuthorName(Version::AUTHOR);
 		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
-
-		v.addressLibrary = true;
-		v.sigScanning = false;
 		return v;
 	}();
 

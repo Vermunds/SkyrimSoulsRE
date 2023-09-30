@@ -86,7 +86,7 @@ namespace SkyrimSoulsRE
 	void BarterMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie + ProcessMessage
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::BarterMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_BarterMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &BarterMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &BarterMenuEx::AdvanceMovie_Hook);
 	}

@@ -11,7 +11,7 @@ namespace SkyrimSoulsRE::ConsoleCommandHooks
 		}
 	};
 
-bool Save_Hook(RE::BGSSaveLoadManager* a_this, std::int32_t a_deviceID, std::uint32_t a_outputStats, const char* a_fileName)
+	bool Save_Hook(RE::BGSSaveLoadManager* a_this, std::int32_t a_deviceID, std::uint32_t a_outputStats, const char* a_fileName)
 	{
 		// Create save screenshot
 		reinterpret_cast<void (*)()>(Offsets::Misc::CreateSaveScreenshot.address())();

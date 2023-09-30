@@ -101,7 +101,7 @@ namespace SkyrimSoulsRE
 	void InventoryMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::InventoryMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_InventoryMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &InventoryMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &InventoryMenuEx::AdvanceMovie_Hook);
 	}

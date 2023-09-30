@@ -100,7 +100,6 @@ namespace SkyrimSoulsRE
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
-
 		// Remove event sink so we don't receive more inputs
 		RE::BSInputDeviceManager* idm = RE::BSInputDeviceManager::GetSingleton();
 		idm->RemoveEventSink(this);
@@ -314,13 +313,13 @@ namespace SkyrimSoulsRE
 	void JournalMenuEx::InstallHook()
 	{
 		//Hook ProcessMessage
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::JournalMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_JournalMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &JournalMenuEx::ProcessMessage_Hook);
 
 		//Hook AdvanceMovie
 		_AdvanceMovie = vTable.write_vfunc(0x5, &JournalMenuEx::AdvanceMovie_Hook);
 
-		REL::Relocation<std::uintptr_t> vTable_remapHandler(Offsets::Menus::JournalMenu::RemapHandler_Vtbl);
+		REL::Relocation<std::uintptr_t> vTable_remapHandler(RE::VTABLE_JournalInputMapping__RemapHandler[0]);
 		RemapHandlerEx::_ProcessEvent = vTable_remapHandler.write_vfunc(0x1, &JournalMenuEx::RemapHandlerEx::ProcessEvent_Hook);
 	}
 };

@@ -15,25 +15,25 @@ namespace SkyrimSoulsRE::CameraMovement
 			GetUnpausedMenuCount() && !IsFullScreenMenuOpen() && !mc->remapMode &&
 			pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled())
 		{
-			RE::MenuScreenData* menuScreenData = RE::MenuScreenData::GetSingleton();
+			RE::MenuCursor* menuCursor = RE::MenuCursor::GetSingleton();
 
 			float speedX = settings->cursorCameraHorizontalSpeed;
 			float speedY = settings->cursorCameraVerticalSpeed;
 
-			if (menuScreenData->mousePos.x == 0)
+			if (menuCursor->cursorPosX == 0)
 			{
 				pc->data.lookInputVec.x = -speedX;
 			}
-			else if (menuScreenData->mousePos.x == menuScreenData->screenWidth)
+			else if (menuCursor->cursorPosX == menuCursor->screenWidthX)
 			{
 				pc->data.lookInputVec.x = speedX;
 			}
 
-			if (menuScreenData->mousePos.y == 0)
+			if (menuCursor->cursorPosY == 0)
 			{
 				pc->data.lookInputVec.y = speedY;
 			}
-			else if (menuScreenData->mousePos.y == menuScreenData->screenHeight)
+			else if (menuCursor->cursorPosY == menuCursor->screenWidthY)
 			{
 				pc->data.lookInputVec.y = -speedY;
 			}

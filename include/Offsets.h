@@ -19,7 +19,7 @@ namespace Offsets
 
 	namespace BSAudioManager
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(40449));                 // + 0xC6; + 0x12E
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(40449));  // + 0xC6; + 0x12E
 		static constexpr REL::ID SetListenerPosition(static_cast<std::uint64_t>(67708));
 		static constexpr REL::ID SetListenerRotation(static_cast<std::uint64_t>(67709));
 	}
@@ -54,90 +54,47 @@ namespace Offsets
 	{
 		namespace BarterMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(214926));
-
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50957));
-		}
-
-		namespace BookMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(214975));
-		}
-
-		namespace Console
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215002));
 		}
 
 		namespace ContainerMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215061));
-
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(51143));
 		}
 
 		namespace DialogueMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215255));
-
 			static constexpr REL::ID UpdateAutoCloseTimer_Hook(static_cast<std::uint64_t>(37541));  // + 0x6E8
 		}
 
 		namespace FavoritesMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215307));
-
 			static constexpr REL::ID CanProcess(static_cast<std::uint64_t>(51538));
 
-			static constexpr REL::ID SelectItem_HookFunc_1(static_cast<std::uint64_t>(51534)); // + 0x13A; + 0x166; + 0x192
-			static constexpr REL::ID SelectItem_HookFunc_2(static_cast<std::uint64_t>(51537)); // + 0x45; + 0x73
+			static constexpr REL::ID SelectItem_HookFunc_1(static_cast<std::uint64_t>(51534));  // + 0x13A; + 0x166; + 0x192
+			static constexpr REL::ID SelectItem_HookFunc_2(static_cast<std::uint64_t>(51537));  // + 0x45; + 0x73
 
 			static constexpr REL::ID ItemSelect(static_cast<std::uint64_t>(51548));
 		}
 
 		namespace GiftMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215323));
-
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(51578));
-		}
-
-		namespace HUDMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215362));
 		}
 
 		namespace InventoryMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215494));
-
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(51865));
-		}
-
-		namespace JournalMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216685));
-
-			static constexpr REL::ID RemapHandler_Vtbl(static_cast<std::uint64_t>(216637)); 
-		}
-
-		namespace LevelUpMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215560));
 		}
 
 		namespace LockpickingMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215604));
-
 			static constexpr REL::ID Hook(51950);  // + 0xE0
 		}
 
 		namespace MagicMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215652));
-
-			static constexpr REL::ID UpdateItemList(static_cast<std::uint64_t>(52043)); // + 0x53; + 0x9A
+			static constexpr REL::ID UpdateItemList(static_cast<std::uint64_t>(52043));  // + 0x53; + 0x9A
 			static constexpr REL::ID AddSpells(static_cast<std::uint64_t>(38781));
 			static constexpr REL::ID AddShout(static_cast<std::uint64_t>(52082));
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(52042));
@@ -145,8 +102,7 @@ namespace Offsets
 
 		namespace MapMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216502)); 
-			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(53093));   // + 0x52D
+			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(53093));  // + 0x52D
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(53112));  // + 0x53; + 0x9D; + 0x9F
 			static constexpr REL::ID UpdateClouds_Hook(static_cast<std::uint64_t>(53148));    // + 0x10E
@@ -154,71 +110,20 @@ namespace Offsets
 
 			static constexpr REL::ID PlayerMarkerRefHandle(static_cast<std::uint64_t>(406633));
 			static constexpr REL::ID UpdatePlayerMarkerPosFunc(static_cast<std::uint64_t>(53021));
-
-
-			namespace MapLookHandler
-			{
-				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216496));
-			}
-
-			namespace MapMoveHandler
-			{
-				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216498));
-
-			}
-
-			namespace MapZoomHandler
-			{
-				static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216500));
-			}
-		}
-
-		namespace MessageBoxMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215795));
-		}
-
-		namespace ModManagerMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(205638));
 		}
 
 		namespace StatsMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215973));
-
-			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(52510));	 // + 0x84E; + 0x852; + 0xA10; + 0xFC0; + 0xFC9 ; + 0x102D; + 0x1040
+			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(52510));  // + 0x84E; + 0x852; + 0xA10; + 0xFC0; + 0xFC9 ; + 0x102D; + 0x1040
 			static constexpr REL::ID CanProcess(static_cast<std::uint64_t>(52518));      // + 0x46; + 0x4A
 
 			static constexpr REL::ID OpenStatsMenuAfterSleep_Hook(static_cast<std::uint64_t>(40417));  // + 0x65; + 0x69; + 0x6A
 		}
 
-		namespace SleepWaitMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215936));
-		}
-
-		namespace TrainingMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216116));
-		}
-
-		namespace TutorialMenu
-		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216133));
-		}
-
 		namespace TweenMenu
 		{
-			static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(216145));
-
 			static constexpr REL::ID Camera_Hook(52705);  // + 0x4F3
 		}
-	}
-
-	namespace MenuControls
-	{
-		static constexpr REL::ID Vtbl(static_cast<std::uint64_t>(215773));
 	}
 
 	namespace Misc

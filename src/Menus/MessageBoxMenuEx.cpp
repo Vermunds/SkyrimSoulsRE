@@ -50,7 +50,7 @@ namespace SkyrimSoulsRE
 	void MessageBoxMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::MessageBoxMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MessageBoxMenu[0]);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MessageBoxMenuEx::AdvanceMovie_Hook);
 	}
 }

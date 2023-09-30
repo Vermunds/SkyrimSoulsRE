@@ -188,7 +188,7 @@ namespace SkyrimSoulsRE
 	void MagicMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::MagicMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MagicMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MagicMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &MagicMenuEx::AdvanceMovie_Hook);
 

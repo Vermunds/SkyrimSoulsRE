@@ -32,7 +32,7 @@ namespace SkyrimSoulsRE
 	void TweenMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::TweenMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_TweenMenu[0]);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &TweenMenuEx::AdvanceMovie_Hook);
 
 		//Fix for camera movement

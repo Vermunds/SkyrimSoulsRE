@@ -81,7 +81,7 @@ namespace SkyrimSoulsRE
 
 	void GiftMenuEx::InstallHook()
 	{
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::GiftMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_GiftMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &GiftMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
 	}

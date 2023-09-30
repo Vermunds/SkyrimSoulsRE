@@ -154,10 +154,6 @@ namespace SkyrimSoulsRE
 		//Get distance from feet and head, return the smaller
 		float distanceHead = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow((a_playerPos.z + a_playerHeight) - a_targetPos.z, 2));
 		float distanceFeet = static_cast<float>(std::pow(a_playerPos.x - a_targetPos.x, 2) + std::pow(a_playerPos.y - a_targetPos.y, 2) + std::pow(a_playerPos.z - a_targetPos.z, 2));
-		if (distanceHead < distanceFeet)
-		{
-			return std::sqrt(distanceHead);
-		}
-		return std::sqrt(distanceFeet);
+		return std::sqrt(std::min(distanceHead, distanceFeet));
 	}
 }

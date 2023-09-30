@@ -45,7 +45,7 @@ namespace SkyrimSoulsRE
 	void LockpickingMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(Offsets::Menus::LockpickingMenu::Vtbl);
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_LockpickingMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &LockpickingMenuEx::ProcessMessage_Hook);
 		_AdvanceMovie = vTable.write_vfunc(0x5, &LockpickingMenuEx::AdvanceMovie_Hook);
 
