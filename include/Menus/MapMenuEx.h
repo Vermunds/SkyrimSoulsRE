@@ -9,6 +9,20 @@ namespace SkyrimSoulsRE
 	class MapMenuEx : public RE::MapMenu
 	{
 	public:
+		class MapMenuCellLoadedEventHandler : RE::BSTEventSink<RE::TESCellFullyLoadedEvent>
+		{
+		public:
+			// Event handler for newly loaded cells, as we have to turn on map mode rendering
+			// Otherwise they will show up in full-resolution as if they were viewed from above, usually as black squares
+
+			void Register();
+			void Unregister();
+
+			RE::BSEventNotifyControl ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>* a_eventSource) override;
+		};
+		static inline MapMenuCellLoadedEventHandler mapMenuCellLoadedEventHandler;
+		static inline bool cellRenderingUpdateNeeded = false;
+
 		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);  // 05
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
 

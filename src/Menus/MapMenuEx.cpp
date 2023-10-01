@@ -2,9 +2,31 @@
 
 namespace SkyrimSoulsRE
 {
+	void MapMenuEx::MapMenuCellLoadedEventHandler::Unregister()
+	{
+		RE::ScriptEventSourceHolder* holder = RE::ScriptEventSourceHolder::GetSingleton();
+		holder->RemoveEventSink<RE::TESCellFullyLoadedEvent>(this);
+	}
+
+	RE::BSEventNotifyControl MapMenuEx::MapMenuCellLoadedEventHandler::ProcessEvent(const RE::TESCellFullyLoadedEvent* a_event, RE::BSTEventSource<RE::TESCellFullyLoadedEvent>* a_eventSource)
+	{
+		MapMenuEx::cellRenderingUpdateNeeded = true;
+		return RE::BSEventNotifyControl::kContinue;
+	}
+
+	void MapMenuEx::MapMenuCellLoadedEventHandler::Register()
+	{
+		RE::ScriptEventSourceHolder* holder = RE::ScriptEventSourceHolder::GetSingleton();
+		holder->AddEventSink<RE::TESCellFullyLoadedEvent>(this);
+	}
+
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kShow)
+		{
+			mapMenuCellLoadedEventHandler.Register();
+		}
+		else if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
 		{
 			// Fix disappearing first person model after closing the menu
 			auto task = []() {
@@ -27,6 +49,7 @@ namespace SkyrimSoulsRE
 			};
 
 			UnpausedTaskQueue::GetSingleton()->AddTask(task);
+			mapMenuCellLoadedEventHandler.Unregister();
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -43,6 +66,21 @@ namespace SkyrimSoulsRE
 
 				menu->UpdateClock();
 				menu->UpdatePlayerMarkerPosition();
+
+				if (cellRenderingUpdateNeeded)
+				{
+					// Force map mode rendering for newly loaded cells as well
+					auto func = reinterpret_cast<void (*)()>(Offsets::Menus::MapMenu::EnableMapModeRenderingFunc.address());
+					func();
+
+					// This has the side-effect that LOD trees will disappear, so re-enable them again (they still won't appear in Map Menu)
+					if (menu->worldSpace && menu->worldSpace->terrainManager)
+					{
+						menu->worldSpace->terrainManager->lodTreesHidden = false;
+					}
+
+					cellRenderingUpdateNeeded = false;
+				}
 
 				menu->_AdvanceMovie(menu, a_interval, a_currentTime);
 			}
