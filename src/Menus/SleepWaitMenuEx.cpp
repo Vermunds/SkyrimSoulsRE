@@ -48,7 +48,7 @@ namespace SkyrimSoulsRE
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
 		if (!menu->PausesGame())
 		{
-			menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
+			menu->menuFlags.set(RE::IMenu::Flag::kPausesGame);
 			ui->numPausesGame++;
 		}
 

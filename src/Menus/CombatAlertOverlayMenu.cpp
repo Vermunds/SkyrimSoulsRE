@@ -10,7 +10,7 @@ namespace SkyrimSoulsRE
 	CombatAlertOverlayMenu::CombatAlertOverlayMenu()
 	{
 		using Context = RE::UserEvents::INPUT_CONTEXT_ID;
-		using Flag = RE::UI_MENU_FLAGS;
+		using MenuFlag = RE::UI_MENU_FLAGS;
 
 		auto menu = static_cast<RE::IMenu*>(this);
 		auto scaleformManager = RE::BSScaleformManager::GetSingleton();
@@ -24,7 +24,7 @@ namespace SkyrimSoulsRE
 		}
 		_view = menu->uiMovie;
 		_view->SetMouseCursorCount(0);
-		menu->menuFlags |= Flag::kAllowSaving;
+		menu->menuFlags.set(MenuFlag::kAllowSaving);
 		menu->depthPriority = 11;
 		menu->inputContext = Context::kNone;
 		//InitExtensions();

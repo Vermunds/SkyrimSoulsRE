@@ -242,7 +242,7 @@ namespace SkyrimSoulsRE
 
 			if (!menu->PausesGame())
 			{
-				menu->menuFlags |= RE::IMenu::Flag::kPausesGame;
+				menu->menuFlags.set(RE::IMenu::Flag::kPausesGame);
 				ui->numPausesGame++;
 			}
 

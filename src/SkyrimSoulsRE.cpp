@@ -2,7 +2,7 @@
 
 namespace SkyrimSoulsRE
 {
-	using Flag = RE::IMenu::Flag;
+	using MenuFlag = RE::IMenu::Flag;
 
 	std::map<std::string, RE::UI::Create_t*> menuCreatorMap;
 
@@ -34,7 +34,7 @@ namespace SkyrimSoulsRE
 		{
 			if (isUnpaused)
 			{
-				menu->menuFlags &= static_cast<Flag>(~std::underlying_type_t<Flag>(Flag::kPausesGame));
+				menu->menuFlags.reset(MenuFlag::kPausesGame);
 
 				if (!isConsole)
 				{
@@ -42,10 +42,10 @@ namespace SkyrimSoulsRE
 
 					if (usesSlowMotion)
 					{
-						menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUsesSlowMotion);
+						menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUsesSlowMotion));
 					}
 
-					menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUnpaused);
+					menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUnpaused));
 				}
 			}
 
@@ -54,7 +54,8 @@ namespace SkyrimSoulsRE
 
 		if (usesOverlay && a_menuName != RE::HUDMenu::MENU_NAME)
 		{
-			menu->menuFlags |= static_cast<Flag>(MenuFlagEx::kUsesCombatAlertOverlay);
+			menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUsesCombatAlertOverlay));
+
 			if (!ui->IsMenuOpen(CombatAlertOverlayMenu::MENU_NAME))
 			{
 				RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
@@ -64,7 +65,7 @@ namespace SkyrimSoulsRE
 
 		if (menu->FreezeFrameBackground() && isUnpaused)
 		{
-			menu->menuFlags &= static_cast<Flag>(~std::underlying_type_t<Flag>(Flag::kFreezeFrameBackground));
+			menu->menuFlags.reset(MenuFlag::kFreezeFrameBackground);
 		}
 
 		if (menu->InventoryItemMenu() && a_menuName != RE::FavoritesMenu::MENU_NAME)
@@ -96,7 +97,7 @@ namespace SkyrimSoulsRE
 		for (auto& it : ui->menuStack)
 		{
 			RE::IMenu* menu = it.get();
-			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUsesCombatAlertOverlay)) != Flag::kNone)
+			if (menu->menuFlags.all(static_cast<MenuFlag>(MenuFlagEx::kUsesCombatAlertOverlay)))
 			{
 				++count;
 			}
@@ -114,7 +115,7 @@ namespace SkyrimSoulsRE
 		for (auto& it : ui->menuStack)
 		{
 			RE::IMenu* menu = it.get();
-			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUnpaused)) != Flag::kNone)
+			if (menu->menuFlags.all(static_cast<MenuFlag>(MenuFlagEx::kUnpaused)))
 			{
 				++count;
 			}
@@ -132,7 +133,7 @@ namespace SkyrimSoulsRE
 		for (auto& it : ui->menuStack)
 		{
 			RE::IMenu* menu = it.get();
-			if ((menu->menuFlags & static_cast<Flag>(MenuFlagEx::kUsesSlowMotion)) != Flag::kNone)
+			if (menu->menuFlags.all(static_cast<MenuFlag>(MenuFlagEx::kUsesSlowMotion)))
 			{
 				++count;
 			}
