@@ -172,19 +172,28 @@ target_compile_definitions(
 		"$<$<BOOL:${SKSE_SUPPORT_XBYAK}>:SKSE_SUPPORT_XBYAK=1>"
 )
 
+# Function to copy build artifacts to the specified path
+function(copy_build_artifacts TARGET_NAME)
+    if (DEFINED SKYRIM_DATA_PATH)
+        set(INSTALL_PATH "${SKYRIM_DATA_PATH}/SKSE/Plugins")
+    elseif (DEFINED MO_MODS_FOLDER_PATH)
+        set(INSTALL_PATH "${MO_MODS_FOLDER_PATH}/${TARGET_NAME}/SKSE/Plugins")
+    else ()
+        message(STATUS "No install path specified for mod ${TARGET_NAME}. Skipping post-build copy command.")
+        return()
+    endif()
+
+	# Create the directories if they don't exist
+    file(MAKE_DIRECTORY ${INSTALL_PATH})
+
+    message(STATUS "Using install path for ${TARGET_NAME}: ${INSTALL_PATH}")
+    add_custom_command(
+        TARGET ${TARGET_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_NAME}> ${INSTALL_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${TARGET_NAME}> ${INSTALL_PATH}
+    )
+endfunction()
+
 # Post build command
-if (SKYRIMSOULSRE_DO_INSTALL)
-	if (DEFINED SKYRIMSOULSRE_INSTALL_PATH)
-		add_custom_command(
-			TARGET ${PROJECT_NAME}
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${SKYRIMSOULSRE_INSTALL_PATH}
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${SKYRIMSOULSRE_INSTALL_PATH}
-		)
-	else ()
-		message(
-			WARNING
-			"Variable SKYRIMSOULSRE_INSTALL_PATH is not defined. Skipping post-build copy command."
-		)
-	endif ()
-endif ()
+copy_build_artifacts(${PROJECT_NAME})
