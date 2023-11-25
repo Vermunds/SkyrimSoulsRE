@@ -214,6 +214,7 @@ namespace SkyrimSoulsRE
 
 		MenuControlsEx::InstallHook();
 		PlayerControlsEx::InstallHook();
+		BSWin32KeyboardDeviceEx::InstallHook();
 
 		BarterMenuEx::InstallHook();
 		BookMenuEx::InstallHook();

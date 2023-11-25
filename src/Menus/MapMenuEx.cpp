@@ -103,7 +103,7 @@ namespace SkyrimSoulsRE
 		if (RE::TESObjectREFR::LookupByHandle(playerMarkerHandle, playerMarkerRefPtr))
 		{
 			// Do not use SetPosition as there is no objectReference, but setting the position directly is enough
-			// Rotation is already updating so no special handling is necessary
+			// Rotation is already updating so no special handling is necessary, unless its a child worldspace - todo: check why
 			playerMarkerRefPtr->data.location = this->playerMarkerPosition;
 		}
 	}

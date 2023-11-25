@@ -24,6 +24,11 @@ namespace Offsets
 		static constexpr REL::ID SetListenerRotation(static_cast<std::uint64_t>(67709));
 	}
 
+	namespace BSWin32KeyboardDevice
+	{
+		static constexpr REL::ID Process(static_cast<std::uint64_t>(68782));  // + 0x2CB
+	}
+
 	namespace GlobalTimescaleMultiplier
 	{
 		static constexpr REL::ID Value1(static_cast<std::uint64_t>(388442));

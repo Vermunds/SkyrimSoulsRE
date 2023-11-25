@@ -35,6 +35,7 @@
 #include "Menus/TutorialMenuEx.h"
 #include "Menus/TweenMenuEx.h"
 
+#include "Controls/BSWin32KeyboardDeviceEx.h"
 #include "Controls/CameraMovement.h"
 #include "Controls/InputHandlerEx.h"
 #include "Controls/MapInputHandlerEx.h"

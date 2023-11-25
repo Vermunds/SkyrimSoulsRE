@@ -2,6 +2,7 @@ set(SOURCES
 	include/AudioHooks.h
 	include/AutoCloseManager.h
 	include/ConsoleCommandHooks.h
+	include/Controls/BSWin32KeyboardDeviceEx.h
 	include/Controls/CameraMovement.h
 	include/Controls/InputHandlerEx.h
 	include/Controls/MapInputHandlerEx.h
@@ -39,10 +40,10 @@ set(SOURCES
 	include/SkyrimSoulsRE.h
 	include/SlowMotionHandler.h
 	include/UnpausedTaskQueue.h
-	include/version.h
 	src/AudioHooks.cpp
 	src/AutoCloseManager.cpp
 	src/ConsoleCommandHooks.cpp
+	src/Controls/BSWin32KeyboardDeviceEx.cpp
 	src/Controls/CameraMovement.cpp
 	src/Controls/MenuControlsEx.cpp
 	src/Controls/PlayerControlsEx.cpp
