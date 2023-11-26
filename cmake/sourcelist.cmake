@@ -39,6 +39,7 @@ set(SOURCES
 	include/Settings.h
 	include/SkyrimSoulsRE.h
 	include/SlowMotionHandler.h
+	include/UIBlurManagerEx.h
 	include/UnpausedTaskQueue.h
 	src/AudioHooks.cpp
 	src/AutoCloseManager.cpp
@@ -76,6 +77,7 @@ set(SOURCES
 	src/Settings.cpp
 	src/SkyrimSoulsRE.cpp
 	src/SlowMotionHandler.cpp
+	src/UIBlurManagerEx.cpp
 	src/UnpausedTaskQueue.cpp
 	src/main.cpp
 )

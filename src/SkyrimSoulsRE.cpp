@@ -19,7 +19,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
-		RE::UIBlurManager* blurManager = RE::UIBlurManager::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
 		RE::IMenu* menu = menuCreatorMap.find(a_menuName.data())->second();
@@ -71,18 +70,6 @@ namespace SkyrimSoulsRE
 		if (menu->InventoryItemMenu() && a_menuName != RE::FavoritesMenu::MENU_NAME)
 		{
 			menu->depthPriority = 1;
-		}
-
-		if (settings->disableBlur)
-		{
-			if (blurManager->blurCount > 0)
-			{
-				blurManager->DecrementBlurCount();
-			}
-			else if (a_menuName == RE::TweenMenu::MENU_NAME)
-			{
-				blurManager->blurCount--;
-			}
 		}
 
 		return menu;
@@ -211,6 +198,7 @@ namespace SkyrimSoulsRE
 		CameraMovement::InstallHook();
 		Audio::InstallHook();
 		ItemMenuUpdater::InstallHook();
+		UIBlurManagerEx::InstallHook();
 
 		MenuControlsEx::InstallHook();
 		PlayerControlsEx::InstallHook();

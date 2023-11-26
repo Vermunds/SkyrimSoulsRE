@@ -130,7 +130,7 @@ namespace Offsets
 
 		namespace TweenMenu
 		{
-			static constexpr REL::ID Camera_Hook(52705);  // + 0x4F3
+			static constexpr REL::ID ProcessMessage(52705);  // + 0x4F3
 		}
 	}
 
@@ -145,6 +145,11 @@ namespace Offsets
 		static constexpr REL::ID Hook(static_cast<std::uint64_t>(56833));
 		static constexpr REL::ID Value1(static_cast<std::uint64_t>(403436));
 		static constexpr REL::ID Value2(static_cast<std::uint64_t>(403437));
+	}
+
+	namespace TESImagespaceModifier
+	{
+		static constexpr REL::ID Apply(static_cast<std::uint64_t>(18570));
 	}
 
 	namespace UnpausedTaskQueue

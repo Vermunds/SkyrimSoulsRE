@@ -37,6 +37,6 @@ namespace SkyrimSoulsRE
 
 		//Fix for camera movement
 		std::uint8_t codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
-		REL::safe_write(Offsets::Menus::TweenMenu::Camera_Hook.address() + 0x4F3, codes, sizeof(codes));
+		REL::safe_write(Offsets::Menus::TweenMenu::ProcessMessage.address() + 0x4F3, codes, sizeof(codes));
 	}
 }
