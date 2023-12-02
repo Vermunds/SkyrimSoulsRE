@@ -10,6 +10,7 @@ namespace SkyrimSoulsRE
 
 			auto task = [selectedIndex]() {
 				RE::UI* ui = RE::UI::GetSingleton();
+				RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 				if (ui->IsMenuOpen(RE::MessageBoxMenu::MENU_NAME))
 				{

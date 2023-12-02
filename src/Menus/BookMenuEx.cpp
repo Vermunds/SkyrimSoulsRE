@@ -7,6 +7,7 @@ namespace SkyrimSoulsRE
 		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
 		queue->AddTask([a_interval, a_currentTime]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::BookMenu::MENU_NAME))
 			{
@@ -23,6 +24,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [modifiedMessage]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::BookMenu::MENU_NAME))
 			{

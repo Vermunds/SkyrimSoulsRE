@@ -6,11 +6,11 @@ namespace SkyrimSoulsRE
 	{
 		auto task = [a_slot]() {
 			RE::UI* ui = RE::UI::GetSingleton();
-			RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
-			if (ui->IsMenuOpen(interfaceStrings->favoritesMenu))
+			if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME))
 			{
-				RE::IMenu* menu = ui->GetMenu(interfaceStrings->favoritesMenu).get();
+				RE::IMenu* menu = ui->GetMenu(RE::FavoritesMenu::MENU_NAME).get();
 
 				using func_t = decltype(&FavoritesMenuEx::ItemSelect_Hook);
 				REL::Relocation<func_t> func(Offsets::Menus::FavoritesMenu::ItemSelect);

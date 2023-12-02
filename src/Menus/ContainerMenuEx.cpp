@@ -113,6 +113,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [equipHand, hasCount, count]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
@@ -160,6 +161,7 @@ namespace SkyrimSoulsRE
 	{
 		auto task = []() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
@@ -181,6 +183,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [count, isViewingContainer]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{

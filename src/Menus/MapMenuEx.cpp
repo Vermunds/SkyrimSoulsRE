@@ -59,6 +59,7 @@ namespace SkyrimSoulsRE
 	{
 		auto task = [a_interval, a_currentTime]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
 			{

@@ -33,6 +33,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [count]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
 			{
@@ -55,6 +56,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [hasSlot, slot]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
 			{

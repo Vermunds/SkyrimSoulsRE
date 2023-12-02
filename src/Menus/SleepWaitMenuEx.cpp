@@ -44,6 +44,7 @@ namespace SkyrimSoulsRE
 	void SleepWaitMenuEx::StartSleepWait_Hook(const RE::FxDelegateArgs& a_args)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
+		RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
 		if (!menu->PausesGame())

@@ -198,9 +198,8 @@ namespace SkyrimSoulsRE
 	void JournalMenuEx::SaveGameHandler::Call(Params& params)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
-		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
 
-		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(interfaceStrings->journalMenu).get());
+		RE::JournalMenu* menu = static_cast<RE::JournalMenu*>(ui->GetMenu(RE::JournalMenu::MENU_NAME).get());
 		if (!menu)
 		{
 			SKSE::log::error("Journal Menu instance not found! Aborting save.");
@@ -253,6 +252,7 @@ namespace SkyrimSoulsRE
 
 			auto task = [selectedIndexValue]() {
 				RE::UI* ui = RE::UI::GetSingleton();
+				RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 				if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME))
 				{

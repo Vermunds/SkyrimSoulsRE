@@ -29,6 +29,7 @@ namespace SkyrimSoulsRE
 
 		auto task = [count, value, isViewingVendorItems]() {
 			RE::UI* ui = RE::UI::GetSingleton();
+			RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 			if (ui->IsMenuOpen(RE::BarterMenu::MENU_NAME))
 			{
