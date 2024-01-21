@@ -67,7 +67,7 @@ namespace SkyrimSoulsRE::MenuCache
 		return synchronousInstance;
 	}
 
-	RE::GFxMovieView* CreateInstance_Hook(RE::GFxMovieDefImpl* a_this, const RE::GFxMovieDef::MemoryParams& a_memParams, bool a_initFirstFrame)
+	void InstallHook()
 	{
 		if (Settings::GetSingleton()->enableMenuCaching)
 		{
