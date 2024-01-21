@@ -48,6 +48,9 @@ namespace SkyrimSoulsRE
 		//Messages
 		bool hideEngineFixesWarning;
 
+		// Experimental
+		bool enableMenuCaching;
+
 		// Dialogue Movement Enabler compatibility (internal setting)
 		bool isUsingDME = false;
 

@@ -199,6 +199,7 @@ namespace SkyrimSoulsRE
 		Audio::InstallHook();
 		ItemMenuUpdater::InstallHook();
 		UIBlurManagerEx::InstallHook();
+		MenuCache::InstallHook();
 
 		MenuControlsEx::InstallHook();
 		PlayerControlsEx::InstallHook();

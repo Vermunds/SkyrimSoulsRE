@@ -4,6 +4,7 @@
 #include "AutoCloseManager.h"
 #include "ConsoleCommandHooks.h"
 #include "ItemMenuUpdater.h"
+#include "MenuCache.h"
 #include "Offsets.h"
 #include "PapyrusHook.h"
 #include "Settings.h"
