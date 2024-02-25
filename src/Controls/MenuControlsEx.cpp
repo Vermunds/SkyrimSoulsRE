@@ -5,17 +5,35 @@ namespace SkyrimSoulsRE
 {
 	bool MenuControlsEx::IsMappedToSameButton(std::uint32_t a_keyMask, RE::INPUT_DEVICE a_deviceType, RE::BSFixedString a_controlName, RE::UserEvents::INPUT_CONTEXT_ID a_context)
 	{
-		RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
+		if (REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_1130)
+		{
+			RE::ControlMap_640* controlMap = RE::ControlMap_640::GetSingleton();
 
-		if (a_deviceType == RE::INPUT_DEVICE::kKeyboard)
-		{
-			std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kKeyboard, a_context);
-			return a_keyMask == keyMask;
+			if (a_deviceType == RE::INPUT_DEVICE::kKeyboard)
+			{
+				std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kKeyboard, static_cast<RE::UserEvents::INPUT_CONTEXT_ID_640>(a_context));
+				return a_keyMask == keyMask;
+			}
+			else if (a_deviceType == RE::INPUT_DEVICE::kMouse)
+			{
+				std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kMouse, static_cast<RE::UserEvents::INPUT_CONTEXT_ID_640>(a_context));
+				return a_keyMask == keyMask;
+			}
 		}
-		else if (a_deviceType == RE::INPUT_DEVICE::kMouse)
+		else
 		{
-			std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kMouse, a_context);
-			return a_keyMask == keyMask;
+			RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
+
+			if (a_deviceType == RE::INPUT_DEVICE::kKeyboard)
+			{
+				std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kKeyboard, a_context);
+				return a_keyMask == keyMask;
+			}
+			else if (a_deviceType == RE::INPUT_DEVICE::kMouse)
+			{
+				std::uint32_t keyMask = controlMap->GetMappedKey(a_controlName, RE::INPUT_DEVICE::kMouse, a_context);
+				return a_keyMask == keyMask;
+			}
 		}
 		return false;
 	}
@@ -24,13 +42,26 @@ namespace SkyrimSoulsRE
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
 		RE::PlayerControls* pc = RE::PlayerControls::GetSingleton();
-		RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
+
 		RE::UserEvents* userEvents = RE::UserEvents::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
 		bool dialogueMode = ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !settings->isUsingDME;
-		bool lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
-		bool movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
+		bool lookControlsEnabled;
+		bool movementControlsEnabled;
+
+		if (REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_1130)
+		{
+			RE::ControlMap* controlMap = RE::ControlMap::GetSingleton();
+			lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
+			movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
+		}
+		else
+		{
+			RE::ControlMap_640* controlMap = RE::ControlMap_640::GetSingleton();
+			lookControlsEnabled = pc->lookHandler->IsInputEventHandlingEnabled() && controlMap->IsLookingControlsEnabled() && !dialogueMode;
+			movementControlsEnabled = pc->movementHandler->IsInputEventHandlingEnabled() && controlMap->IsMovementControlsEnabled() && !dialogueMode;
+		}
 
 		if (a_event && *a_event && !this->remapMode && !ui->GameIsPaused() && !IsFullScreenMenuOpen() && GetUnpausedMenuCount())
 		{
@@ -121,7 +152,7 @@ namespace SkyrimSoulsRE
 					{
 						//Look controls for controllers - do not allow when an item preview is maximized, so it is still possible to rotate it somehow
 						RE::Inventory3DManager* inventory3DManager = RE::Inventory3DManager::GetSingleton();
-						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->zoomProgress == 0.0f)
+						if (idEvent->userEvent == userEvents->rotate && inventory3DManager->GetRuntimeData().zoomProgress == 0.0f)
 						{
 							idEvent->userEvent = lookControlsEnabled ? userEvents->look : "";
 						}

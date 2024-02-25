@@ -95,7 +95,25 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 	}
 
 	// Update after RemoveAllItems
-	void RemoveAllItems_Hook(void* a_unk1, RE::TESObjectREFR* a_containerRef, void* a_unk3, std::uint64_t a_unk4, std::uint32_t a_unk5, void* a_unk6, void* a_unk7)
+	void RemoveAllItems_Hook_1130(RE::BSExtraData* a_unk1, std::uint32_t a_unk2, void* a_unk3, RE::TESObjectREFR* a_containerRef, std::uint64_t a_unk5, std::uint32_t a_unk6, void* a_unk7, void* a_unk8)
+	{
+		using func_t = decltype(&RemoveAllItems_Hook_1130);
+		REL::Relocation<func_t> func(Offsets::ItemMenuUpdater::RemoveAllItems_1130);
+		func(a_unk1, a_unk2, a_unk3, a_containerRef, a_unk5, a_unk6, a_unk7, a_unk8);
+
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+
+		RE::TESObjectREFR* targetRef = GetTargetReference();
+
+		if (a_containerRef == player || a_containerRef == targetRef)
+		{
+			// Some items might still remain in the list. Updating twice in a row seems to fix it for some reason.
+			RequestItemListUpdate(a_containerRef, nullptr);
+			RequestItemListUpdate(a_containerRef, nullptr);
+		}
+	}
+
+	void RemoveAllItems_Hook(RE::BSExtraData* a_unk1, RE::TESObjectREFR* a_containerRef, void* a_unk3, std::uint64_t a_unk4, std::uint32_t a_unk5, void* a_unk6, void* a_unk7)
 	{
 		using func_t = decltype(&RemoveAllItems_Hook);
 		REL::Relocation<func_t> func(Offsets::ItemMenuUpdater::RemoveAllItems);
@@ -115,11 +133,19 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 
 	void InstallHook()
 	{
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook1.address() + 0x16, (std::uintptr_t)RemoveAllItems_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook2.address() + 0x36, (std::uintptr_t)RemoveAllItems_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook3.address() + 0xBA, (std::uintptr_t)RemoveAllItems_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x255, (std::uintptr_t)RemoveAllItems_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook5.address() + 0x46, (std::uintptr_t)RemoveAllItems_Hook);
+		if (REL::Module::get().version() >= SKSE::RUNTIME_SSE_1_6_1130)
+		{
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook1_1130.address() + 0x3A, (std::uintptr_t)RemoveAllItems_Hook_1130);
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook2_1130.address() + 0x55, (std::uintptr_t)RemoveAllItems_Hook_1130);
+		}
+		else
+		{
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook1.address() + 0x16, (std::uintptr_t)RemoveAllItems_Hook);
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook2.address() + 0x36, (std::uintptr_t)RemoveAllItems_Hook);
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook3.address() + 0xBA, (std::uintptr_t)RemoveAllItems_Hook);
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook4.address() + 0x255, (std::uintptr_t)RemoveAllItems_Hook);
+			SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook5.address() + 0x46, (std::uintptr_t)RemoveAllItems_Hook);
+		}
 
 		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook1.address() + 0x9A, (std::uintptr_t)RemoveItem_Hook);
 		SKSE::GetTrampoline().write_call<6>(Offsets::ItemMenuUpdater::RemoveItem_Hook2.address() + 0xDB, (std::uintptr_t)RemoveItem_Hook);

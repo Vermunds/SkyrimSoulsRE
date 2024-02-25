@@ -81,7 +81,7 @@ namespace SkyrimSoulsRE
 				modifiedMessage->data = nullptr;
 				queue->AddTask(task);
 
-				if (this->closeMenu)
+				if (this->GetRuntimeData().closeMenu)
 				{
 					// close animation done
 					return RE::UI_MESSAGE_RESULTS::kHandled;

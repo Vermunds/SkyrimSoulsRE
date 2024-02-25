@@ -15,7 +15,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
 			bool engineFixesPresent = false;
-			if (SKSE::WinAPI::GetModuleHandle("EngineFixes.dll"))
+			if (GetModuleHandle("EngineFixes.dll"))
 			{
 				if (SkyrimSoulsRE::EngineFixesConfig::load_config("Data/SKSE/Plugins/EngineFixes.toml"))
 				{
@@ -37,7 +37,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 				}
 			}
 
-			if (SKSE::WinAPI::GetModuleHandle("DialogueMovementEnabler.dll"))
+			if (GetModuleHandle("DialogueMovementEnabler.dll"))
 			{
 				SKSE::log::info("Dialogue Movement Enabler detected. Enabling compatibility.");
 				settings->isUsingDME = true;
@@ -63,7 +63,9 @@ extern "C"
 		v.PluginVersion(REL::Version{ Version::MAJOR, Version::MINOR, Version::PATCH, 0 });
 		v.PluginName(Version::NAME);
 		v.AuthorName(Version::AUTHOR);
-		v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+		v.CompatibleVersions({ SKSE::RUNTIME_SSE_1_6_640, SKSE::RUNTIME_SSE_LATEST_AE });
+		v.UsesAddressLibrary();
+		v.UsesStructsPost629();
 		return v;
 	}();
 

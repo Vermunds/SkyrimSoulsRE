@@ -39,12 +39,18 @@ namespace Offsets
 	{
 		static constexpr REL::ID RequestItemListUpdate(static_cast<std::uint64_t>(52849));
 
+		// 640 only
 		static constexpr REL::ID RemoveAllItems(static_cast<std::uint64_t>(16118));
 		static constexpr REL::ID RemoveAllItems_Hook1(static_cast<std::uint64_t>(16121));  // + 0x16
 		static constexpr REL::ID RemoveAllItems_Hook2(static_cast<std::uint64_t>(19809));  // + 0x36
 		static constexpr REL::ID RemoveAllItems_Hook3(static_cast<std::uint64_t>(22005));  // + 0xBA
 		static constexpr REL::ID RemoveAllItems_Hook4(static_cast<std::uint64_t>(37496));  // + 0x255
 		static constexpr REL::ID RemoveAllItems_Hook5(static_cast<std::uint64_t>(56215));  // + 0x46
+
+		// 1130 + only
+		static constexpr REL::ID RemoveAllItems_1130(static_cast<std::uint64_t>(441568));
+		static constexpr REL::ID RemoveAllItems_Hook1_1130(static_cast<std::uint64_t>(16121));   // + 0x3A
+		static constexpr REL::ID RemoveAllItems_Hook2_1130(static_cast<std::uint64_t>(441567));  // + 0x55
 
 		static constexpr REL::ID RemoveItem_Actor(static_cast<std::uint64_t>(37797));
 		static constexpr REL::ID RemoveItem_TESObjectREFR(static_cast<std::uint64_t>(19689));
