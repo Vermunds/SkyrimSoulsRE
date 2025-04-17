@@ -46,8 +46,8 @@ namespace SkyrimSoulsRE
 		std::uint32_t stealValue = targetActor->GetStealValue(a_itemData->objDesc, count, true);
 
 		bool isDetected = targetActor->RequestDetectionLevel(player, RE::DETECTION_PRIORITY::kNormal) > 0;
-		float playerSkill = player->AsActorValueOwner()->GetActorValue(RE::ActorValue::kPickpocket);
-		float targetSkill = targetActor->AsActorValueOwner()->GetActorValue(RE::ActorValue::kPickpocket);
+		float playerSkill = player->GetActorValue(RE::ActorValue::kPickpocket);
+		float targetSkill = targetActor->GetActorValue(RE::ActorValue::kPickpocket);
 
 		auto chance = RE::AIFormulas::ComputePickpocketSuccess(playerSkill, targetSkill, stealValue, itemWeight, player, targetActor, isDetected, a_itemData->objDesc->object);
 
@@ -67,7 +67,7 @@ namespace SkyrimSoulsRE
 	{
 		if (containerRef && containerRef->formType == RE::FormType::ActorCharacter)
 		{
-			RE::ItemList::Item* item = this->GetRuntimeData().itemList->GetSelectedItem();
+			RE::ItemList::Item* item = this->itemList->GetSelectedItem();
 			if (item)
 			{
 				std::int32_t chance = CalcPickPocketChance(&item->data);
@@ -118,7 +118,7 @@ namespace SkyrimSoulsRE
 			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 			{
 				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-				RE::ItemList::Item* selectedItem = menu->GetRuntimeData().itemList->GetSelectedItem();
+				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
 
 				if (selectedItem)
 				{
@@ -137,12 +137,12 @@ namespace SkyrimSoulsRE
 						ContainerMenuEx::_EquipItem(args);
 					}
 
-					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->GetRuntimeData().value != 0)
+					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 					{
 						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
 							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
-							menu->GetRuntimeData().value = 0;
+							menu->value = 0;
 						}
 						else
 						{
@@ -189,7 +189,7 @@ namespace SkyrimSoulsRE
 			{
 				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
 
-				RE::ItemList::Item* selectedItem = menu->GetRuntimeData().itemList->GetSelectedItem();
+				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
 
 				if (selectedItem)
 				{
@@ -199,12 +199,12 @@ namespace SkyrimSoulsRE
 					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
 					ContainerMenuEx::_TransferItem(args);
 
-					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->GetRuntimeData().value != 0)
+					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 					{
 						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
 							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
-							menu->GetRuntimeData().value = 0;
+							menu->value = 0;
 						}
 						else
 						{

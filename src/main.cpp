@@ -6,6 +6,8 @@
 
 constexpr auto MESSAGEBOX_WARNING = 0x00001030L;  // MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL
 
+inline constexpr REL::Version RUNTIME_1_6_1170(1, 6, 1170, 0);
+
 void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 {
 	switch (a_msg->type)
@@ -15,7 +17,7 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 
 			bool engineFixesPresent = false;
-			if (GetModuleHandle("EngineFixes.dll"))
+			if (REX::W32::GetModuleHandleA("EngineFixes.dll"))
 			{
 				if (SkyrimSoulsRE::EngineFixesConfig::load_config("Data/SKSE/Plugins/EngineFixes.toml"))
 				{
@@ -33,11 +35,11 @@ void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 				SKSE::log::warn("To ensure best functionality, the following Engine Fixes features must be enabled : Memory Manager patch, Global Time Fix");
 				if (!settings->hideEngineFixesWarning)
 				{
-					SKSE::WinAPI::MessageBox(nullptr, "SSE Engine Fixes not detected, or certain features are not enabled. This will not prevent Skyrim Souls RE from running, but to ensure best functionality, the following Engine Fixes features must be enabled:\n\n- Memory Manager patch\n- Global Time Fix\n\nThe Memory Manager patch prevents the false save corruption bug that tends to happen with this mod, and the Global Time fix fixes the behaviour of some menus when using the slow-motion feature.\n\nYou can disable this warning in the .ini.", "Skyrim Souls RE - Warning", MESSAGEBOX_WARNING);
+					REX::W32::MessageBoxA(nullptr, "SSE Engine Fixes not detected, or certain features are not enabled. This will not prevent Skyrim Souls RE from running, but to ensure best functionality, the following Engine Fixes features must be enabled:\n\n- Memory Manager patch\n- Global Time Fix\n\nThe Memory Manager patch prevents the false save corruption bug that tends to happen with this mod, and the Global Time fix fixes the behaviour of some menus when using the slow-motion feature.\n\nYou can disable this warning in the .ini.", "Skyrim Souls RE - Warning", MESSAGEBOX_WARNING);
 				}
 			}
 
-			if (GetModuleHandle("DialogueMovementEnabler.dll"))
+			if (REX::W32::GetModuleHandleA("DialogueMovementEnabler.dll"))
 			{
 				SKSE::log::info("Dialogue Movement Enabler detected. Enabling compatibility.");
 				settings->isUsingDME = true;
@@ -63,9 +65,9 @@ extern "C"
 		v.PluginVersion(REL::Version{ Version::MAJOR, Version::MINOR, Version::PATCH, 0 });
 		v.PluginName(Version::NAME);
 		v.AuthorName(Version::AUTHOR);
-		v.CompatibleVersions({ SKSE::RUNTIME_SSE_1_6_640, SKSE::RUNTIME_SSE_LATEST_AE });
+		v.CompatibleVersions({ RUNTIME_1_6_1170 });
 		v.UsesAddressLibrary();
-		v.UsesStructsPost629();
+		v.UsesUpdatedStructs();
 		return v;
 	}();
 

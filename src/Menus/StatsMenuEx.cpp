@@ -33,7 +33,7 @@ namespace SkyrimSoulsRE
 	void OpenStatsMenuAfterSleep_Hook(RE::UIMessageQueue* a_queue, const RE::BSFixedString& a_menuName, RE::UI_MESSAGE_TYPE a_type, RE::IUIMessageData* a_data)
 	{
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		if (player->GetPlayerRuntimeData().playerFlags.sleeping)
+		if (player->playerFlags.sleeping)
 		{
 			StatsMenuEx::isSleeping = true;
 		}

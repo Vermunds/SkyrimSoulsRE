@@ -11,11 +11,11 @@ namespace SkyrimSoulsRE
 		{
 			if (SkyrimSoulsRE::GetUnpausedMenuCount())
 			{
-				highData->closeDialogueTimer = 120.0;
+				highData->awarePlayerTimer = 120.0;
 			}
 			else
 			{
-				highData->closeDialogueTimer += a_delta;  //a_delta is negative
+				highData->awarePlayerTimer += a_delta;  //a_delta is negative
 			}
 		}
 	}
