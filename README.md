@@ -1,4 +1,8 @@
 # Skyrim Souls RE
+[![Nexus Mods](https://img.shields.io/badge/NexusMods-Download-orange)](https://www.nexusmods.com/skyrimspecialedition/mods/27859)
+[![GitHub release](https://img.shields.io/github/v/release/Vermunds/SkyrimSoulsRE)](https://github.com/Vermunds/SkyrimSoulsRE/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE.md)
+
 A mod for The Elder Scrolls V: Skyrim - Special Edition.
 
 This mod unpauses all of Skyrim's in-game menus.
