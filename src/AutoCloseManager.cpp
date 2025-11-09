@@ -114,7 +114,7 @@ namespace SkyrimSoulsRE
 			isPickpocketMenu = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
 		}
 
-		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !mtm->isSayingGoodbye && mtm->speaker && mtm->speaker.get() && a_ref == mtm->speaker.get().get())
+		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !mtm->forceGoodbye && mtm->speaker && mtm->speaker.get() && a_ref == mtm->speaker.get().get())
 		{
 			data->target = a_ref;
 			data->dialogueMode = true;

@@ -11,9 +11,9 @@ namespace SkyrimSoulsRE
 
 		auto creator = msgFactory->GetCreator(interfaceStrings->hudData);
 		RE::HUDData* messageData = static_cast<RE::HUDData*>(creator->Create());
-		messageData->type = static_cast<RE::HUDData::Type>(23);
+		messageData->type = RE::HUD_MESSAGE_TYPE::kSetMode;
 		messageData->text = "SkyrimSoulsMode";
-		messageData->unk40 = a_isEnabled;
+		messageData->show = a_isEnabled;
 
 		msgQueue->AddMessage(interfaceStrings->hudMenu, RE::UI_MESSAGE_TYPE::kUpdate, messageData);
 

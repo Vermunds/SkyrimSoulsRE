@@ -203,7 +203,7 @@ namespace SkyrimSoulsRE
 		if (!menu)
 		{
 			SKSE::log::error("Journal Menu instance not found! Aborting save.");
-			RE::DebugNotification("SAVE FAILED - Journal Menu instance not found!");
+			RE::SendHUDMessage::ShowHUDMessage("SAVE FAILED - Journal Menu instance not found!");
 			return;
 		}
 
@@ -231,7 +231,7 @@ namespace SkyrimSoulsRE
 			if (selectedIndex.GetType() == RE::GFxValue::ValueType::kUndefined)
 			{
 				SKSE::log::critical("Unable to get selected index of selected save game. Aborting save and forcing Journal Menu to close.");
-				RE::DebugNotification("SAVE FAILED - report issue to Skyrim Souls RE author!");
+				RE::SendHUDMessage::ShowHUDMessage("SAVE FAILED - report issue to Skyrim Souls RE author!");
 				RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
 				uiMessageQueue->AddMessage(RE::JournalMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kForceHide, nullptr);
 				isSaving = false;

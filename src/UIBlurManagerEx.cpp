@@ -9,7 +9,7 @@ namespace SkyrimSoulsRE
 		Settings* settings = Settings::GetSingleton();
 		if (!settings->disableBlur)
 		{
-			uint32_t& blurCount = a_this->blurCount;
+			uint16_t& blurCount = a_this->blurCount;
 
 			// Apply effect
 			auto applyFunc = reinterpret_cast<uint64_t (*)(RE::TESImageSpaceModifier*, float, uint64_t)>(Offsets::TESImagespaceModifier::Apply.address());

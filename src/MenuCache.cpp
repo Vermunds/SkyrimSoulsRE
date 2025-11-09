@@ -36,7 +36,7 @@ namespace SkyrimSoulsRE::MenuCache
 
 					// Start creating the next one
 					std::future<RE::GFxMovieView*> futureInstance = std::async(std::launch::async, [a_this, a_memParams, a_initFirstFrame]() {
-						auto result = a_this->CreateInstance(a_memParams, a_initFirstFrame);
+						auto result = a_this->CreateInstance2(a_memParams, a_initFirstFrame);
 						a_this->Release();
 						return result;
 					});
@@ -52,7 +52,7 @@ namespace SkyrimSoulsRE::MenuCache
 
 				// Start async creation of the instance
 				std::future<RE::GFxMovieView*> futureInstance = std::async(std::launch::async, [a_this, a_memParams, a_initFirstFrame]() {
-					auto result = a_this->CreateInstance(a_memParams, a_initFirstFrame);
+					auto result = a_this->CreateInstance2(a_memParams, a_initFirstFrame);
 					a_this->Release();
 					return result;
 				});
@@ -62,7 +62,7 @@ namespace SkyrimSoulsRE::MenuCache
 		}
 
 		// Return the initial synchronous instance
-		RE::GFxMovieView* synchronousInstance = a_this->CreateInstance(a_memParams, a_initFirstFrame);
+		RE::GFxMovieView* synchronousInstance = a_this->CreateInstance2(a_memParams, a_initFirstFrame);
 		SKSE::log::info("Returning the initial synchronous instance from URL '{}'.", a_this->GetFileURL());
 		return synchronousInstance;
 	}
