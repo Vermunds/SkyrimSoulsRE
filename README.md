@@ -120,7 +120,7 @@ In case of registering or hooking custom menu callbacks (via FxDelegate) the reg
 
 The mod will not take ownership of functions it doesn't know of. It will also not work with custom menus it doesn't know of.
 
-If you're creating a custom menu, you may contact me in order to add support for it, or you can aslo consider opening a pull request.
+If you're creating a custom menu, you may contact me in order to add support for it, or you can also consider opening a pull request.
 
 ## Build
 
