@@ -106,7 +106,7 @@ The mod makes some assumptions about where it can find various UI elements on th
         - `_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText` - Time/Date text instance. Modified every frame
 
 **Note, this list is for informative purposes only and may not be 100% correct or up-to-date in all cases. It may also change in the future. Please check the actual implementation in case of any doubts.**  
-If you create a HUD/GUI mod that makes breaking changes to these paths please contact me and I will do my best to implement support for it.
+If you create a HUD/GUI mod that makes breaking changes to these paths please contact me or open an issue and I will do my best to implement support for it.
 
 ### Native code changes (for DLL developers)
 
@@ -120,7 +120,7 @@ In case of registering or hooking custom menu callbacks (via FxDelegate) the reg
 
 The mod will not take ownership of functions it doesn't know of. It will also not work with custom menus it doesn't know of.
 
-If you're creating a custom menu, you may contact me in order to add support for it.
+If you're creating a custom menu, you may contact me in order to add support for it, or you can aslo consider opening a pull request.
 
 ## Build
 
