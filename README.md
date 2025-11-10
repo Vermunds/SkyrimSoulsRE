@@ -41,10 +41,10 @@ EndWhile
 ```
 In most cases, simply replacing the affected lines of `Utility.wait()` with the snippet above will make the mod compatible.  
 Note that this change will NOT affect menus that are unpaused by default and are not covered by Skyrim Souls RE, like `DialogueMenu` or `CraftingMenu`.  
- It will also not affect `Console` as this menu is technically always open in the background.  
 For reference, the following menus ARE affected:
 - `BarterMenu`
 - `BookMenu`
+- `Console`
 - `ContainerMenu`
 - `FavoritesMenu`
 - `GiftMenu`
