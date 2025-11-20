@@ -10,15 +10,6 @@ namespace SkyrimSoulsRE
 	class ContainerMenuEx : public RE::ContainerMenu
 	{
 	public:
-		enum ContainerMode : std::uint8_t
-		{
-			kLoot = 0,
-			kSteal = 1,
-			kPickpocket = 2,
-			kNPC = 3
-		};
-
-		static inline RE::TESObjectREFR* containerRef;
 		static inline std::wstring toSteal = L"$ TO STEAL";
 		static inline std::wstring toPlace = L"$ TO PLACE";
 
