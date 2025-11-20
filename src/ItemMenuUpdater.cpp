@@ -1,5 +1,7 @@
 #include "ItemMenuUpdater.h"
 
+#include <xbyak\xbyak.h>
+
 namespace SkyrimSoulsRE::ItemMenuUpdater
 {
 	// These hooks are used to send update events to the item menus when something occurs.
@@ -75,9 +77,40 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		}
 	}
 
+	void ResetInventory_TESObjectREFR_Hook(RE::TESObjectREFR* a_containerRef)
+	{
+		RequestItemListUpdate(a_containerRef, nullptr);
+	}
+
 	void InstallHook()
 	{
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook1.address() + 0x3A, (std::uintptr_t)RemoveAllItems_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::ItemMenuUpdater::RemoveAllItems_Hook2.address() + 0x55, (std::uintptr_t)RemoveAllItems_Hook);
+
+		struct TESObjectREFR_ResetInventory_Code : Xbyak::CodeGenerator
+		{
+			TESObjectREFR_ResetInventory_Code(uintptr_t a_hookAddr)
+			{
+				Xbyak::Label hookAddress;
+
+				mov(rcx, rbx);
+				call(ptr[rip + hookAddress]);
+
+				mov(rbx, qword[rsp + 0x48]);
+				mov(rbp, qword[rsp + 0x50]);
+				mov(rsi, qword[rsp + 0x58]);
+				add(rsp, 0x30);
+				pop(rdi);
+				ret();
+
+				L(hookAddress);
+				dq(a_hookAddr);
+			}
+		};
+
+		TESObjectREFR_ResetInventory_Code code{ std::uintptr_t(ResetInventory_TESObjectREFR_Hook) };
+		void* codeLoc = SKSE::GetTrampoline().allocate(code);
+
+		SKSE::GetTrampoline().write_branch<5>(Offsets::ItemMenuUpdater::ResetInventory_TESObjectREFR_Hook.address() + 0x204, codeLoc);
 	}
 }

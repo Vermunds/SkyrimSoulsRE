@@ -42,6 +42,8 @@ namespace Offsets
 		static constexpr REL::ID RemoveAllItems(static_cast<std::uint64_t>(441568));
 		static constexpr REL::ID RemoveAllItems_Hook1(static_cast<std::uint64_t>(16121));   // + 0x3A
 		static constexpr REL::ID RemoveAllItems_Hook2(static_cast<std::uint64_t>(441567));  // + 0x55
+
+		static constexpr REL::ID ResetInventory_TESObjectREFR_Hook(static_cast<std::uint64_t>(19802));  // + 0x204
 	}
 
 	namespace Menus
