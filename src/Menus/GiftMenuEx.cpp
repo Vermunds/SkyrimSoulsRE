@@ -12,6 +12,7 @@ namespace SkyrimSoulsRE
 				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
+
 		return _ProcessMessage(this, a_message);
 	}
 	void GiftMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
@@ -60,12 +61,11 @@ namespace SkyrimSoulsRE
 		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
 		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
-		RE::RefHandle handle = menu->GetTargetRefHandle();
-		RE::TESObjectREFRPtr refptr = nullptr;
-		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
+		RE::RefHandle handle = menu->IsPlayerGifting() ? menu->GetReceiverRefHandle() : menu->GetGifterRefHandle();
+		if (handle)
 		{
-			ref = refptr.get();
+			AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+			autoCloseManager->InitAutoClose(RE::GiftMenu::MENU_NAME, handle, true);
 		}
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
@@ -73,9 +73,6 @@ namespace SkyrimSoulsRE
 		{
 			hudMenu->SetSkyrimSoulsMode(true);
 		}
-
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, true);
 
 		return menu;
 	}

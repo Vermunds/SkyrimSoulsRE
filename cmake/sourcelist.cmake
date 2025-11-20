@@ -42,6 +42,7 @@ set(SOURCES
 	include/SlowMotionHandler.h
 	include/UIBlurManagerEx.h
 	include/UnpausedTaskQueue.h
+	include/Util.h
 	src/AudioHooks.cpp
 	src/AutoCloseManager.cpp
 	src/ConsoleCommandHooks.cpp
@@ -82,4 +83,5 @@ set(SOURCES
 	src/UIBlurManagerEx.cpp
 	src/UnpausedTaskQueue.cpp
 	src/main.cpp
+	src/Util.cpp
 )

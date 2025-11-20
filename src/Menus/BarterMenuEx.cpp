@@ -64,12 +64,10 @@ namespace SkyrimSoulsRE
 		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
 		RE::RefHandle handle = menu->GetTargetRefHandle();
-		RE::TESObjectREFRPtr refptr = nullptr;
-
-		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
+		if (handle)
 		{
-			ref = refptr.get();
+			AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+			autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, handle, true);
 		}
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
@@ -77,9 +75,6 @@ namespace SkyrimSoulsRE
 		{
 			hudMenu->SetSkyrimSoulsMode(true);
 		}
-
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, ref, true);
 
 		return menu;
 	}

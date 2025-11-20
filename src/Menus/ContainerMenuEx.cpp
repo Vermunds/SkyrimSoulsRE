@@ -31,8 +31,14 @@ namespace SkyrimSoulsRE
 	std::int32_t ContainerMenuEx::CalcPickPocketChance(RE::StandardItemData* a_itemData)
 	{
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(GetTargetRefHandle());
 
-		RE::Actor* targetActor = static_cast<RE::Actor*>(ContainerMenuEx::containerRef);
+		if (!containerRef)
+		{
+			return -1;
+		}
+
+		RE::Actor* targetActor = static_cast<RE::Actor*>(containerRef.get());
 
 		float itemWeight = a_itemData->objDesc->GetWeight();
 		std::uint32_t count = 1;
@@ -65,6 +71,8 @@ namespace SkyrimSoulsRE
 
 	void ContainerMenuEx::UpdatePickpocketChance()
 	{
+		RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(GetTargetRefHandle());
+
 		if (containerRef && containerRef->formType == RE::FormType::ActorCharacter)
 		{
 			RE::ItemList::Item* item = this->itemList->GetSelectedItem();
@@ -139,9 +147,11 @@ namespace SkyrimSoulsRE
 
 					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 					{
+						RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(menu->GetTargetRefHandle());
+
 						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
-							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
+							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef.get(), selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
 							menu->value = 0;
 						}
 						else
@@ -201,9 +211,11 @@ namespace SkyrimSoulsRE
 
 					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
 					{
+						RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(menu->GetTargetRefHandle());
+
 						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
 						{
-							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef, selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
+							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef.get(), selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
 							menu->value = 0;
 						}
 						else
@@ -241,17 +253,10 @@ namespace SkyrimSoulsRE
 		}
 
 		RE::RefHandle handle = menu->GetTargetRefHandle();
-		RE::TESObjectREFRPtr refptr = nullptr;
-		RE::TESObjectREFR* ref = nullptr;
-		if (RE::TESObjectREFR::LookupByHandle(handle, refptr))
-		{
-			ref = refptr.get();
-		}
-
-		containerRef = ref;
 
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, ref, menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket);
+		bool checkForDeath = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
+		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, menu->GetTargetRefHandle(), checkForDeath);
 
 		return menu;
 	}

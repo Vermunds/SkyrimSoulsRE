@@ -100,8 +100,9 @@ namespace SkyrimSoulsRE
 	{
 		RE::BookMenu* menu = static_cast<RE::BookMenu*>(CreateMenu(RE::BookMenu::MENU_NAME));
 
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::BookMenu::MENU_NAME, menu->GetTargetReference(), false);
+		RE::RefHandle handle;
+		RE::CreateRefHandle(handle, menu->GetTargetReference().get());
+		AutoCloseManager::GetSingleton()->InitAutoClose(RE::BookMenu::MENU_NAME, handle, false);
 
 		return menu;
 	}

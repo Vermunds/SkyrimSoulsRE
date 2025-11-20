@@ -151,13 +151,13 @@ namespace SkyrimSoulsRE
 		{
 			// Update the list without the spells included
 			wasViewingActiveEffects = true;
-			reinterpret_cast<RE::ItemList*>(this->unk30)->Update();
+			this->itemList->Update();
 		}
 		else if (wasViewingActiveEffects)
 		{
 			// Update the list with the spells included
 			wasViewingActiveEffects = false;
-			reinterpret_cast<RE::ItemList*>(this->unk30)->Update();
+			this->itemList->Update();
 		}
 		else
 		{

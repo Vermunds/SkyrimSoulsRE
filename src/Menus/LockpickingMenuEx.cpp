@@ -30,8 +30,9 @@ namespace SkyrimSoulsRE
 	{
 		RE::LockpickingMenu* menu = static_cast<RE::LockpickingMenu*>(CreateMenu(RE::LockpickingMenu::MENU_NAME));
 
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		autoCloseManager->InitAutoClose(RE::LockpickingMenu::MENU_NAME, menu->GetTargetReference(), false);
+		RE::RefHandle handle;
+		RE::CreateRefHandle(handle, GetTargetReference().get());
+		AutoCloseManager::GetSingleton()->InitAutoClose(RE::LockpickingMenu::MENU_NAME, handle, false);
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)

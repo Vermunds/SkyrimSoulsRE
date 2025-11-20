@@ -7,50 +7,32 @@ namespace SkyrimSoulsRE
 	class AutoCloseManager
 	{
 	public:
-		void CheckAutoClose(RE::BSFixedString a_menuName);
-		void InitAutoClose(RE::BSFixedString a_menuName, RE::TESObjectREFR* a_ref, bool a_checkForDeath);
+		void CheckAutoClose(std::string_view a_menuName);
+		void InitAutoClose(std::string_view a_menuName, RE::RefHandle a_refHandle, bool a_checkForDeath);
 
 		static AutoCloseManager* GetSingleton();
 
 	private:
-		AutoCloseManager(){};
-		~AutoCloseManager(){};
+		AutoCloseManager() {};
+		~AutoCloseManager() {};
 		AutoCloseManager(const AutoCloseManager&) = delete;
 		AutoCloseManager& operator=(const AutoCloseManager&) = delete;
 
 		struct AutoCloseData
 		{
-			RE::TESObjectREFR* target = nullptr;
+			RE::RefHandle targetRefHandle = 0;
 			bool initiallyDisabled = false;
 			float initialDistance = 0.0f;
 			float minDistance = 0.0f;
 			bool checkForDeath = false;
 			bool dialogueMode = false;
+
+			void PrintDebugInfo(std::string_view a_menuName);
 		};
 
-		template <class T>
-		bool CheckMenuStack(AutoCloseData* a_inData, RE::TESObjectREFR* a_ref)
-		{
-			RE::UI* ui = RE::UI::GetSingleton();
-			if (ui->IsMenuOpen(T::MENU_NAME) && _autoCloseDataMap.find(T::MENU_NAME.data()) != _autoCloseDataMap.end())
-			{
-				AutoCloseData* data = _autoCloseDataMap.at(T::MENU_NAME.data());
-				if (data->target == a_ref)
-				{
-					a_inData->target = data->target;
-					a_inData->initialDistance = data->initialDistance;
-					a_inData->minDistance = data->minDistance;
-					a_inData->initiallyDisabled = data->initiallyDisabled;
-					a_inData->checkForDeath = data->checkForDeath;
-					a_inData->dialogueMode = data->dialogueMode;
-					return true;
-				}
-			}
-			return false;
-		}
+		std::unordered_map<std::string_view, AutoCloseData> _autoCloseDataMap;
 
-		std::map<std::string, std::shared_ptr<AutoCloseData>> _autoCloseDataMap;
-
-		float GetDistance(RE::NiPoint3 a_playerPos, float a_playerHeight, RE::NiPoint3 a_refPos);
+		void CloseMenu(AutoCloseData& a_data, std::string_view a_menuName, const std::string& a_reason);
+		float GetBBDistance(const RE::TESObjectREFR* a_refA, const RE::TESObjectREFR* a_refB);
 	};
 }
