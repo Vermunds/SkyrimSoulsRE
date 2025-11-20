@@ -42,14 +42,6 @@ namespace Offsets
 		static constexpr REL::ID RemoveAllItems(static_cast<std::uint64_t>(441568));
 		static constexpr REL::ID RemoveAllItems_Hook1(static_cast<std::uint64_t>(16121));   // + 0x3A
 		static constexpr REL::ID RemoveAllItems_Hook2(static_cast<std::uint64_t>(441567));  // + 0x55
-
-		static constexpr REL::ID RemoveItem_Actor(static_cast<std::uint64_t>(37797));
-		static constexpr REL::ID RemoveItem_TESObjectREFR(static_cast<std::uint64_t>(19689));
-
-		static constexpr REL::ID RemoveItem_Hook1(static_cast<std::uint64_t>(22002));  // + 0x9A (6 call) - Actor - when called from Console (Drop)
-		static constexpr REL::ID RemoveItem_Hook2(static_cast<std::uint64_t>(56125));  // + 0xDB (6 call) - Actor - when called from Payprus (DropObject)
-		static constexpr REL::ID RemoveItem_Hook3(static_cast<std::uint64_t>(24715));  // + 0x472 (6 call) - Actor - when other NPCs interact
-		static constexpr REL::ID RemoveItem_Hook4(static_cast<std::uint64_t>(17887));  // + 0x26A (6 call) - TESObjectREFR - when other NPCs interact
 	}
 
 	namespace Menus
@@ -144,9 +136,9 @@ namespace Offsets
 		static constexpr REL::ID Value2(static_cast<std::uint64_t>(403437));
 	}
 
-	namespace TESImagespaceModifier
+	namespace TESFurniture
 	{
-		static constexpr REL::ID Apply(static_cast<std::uint64_t>(18570));
+		static constexpr REL::ID Activate(static_cast<std::uint64_t>(17420));  // + 0x16A
 	}
 
 	namespace UnpausedTaskQueue

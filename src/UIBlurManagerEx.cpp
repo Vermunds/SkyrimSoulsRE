@@ -12,8 +12,7 @@ namespace SkyrimSoulsRE
 			uint16_t& blurCount = a_this->blurCount;
 
 			// Apply effect
-			auto applyFunc = reinterpret_cast<uint64_t (*)(RE::TESImageSpaceModifier*, float, uint64_t)>(Offsets::TESImagespaceModifier::Apply.address());
-			applyFunc(a_this->blurEffect, 1.0f, 0);
+			RE::ImageSpaceModifierInstanceForm::Trigger(a_this->blurEffect, 1.0f, 0);
 
 			++blurCount;
 		}

@@ -18,6 +18,8 @@ namespace SkyrimSoulsRE
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
 	{
+		SKSE::log::info("Creating menu {}", a_menuName);
+
 		RE::UI* ui = RE::UI::GetSingleton();
 		Settings* settings = Settings::GetSingleton();
 
