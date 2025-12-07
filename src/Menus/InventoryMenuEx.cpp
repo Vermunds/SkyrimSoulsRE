@@ -2,45 +2,10 @@
 
 namespace SkyrimSoulsRE
 {
-	std::string GetMessageTypeName(RE::UI_MESSAGE_TYPE a_type)
-	{
-		switch (a_type)
-		{
-		case RE::UI_MESSAGE_TYPE::kUpdate:
-			return "kUpdate";
-		case RE::UI_MESSAGE_TYPE::kShow:
-			return "kShow";
-		case RE::UI_MESSAGE_TYPE::kReshow:
-			return "kReshow";
-		case RE::UI_MESSAGE_TYPE::kHide:
-			return "kHide";
-		case RE::UI_MESSAGE_TYPE::kForceHide:
-			return "kForceHide";
-		case RE::UI_MESSAGE_TYPE::kScaleformEvent:
-			return "kScaleformEvent";
-		case RE::UI_MESSAGE_TYPE::kUserEvent:
-			return "kUserEvent";
-		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
-			return "kInventoryUpdate";
-		case RE::UI_MESSAGE_TYPE::kUserProfileChange:
-			return "kUserProfileChange";
-		case RE::UI_MESSAGE_TYPE::kMUStatusChange:
-			return "kMUStatusChange";
-		case RE::UI_MESSAGE_TYPE::kResumeCaching:
-			return "kResumeCaching";
-		case RE::UI_MESSAGE_TYPE::kUpdateController:
-			return "kUpdateController";
-		case RE::UI_MESSAGE_TYPE::kChatterEvent:
-			return "kChatterEvent";
-		}
-
-		return "unknown";
-	}
-
 	RE::UI_MESSAGE_RESULTS InventoryMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
 		RE::UI_MESSAGE_RESULTS result = _ProcessMessage(this, a_message);
-		//SKSE::log::info("Received inventory message type: {}", GetMessageTypeName(a_message.type.get()));
+
 		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
 		{
 			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());

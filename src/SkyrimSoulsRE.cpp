@@ -1,5 +1,4 @@
 #include "SkyrimSoulsRE.h"
-#include "Windows.h"
 
 namespace SkyrimSoulsRE
 {
