@@ -12,38 +12,13 @@ namespace SkyrimSoulsRE
 				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		{
+			this->UpdateBottomBar();
+			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
+		}
 
 		return _ProcessMessage(this, a_message);
-	}
-	void GiftMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		this->UpdateBottomBar();
-
-		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
-
-		return _AdvanceMovie(this, a_interval, a_currentTime);
-	}
-
-	void GiftMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		double amount = a_args[0].GetNumber();
-
-		auto task = [amount]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME))
-			{
-				RE::IMenu* menu = ui->GetMenu(RE::GiftMenu::MENU_NAME).get();
-
-				RE::GFxValue arg = amount;
-				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-				_ItemSelect(args);
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
 	}
 
 	void GiftMenuEx::UpdateBottomBar()
@@ -56,10 +31,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* GiftMenuEx::Creator()
 	{
 		RE::GiftMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
-
-		RE::FxDelegate* dlg = menu->fxDelegate.get();
-		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
-		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
 
 		RE::RefHandle handle = menu->IsPlayerGifting() ? menu->GetReceiverRefHandle() : menu->GetGifterRefHandle();
 		if (handle)
@@ -81,6 +52,5 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_GiftMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &GiftMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &GiftMenuEx::AdvanceMovie_Hook);
 	}
 }

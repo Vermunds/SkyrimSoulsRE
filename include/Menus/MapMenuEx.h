@@ -23,8 +23,7 @@ namespace SkyrimSoulsRE
 		static inline MapMenuCellLoadedEventHandler mapMenuCellLoadedEventHandler;
 		static inline bool cellRenderingUpdateNeeded = false;
 
-		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);  // 05
-		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);   // 04
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);  // 04
 
 		void UpdatePlayerMarkerPosition();
 		void UpdateClock();
@@ -37,9 +36,6 @@ namespace SkyrimSoulsRE
 
 		using ProcessMessage_t = decltype(&RE::MapMenu::ProcessMessage);
 		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
-
-		using AdvanceMovie_t = decltype(&RE::MapMenu::AdvanceMovie);
-		static inline REL::Relocation<AdvanceMovie_t> _AdvanceMovie;
 
 		using TerrainManagerUpdate_t = decltype(BGSTerrainManager_Update_Hook);
 		static inline std::function<TerrainManagerUpdate_t> _TerrainManagerUpdate;

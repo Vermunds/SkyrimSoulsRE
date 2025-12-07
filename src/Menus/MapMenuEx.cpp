@@ -28,67 +28,30 @@ namespace SkyrimSoulsRE
 		}
 		else if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
 		{
-			// Fix disappearing first person model after closing the menu
-			auto task = []() {
-				RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-				RE::PlayerCamera* camera = RE::PlayerCamera::GetSingleton();
-				if (!player || !camera)
-				{
-					return;
-				}
-
-				RE::NiAVObject* player3d = player->Get3D1(true);
-				if (player3d && camera->currentState == camera->cameraStates[RE::CameraStates::kFirstPerson])
-				{
-					if (player3d->flags.all(RE::NiAVObject::Flag::kHidden))
-					{
-						player3d->flags.reset(RE::NiAVObject::Flag::kHidden);
-					}
-					camera->Update();
-				}
-			};
-
-			UnpausedTaskQueue::GetSingleton()->AddTask(task);
 			mapMenuCellLoadedEventHandler.Unregister();
+		}
+		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		{
+			this->UpdateClock();
+			this->UpdatePlayerMarkerPosition();
+
+			if (cellRenderingUpdateNeeded)
+			{
+				// Force map mode rendering for newly loaded cells as well
+				auto func = reinterpret_cast<void (*)()>(Offsets::Menus::MapMenu::EnableMapModeRenderingFunc.address());
+				func();
+
+				// This has the side-effect that LOD trees will disappear, so re-enable them again (they still won't appear in Map Menu)
+				if (this->worldSpace && this->worldSpace->terrainManager)
+				{
+					this->worldSpace->terrainManager->lodTreesHidden = false;
+				}
+
+				cellRenderingUpdateNeeded = false;
+			}
 		}
 
 		return _ProcessMessage(this, a_message);
-	}
-
-	void MapMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		auto task = [a_interval, a_currentTime]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
-			{
-				MapMenuEx* menu = static_cast<MapMenuEx*>(ui->GetMenu(RE::MapMenu::MENU_NAME).get());
-
-				menu->UpdateClock();
-				menu->UpdatePlayerMarkerPosition();
-
-				if (cellRenderingUpdateNeeded)
-				{
-					// Force map mode rendering for newly loaded cells as well
-					auto func = reinterpret_cast<void (*)()>(Offsets::Menus::MapMenu::EnableMapModeRenderingFunc.address());
-					func();
-
-					// This has the side-effect that LOD trees will disappear, so re-enable them again (they still won't appear in Map Menu)
-					if (menu->worldSpace && menu->worldSpace->terrainManager)
-					{
-						menu->worldSpace->terrainManager->lodTreesHidden = false;
-					}
-
-					cellRenderingUpdateNeeded = false;
-				}
-
-				menu->_AdvanceMovie(menu, a_interval, a_currentTime);
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
 	}
 
 	void MapMenuEx::UpdatePlayerMarkerPosition()
@@ -156,7 +119,6 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MapMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MapMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &MapMenuEx::AdvanceMovie_Hook);
 
 		// Prevent setting kFreezeFrameBackground flag when opening local map
 		REL::safe_write(Offsets::Menus::MapMenu::LocalMapUpdaterFunc.address() + 0x53, std::uint32_t(0x90909090));

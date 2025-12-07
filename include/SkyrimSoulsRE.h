@@ -2,7 +2,6 @@
 
 #include "AudioHooks.h"
 #include "AutoCloseManager.h"
-#include "ConsoleCommandHooks.h"
 #include "ItemMenuUpdater.h"
 #include "MenuCache.h"
 #include "Offsets.h"
@@ -10,7 +9,6 @@
 #include "Settings.h"
 #include "SlowMotionHandler.h"
 #include "UIBlurManagerEx.h"
-#include "UnpausedTaskQueue.h"
 
 #include "Menus/BarterMenuEx.h"
 #include "Menus/BookMenuEx.h"

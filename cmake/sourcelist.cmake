@@ -1,7 +1,6 @@
 set(SOURCES
 	include/AudioHooks.h
 	include/AutoCloseManager.h
-	include/ConsoleCommandHooks.h
 	include/Controls/BSWin32KeyboardDeviceEx.h
 	include/Controls/CameraMovement.h
 	include/Controls/InputHandlerEx.h
@@ -41,11 +40,9 @@ set(SOURCES
 	include/SkyrimSoulsRE.h
 	include/SlowMotionHandler.h
 	include/UIBlurManagerEx.h
-	include/UnpausedTaskQueue.h
 	include/Util.h
 	src/AudioHooks.cpp
 	src/AutoCloseManager.cpp
-	src/ConsoleCommandHooks.cpp
 	src/Controls/BSWin32KeyboardDeviceEx.cpp
 	src/Controls/CameraMovement.cpp
 	src/Controls/MenuControlsEx.cpp
@@ -81,7 +78,6 @@ set(SOURCES
 	src/SkyrimSoulsRE.cpp
 	src/SlowMotionHandler.cpp
 	src/UIBlurManagerEx.cpp
-	src/UnpausedTaskQueue.cpp
 	src/main.cpp
 	src/Util.cpp
 )

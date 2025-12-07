@@ -9,12 +9,12 @@ namespace SkyrimSoulsRE
 		Settings* settings = Settings::GetSingleton();
 		if (!settings->disableBlur)
 		{
-			uint16_t& blurCount = a_this->blurCount;
+			if (!a_this->blurCount)
+			{
+				RE::ImageSpaceModifierInstanceForm::Trigger(a_this->blurEffect, 1.0f, 0);
+			}
 
-			// Apply effect
-			RE::ImageSpaceModifierInstanceForm::Trigger(a_this->blurEffect, 1.0f, 0);
-
-			++blurCount;
+			++a_this->blurCount;
 		}
 	}
 

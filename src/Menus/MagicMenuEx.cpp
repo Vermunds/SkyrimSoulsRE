@@ -38,6 +38,25 @@ namespace SkyrimSoulsRE
 				}
 				break;
 			}
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				if (IsViewingActiveEffects())
+				{
+					// Update the list without the spells included
+					wasViewingActiveEffects = true;
+					this->itemList->Update();
+				}
+				else if (wasViewingActiveEffects)
+				{
+					// Update the list with the spells included
+					wasViewingActiveEffects = false;
+					this->itemList->Update();
+				}
+				else
+				{
+					this->UpdateBottomBar();
+				}
+			}
 		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
 			{
 				// for SkyUI only
@@ -145,28 +164,6 @@ namespace SkyrimSoulsRE
 		return func(a_list, a_unk1, a_playerRefHandle);
 	}
 
-	void MagicMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		if (IsViewingActiveEffects())
-		{
-			// Update the list without the spells included
-			wasViewingActiveEffects = true;
-			this->itemList->Update();
-		}
-		else if (wasViewingActiveEffects)
-		{
-			// Update the list with the spells included
-			wasViewingActiveEffects = false;
-			this->itemList->Update();
-		}
-		else
-		{
-			this->UpdateBottomBar();
-		}
-
-		return _AdvanceMovie(this, a_interval, a_currentTime);
-	}
-
 	void MagicMenuEx::UpdateBottomBar()
 	{
 		using func_t = decltype(&MagicMenuEx::UpdateBottomBar);
@@ -190,7 +187,6 @@ namespace SkyrimSoulsRE
 		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MagicMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MagicMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &MagicMenuEx::AdvanceMovie_Hook);
 
 		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x53, AddSpells_Hook);
 		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x9A, AddShouts_Hook);

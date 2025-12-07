@@ -2,8 +2,45 @@
 
 namespace SkyrimSoulsRE
 {
+	std::string GetMessageTypeName(RE::UI_MESSAGE_TYPE a_type)
+	{
+		switch (a_type)
+		{
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			return "kUpdate";
+		case RE::UI_MESSAGE_TYPE::kShow:
+			return "kShow";
+		case RE::UI_MESSAGE_TYPE::kReshow:
+			return "kReshow";
+		case RE::UI_MESSAGE_TYPE::kHide:
+			return "kHide";
+		case RE::UI_MESSAGE_TYPE::kForceHide:
+			return "kForceHide";
+		case RE::UI_MESSAGE_TYPE::kScaleformEvent:
+			return "kScaleformEvent";
+		case RE::UI_MESSAGE_TYPE::kUserEvent:
+			return "kUserEvent";
+		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
+			return "kInventoryUpdate";
+		case RE::UI_MESSAGE_TYPE::kUserProfileChange:
+			return "kUserProfileChange";
+		case RE::UI_MESSAGE_TYPE::kMUStatusChange:
+			return "kMUStatusChange";
+		case RE::UI_MESSAGE_TYPE::kResumeCaching:
+			return "kResumeCaching";
+		case RE::UI_MESSAGE_TYPE::kUpdateController:
+			return "kUpdateController";
+		case RE::UI_MESSAGE_TYPE::kChatterEvent:
+			return "kChatterEvent";
+		}
+
+		return "unknown";
+	}
+
 	RE::UI_MESSAGE_RESULTS InventoryMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		RE::UI_MESSAGE_RESULTS result = _ProcessMessage(this, a_message);
+		//SKSE::log::info("Received inventory message type: {}", GetMessageTypeName(a_message.type.get()));
 		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
 		{
 			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
@@ -12,12 +49,11 @@ namespace SkyrimSoulsRE
 				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
-		return _ProcessMessage(this, a_message);
-	}
-	void InventoryMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		this->UpdateBottomBar();
-		return _AdvanceMovie(this, a_interval, a_currentTime);
+		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		{
+			this->UpdateBottomBar();
+		}
+		return result;
 	}
 
 	void InventoryMenuEx::UpdateBottomBar()
@@ -27,84 +63,21 @@ namespace SkyrimSoulsRE
 		return func(this);
 	}
 
-	void InventoryMenuEx::ItemDrop_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		double count = a_args[0].GetNumber();
-
-		auto task = [count]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
-			{
-				RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
-
-				RE::GFxValue arg = count;
-				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-				InventoryMenuEx::_ItemDrop(args);
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-	}
-
-	void InventoryMenuEx::ItemSelect_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		bool hasSlot = (a_args.GetArgCount() > 0);
-		double slot = hasSlot ? a_args[0].GetNumber() : 0.0;
-
-		auto task = [hasSlot, slot]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME))
-			{
-				RE::IMenu* menu = ui->GetMenu(RE::InventoryMenu::MENU_NAME).get();
-
-				if (hasSlot)
-				{
-					RE::GFxValue arg = slot;
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-					_ItemSelect(args);
-				}
-				else
-				{
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
-					_ItemSelect(args);
-				}
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-	}
-
 	RE::IMenu* InventoryMenuEx::Creator()
 	{
 		RE::InventoryMenu* menu = static_cast<RE::InventoryMenu*>(CreateMenu(RE::InventoryMenu::MENU_NAME));
-
-		RE::FxDelegate* dlg = menu->fxDelegate.get();
-
-		_ItemSelect = dlg->callbacks.GetAlt("ItemSelect")->callback;
-		dlg->callbacks.GetAlt("ItemSelect")->callback = ItemSelect_Hook;
-		_ItemDrop = dlg->callbacks.GetAlt("ItemDrop")->callback;
-		dlg->callbacks.GetAlt("ItemDrop")->callback = ItemDrop_Hook;
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
 		if (hudMenu)
 		{
 			hudMenu->SetSkyrimSoulsMode(true);
 		}
-
 		return menu;
 	}
 
 	void InventoryMenuEx::InstallHook()
 	{
-		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_InventoryMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &InventoryMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &InventoryMenuEx::AdvanceMovie_Hook);
 	}
 };

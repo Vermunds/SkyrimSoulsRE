@@ -7,16 +7,12 @@ namespace SkyrimSoulsRE
 	class MessageBoxMenuEx : public RE::MessageBoxMenu
 	{
 	public:
-		void AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime);
-
 		static RE::IMenu* Creator();
 		static void InstallHook();
 
-		static void ButtonPress_Hook(const RE::FxDelegateArgs& a_args);
+		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
 
-		static inline RE::FxDelegateHandler::CallbackFn* _ButtonPress;
-
-		using AdvanceMovie_t = decltype(&RE::MessageBoxMenu::AdvanceMovie);
-		static inline REL::Relocation<AdvanceMovie_t> _AdvanceMovie;
+		using ProcessMessage_t = decltype(&RE::MessageBoxMenu::ProcessMessage);
+		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
 	};
 }

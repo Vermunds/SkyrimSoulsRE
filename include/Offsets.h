@@ -3,15 +3,6 @@
 
 namespace Offsets
 {
-	namespace ConsoleCommands
-	{
-		static constexpr REL::ID CenterOnCell_Hook(static_cast<std::uint64_t>(22873));      // + 0x5B
-		static constexpr REL::ID CenterOnWorld_Hook(static_cast<std::uint64_t>(22876));     // + 0x104
-		static constexpr REL::ID CenterOnExterior_Hook(static_cast<std::uint64_t>(22875));  // + 0x109
-		static constexpr REL::ID ServeTime_Hook(static_cast<std::uint64_t>(22628));         // + 0xE
-		static constexpr REL::ID SaveGame_Hook(static_cast<std::uint64_t>(22940));          // + 0xC4
-	}
-
 	namespace BGSTerrainManager
 	{
 		static constexpr REL::ID TerrainManager_UpdateFunc(static_cast<std::uint64_t>(39102));  // + 0x5D
@@ -46,6 +37,17 @@ namespace Offsets
 		static constexpr REL::ID ResetInventory_TESObjectREFR_Hook(static_cast<std::uint64_t>(19802));  // + 0x204
 	}
 
+	namespace Job
+	{
+		static constexpr REL::ID UI(static_cast<std::uint64_t>(39042));  // + 0xB
+	}
+
+	namespace Main
+	{
+		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));  // + 0xADF
+		static constexpr REL::ID Render(static_cast<std::uint64_t>(36555));  // + 0x5CA
+	}
+
 	namespace Menus
 	{
 		namespace BarterMenu
@@ -53,9 +55,19 @@ namespace Offsets
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(50957));
 		}
 
+		namespace BookMenu
+		{
+			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(51049));
+		}
+
 		namespace ContainerMenu
 		{
 			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(51143));
+		}
+
+		namespace CraftingMenu
+		{
+			static constexpr REL::ID UpdateBottomBar(static_cast<std::uint64_t>(51458));
 		}
 
 		namespace DialogueMenu
@@ -66,11 +78,6 @@ namespace Offsets
 		namespace FavoritesMenu
 		{
 			static constexpr REL::ID CanProcess(static_cast<std::uint64_t>(51538));
-
-			static constexpr REL::ID SelectItem_HookFunc_1(static_cast<std::uint64_t>(51534));  // + 0x13A; + 0x166; + 0x192
-			static constexpr REL::ID SelectItem_HookFunc_2(static_cast<std::uint64_t>(51537));  // + 0x45; + 0x73
-
-			static constexpr REL::ID ItemSelect(static_cast<std::uint64_t>(51548));
 		}
 
 		namespace GiftMenu
@@ -127,8 +134,10 @@ namespace Offsets
 
 	namespace Misc
 	{
-		static constexpr REL::ID CreateSaveScreenshot(static_cast<std::uint64_t>(36857));
 		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(42338));  // + 0x6D8
+
+		static constexpr REL::ID Unk_ExecuteUIScriptsGetSingleton(static_cast<std::uint64_t>(52950));
+		static constexpr REL::ID Unk_ExecuteUIScripts(static_cast<std::uint64_t>(52952));
 	}
 
 	namespace Papyrus::IsInMenuMode
@@ -138,13 +147,20 @@ namespace Offsets
 		static constexpr REL::ID Value2(static_cast<std::uint64_t>(403437));
 	}
 
+	namespace PlayerCharacter::PlayerSkills
+	{
+		static constexpr REL::ID CanLevelUp(static_cast<std::uint64_t>(41565));
+		static constexpr REL::ID GetXPAndLevelUpThreshold(static_cast<std::uint64_t>(41560));
+	}
+
 	namespace TESFurniture
 	{
 		static constexpr REL::ID Activate(static_cast<std::uint64_t>(17420));  // + 0x16A
 	}
 
-	namespace UnpausedTaskQueue
+	namespace UI
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(36564));  // + 0x3E
+		static constexpr REL::ID ProcessMessages(static_cast<std::uint64_t>(82082));
+		static constexpr REL::ID AdvanceMovies(static_cast<std::uint64_t>(82083));
 	}
 }

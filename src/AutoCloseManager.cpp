@@ -35,6 +35,7 @@ namespace SkyrimSoulsRE
 		{
 			RE::UI* ui = RE::UI::GetSingleton();
 			RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
+			REX::W32::EnterCriticalSection(&mtm->criticalSection);
 
 			if (ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME))
 			{
@@ -47,6 +48,8 @@ namespace SkyrimSoulsRE
 			{
 				CloseMenu(data, a_menuName, "Parent Dialogue Menu closed");
 			}
+
+			REX::W32::LeaveCriticalSection(&mtm->criticalSection);
 			return;
 		}
 
@@ -100,7 +103,6 @@ namespace SkyrimSoulsRE
 		data = AutoCloseData{};
 
 		// If the dialogue and the menu target matches, close the menu only when the dialogue menu closes
-		RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
 		bool isPickpocketMenu = false;
 
 		if (a_menuName == RE::ContainerMenu::MENU_NAME && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
@@ -111,14 +113,18 @@ namespace SkyrimSoulsRE
 
 		RE::TESObjectREFR* target = GetReferenceFromHandle(a_refHandle);
 
+		RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
+		REX::W32::EnterCriticalSection(&mtm->criticalSection);
 		if (!isPickpocketMenu && ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) && !mtm->forceGoodbye && mtm->speaker && mtm->speaker.get() && target && target == mtm->speaker.get().get())
 		{
 			data.targetRefHandle = a_refHandle;
 			data.dialogueMode = true;
 
 			data.PrintDebugInfo(a_menuName);
+			REX::W32::LeaveCriticalSection(&mtm->criticalSection);
 			return;
 		}
+		REX::W32::LeaveCriticalSection(&mtm->criticalSection);
 
 		// Container -> Book
 		if (a_menuName == RE::BookMenu::MENU_NAME && !target && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))

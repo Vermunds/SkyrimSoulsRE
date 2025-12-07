@@ -23,10 +23,8 @@ namespace SkyrimSoulsRE
 		static RE::IMenu* Creator();
 		static void InstallHook();
 
-		using AdvanceMovie_t = decltype(&RE::SleepWaitMenu::AdvanceMovie);
 		using ProcessMessage_t = decltype(&RE::SleepWaitMenu::ProcessMessage);
 
-		static inline REL::Relocation<AdvanceMovie_t> _AdvanceMovie;
 		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
 
 		static inline RE::FxDelegateHandler::CallbackFn* _StartSleepWait;

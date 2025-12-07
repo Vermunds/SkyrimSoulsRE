@@ -12,20 +12,17 @@ namespace SkyrimSoulsRE
 				hudMenu->SetSkyrimSoulsMode(false);
 			}
 		}
-		return _ProcessMessage(this, a_message);
-	}
-
-	void ContainerMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		this->UpdateBottomBar();
-		if (this->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
+		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
 		{
-			this->UpdatePickpocketChance();
+			this->UpdateBottomBar();
+			if (this->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
+			{
+				this->UpdatePickpocketChance();
+			}
+
+			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
 		}
-
-		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
-
-		return _AdvanceMovie(this, a_interval, a_currentTime);
+		return _ProcessMessage(this, a_message);
 	}
 
 	std::int32_t ContainerMenuEx::CalcPickPocketChance(RE::StandardItemData* a_itemData)
@@ -113,146 +110,15 @@ namespace SkyrimSoulsRE
 		return func(this);
 	}
 
-	void ContainerMenuEx::EquipItem_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		double equipHand = a_args[0].GetNumber();
-		bool hasCount = (a_args.GetArgCount() == 2);
-		double count = hasCount ? a_args[1].GetNumber() : 0;
-
-		auto task = [equipHand, hasCount, count]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
-			{
-				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
-
-				if (selectedItem)
-				{
-					if (hasCount)
-					{
-						RE::GFxValue arg[2];
-						arg[0] = equipHand;
-						arg[1] = count;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
-						ContainerMenuEx::_EquipItem(args);
-					}
-					else
-					{
-						RE::GFxValue arg = equipHand;
-						const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &arg, 1);
-						ContainerMenuEx::_EquipItem(args);
-					}
-
-					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
-					{
-						RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(menu->GetTargetRefHandle());
-
-						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
-						{
-							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef.get(), selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
-							menu->value = 0;
-						}
-						else
-						{
-							SKSE::log::error("Failed to send steam alarm.");
-						}
-					}
-				}
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-	}
-
-	void ContainerMenuEx::TakeAllItems_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		auto task = []() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
-			{
-				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-
-				const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), nullptr, 0);
-				ContainerMenuEx::_TakeAllItems(args);
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-	}
-
-	void ContainerMenuEx::TransferItem_Hook(const RE::FxDelegateArgs& a_args)
-	{
-		double count = a_args[0].GetNumber();
-		bool isViewingContainer = a_args[1].GetBool();
-
-		auto task = [count, isViewingContainer]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-			RE::BSSpinLockGuard lk(ui->processMessagesLock);
-
-			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
-			{
-				ContainerMenuEx* menu = static_cast<ContainerMenuEx*>(ui->GetMenu(RE::ContainerMenu::MENU_NAME).get());
-
-				RE::ItemList::Item* selectedItem = menu->itemList->GetSelectedItem();
-
-				if (selectedItem)
-				{
-					RE::GFxValue arg[2];
-					arg[0] = count;
-					arg[1] = isViewingContainer;
-					const RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), arg, 2);
-					ContainerMenuEx::_TransferItem(args);
-
-					if (menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kSteal && menu->value != 0)
-					{
-						RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(menu->GetTargetRefHandle());
-
-						if (containerRef && selectedItem && selectedItem->data.objDesc && selectedItem->data.objDesc->object && containerRef->GetOwner())
-						{
-							RE::PlayerCharacter::GetSingleton()->StealAlarm(containerRef.get(), selectedItem->data.objDesc->object, static_cast<std::int32_t>(count), selectedItem->data.objDesc->GetValue(), containerRef->GetOwner(), true);
-							menu->value = 0;
-						}
-						else
-						{
-							SKSE::log::error("Failed to send steam alarm.");
-						}
-					}
-				}
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
-	}
-
 	RE::IMenu* ContainerMenuEx::Creator()
 	{
 		RE::ContainerMenu* menu = static_cast<RE::ContainerMenu*>(CreateMenu(RE::ContainerMenu::MENU_NAME));
-
-		RE::FxDelegate* dlg = menu->fxDelegate.get();
-
-		_TransferItem = dlg->callbacks.GetAlt("ItemTransfer")->callback;
-		dlg->callbacks.GetAlt("ItemTransfer")->callback = TransferItem_Hook;
-
-		_EquipItem = dlg->callbacks.GetAlt("EquipItem")->callback;
-		dlg->callbacks.GetAlt("EquipItem")->callback = EquipItem_Hook;
-
-		_TakeAllItems = dlg->callbacks.GetAlt("TakeAllItems")->callback;
-		dlg->callbacks.GetAlt("TakeAllItems")->callback = TakeAllItems_Hook;
 
 		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
 		if (hudMenu)
 		{
 			hudMenu->SetSkyrimSoulsMode(true);
 		}
-
-		RE::RefHandle handle = menu->GetTargetRefHandle();
 
 		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
 		bool checkForDeath = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
@@ -265,7 +131,6 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_ContainerMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &ContainerMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &ContainerMenuEx::AdvanceMovie_Hook);
 	}
 
 	void ContainerMenuEx::ParseTranslations()

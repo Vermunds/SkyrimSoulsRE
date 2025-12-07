@@ -2,17 +2,6 @@
 
 namespace SkyrimSoulsRE
 {
-	void LockpickingMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-		if (hudMenu)
-		{
-			hudMenu->UpdateHUD();
-		}
-		AutoCloseManager::GetSingleton()->CheckAutoClose(RE::LockpickingMenu::MENU_NAME);
-		return _AdvanceMovie(this, a_interval, a_currentTime);
-	}
-
 	RE::UI_MESSAGE_RESULTS LockpickingMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
 		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
@@ -22,6 +11,11 @@ namespace SkyrimSoulsRE
 			{
 				hudMenu->SetSkyrimSoulsMode(false);
 			}
+		}
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		{
+			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
+			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::LockpickingMenu::MENU_NAME);
 		}
 		return _ProcessMessage(this, a_message);
 	}
@@ -48,8 +42,5 @@ namespace SkyrimSoulsRE
 		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_LockpickingMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &LockpickingMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &LockpickingMenuEx::AdvanceMovie_Hook);
-
-		REL::safe_write(Offsets::Menus::LockpickingMenu::Hook.address() + 0xE0, std::uint16_t(0x9090));
 	}
 }

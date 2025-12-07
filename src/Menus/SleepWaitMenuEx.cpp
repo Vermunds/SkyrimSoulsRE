@@ -9,18 +9,14 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
-		case RE::UI_MESSAGE_TYPE::kScaleformEvent:
-			return this->RE::IMenu::ProcessMessage(a_message);
-
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
-				auto hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-				if (hudMenu)
-				{
-					hudMenu->UpdateHUD();
-				}
+				RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 
-				this->UpdateClock();
+				if (!this->isActive)
+				{
+					this->UpdateClock();
+				}
 
 				if (bedReferenceMessageReceived)
 				{
@@ -101,7 +97,6 @@ namespace SkyrimSoulsRE
 	void SleepWaitMenuEx::StartSleepWait_Hook(const RE::FxDelegateArgs& a_args)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
-		RE::BSSpinLockGuard lk(ui->processMessagesLock);
 
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
 		if (!menu->PausesGame())
@@ -110,28 +105,14 @@ namespace SkyrimSoulsRE
 			ui->numPausesGame++;
 		}
 
-		double sleepWaitTime = a_args[0].GetNumber();
-
-		auto task = [sleepWaitTime]() {
-			RE::UI* ui = RE::UI::GetSingleton();
-
-			if (ui->IsMenuOpen(RE::SleepWaitMenu::MENU_NAME))
-			{
-				RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(ui->GetMenu(RE::SleepWaitMenu::MENU_NAME).get());
-				RE::GFxValue time = sleepWaitTime;
-				RE::FxDelegateArgs args(0, menu, menu->uiMovie.get(), &time, 1);
-				_StartSleepWait(args);
-			}
-		};
-
-		UnpausedTaskQueue* queue = UnpausedTaskQueue::GetSingleton();
-		queue->AddTask(task);
+		_StartSleepWait(a_args);
 	}
 
 	RE::IMenu* SleepWaitMenuEx::Creator()
 	{
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(CreateMenu(RE::SleepWaitMenu::MENU_NAME));
 		bedReferenceMessageReceived = false;
+		lastTimeDateString[0] = '\0';
 
 		RE::FxDelegate* dlg = menu->fxDelegate.get();
 		_StartSleepWait = dlg->callbacks.GetAlt("OK")->callback;

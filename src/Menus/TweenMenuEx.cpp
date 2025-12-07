@@ -1,39 +1,129 @@
 #include "Menus/TweenMenuEx.h"
+#include "Util.h"
 
 namespace SkyrimSoulsRE
 {
-	void TweenMenuEx::AdvanceMovie_Hook(float a_interval, uint32_t a_currentTime)
+	RE::UI_MESSAGE_RESULTS TweenMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		UpdateClock();
-		return _AdvanceMovie(this, a_interval, a_currentTime);
+		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		{
+			UpdateInfo();
+		}
+
+		return _ProcessMessage(this, a_message);
 	}
 
-	//Tween menu clock
-	void TweenMenuEx::UpdateClock()
+	TweenMenuState TweenMenuEx::GetUpdatedState()
 	{
-		char timeDateString[200];
-		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, true);
+		using CanLevelUp_t = bool (RE::PlayerCharacter::PlayerSkills::*)();
+		REL::Relocation<CanLevelUp_t> CanLevelUp(Offsets::PlayerCharacter::PlayerSkills::CanLevelUp);
 
-		RE::GFxValue dateText;
-		this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
+		using GetXPAndLevelUpThreshold_t = void (RE::PlayerCharacter::PlayerSkills::*)(float&, float&);
+		REL::Relocation<GetXPAndLevelUpThreshold_t> GetXPAndLevelUpThreshold(Offsets::PlayerCharacter::PlayerSkills::GetXPAndLevelUpThreshold);
 
-		if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		const auto IsInSurvivalMode = []() {
+			const auto dobj = RE::BGSDefaultObjectManager::GetSingleton();
+			const auto survival = dobj ? dobj->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECT::kSurvivalModeEnabled) : nullptr;
+			return survival ? survival->value == 1.0F : false;
+		};
+
+		TweenMenuState state;
+
+		RE::Calendar::GetSingleton()->GetTimeDateString(state.timeDateString, sizeof(state.timeDateString), false);
+		state.canLevelUp = CanLevelUp(player->skills) && !IsInSurvivalMode();
+		GetXPAndLevelUpThreshold(player->skills, state.xp, state.levelUpThreshold);
+
+		state.level = player->GetLevel();
+
+		return state;
+	}
+
+	void TweenMenuEx::UpdateInfo()
+	{
+		TweenMenuState currentState = GetUpdatedState();
+
+		// Update clock
+		if (std::memcmp(lastState.timeDateString, currentState.timeDateString, sizeof(TweenMenuState::timeDateString)) != 0)
 		{
-			RE::GFxValue newDate(timeDateString);
-			dateText.SetMember("htmlText", newDate);
+			std::memcpy(lastState.timeDateString, currentState.timeDateString, sizeof(TweenMenuState::timeDateString));
+
+			RE::GFxValue dateText;
+			this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
+
+			if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+			{
+				RE::GFxValue newDate(currentState.timeDateString);
+				dateText.SetMember("htmlText", newDate);
+			}
+		}
+
+		// Update "can level up" (this doesn't fully update everything related to this but it seems to work)
+		if (currentState.canLevelUp != lastState.canLevelUp)
+		{
+			lastState.canLevelUp = currentState.canLevelUp;
+
+			RE::GFxValue canLevelUpText;
+			this->uiMovie->GetVariable(&canLevelUpText, "_root.TweenMenu_mc.Selections_mc.SkillsText_mc.textField");
+
+			if (canLevelUpText.GetType() != RE::GFxValue::ValueType::kUndefined)
+			{
+				if (currentState.canLevelUp)
+				{
+					static std::wstring levelUpText = Util::TranslateUIString(this->uiMovie.get(), L"$LEVEL UP");
+					canLevelUpText.SetMember("text", levelUpText.c_str());
+				}
+				else
+				{
+					static std::wstring levelUpText = Util::TranslateUIString(this->uiMovie.get(), L"$SKILLS");
+					canLevelUpText.SetMember("text", levelUpText.c_str());
+				}
+			}
+		}
+
+		// Update level
+		if (currentState.level != lastState.level)
+		{
+			lastState.level = currentState.level;
+
+			RE::GFxValue levelText;
+			this->uiMovie->GetVariable(&levelText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.LevelNumberLabel");
+
+			if (levelText.GetType() != RE::GFxValue::ValueType::kUndefined)
+			{
+				levelText.SetMember("text", currentState.level);
+			}
+		}
+
+		// Update xp
+		if (currentState.xp != lastState.xp)
+		{
+			lastState.xp = currentState.xp;
+
+			RE::GFxValue xpMeter;
+			this->uiMovie->GetVariable(&xpMeter, "_root.TweenMenu_mc.LevelMeter");
+
+			// need to invoke SetPercent
+			if (xpMeter.GetType() != RE::GFxValue::ValueType::kUndefined)
+			{
+				std::array<RE::GFxValue, 1> args = { (currentState.xp / currentState.levelUpThreshold) * 100.0f };
+				xpMeter.Invoke<1>("SetPercent", args);
+			}
 		}
 	}
 
 	RE::IMenu* TweenMenuEx::Creator()
 	{
-		return CreateMenu(RE::TweenMenu::MENU_NAME);
+		RE::TweenMenu* menu = static_cast<RE::TweenMenu*>(CreateMenu(RE::TweenMenu::MENU_NAME));
+		lastState = TweenMenuState();
+		return menu;
 	}
 
 	void TweenMenuEx::InstallHook()
 	{
 		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_TweenMenu[0]);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &TweenMenuEx::AdvanceMovie_Hook);
+		_ProcessMessage = vTable.write_vfunc(0x4, &TweenMenuEx::ProcessMessage_Hook);
 
 		//Fix for camera movement
 		std::uint8_t codes[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };

@@ -1,4 +1,5 @@
 #include "SkyrimSoulsRE.h"
+#include "Windows.h"
 
 namespace SkyrimSoulsRE
 {
@@ -51,6 +52,11 @@ namespace SkyrimSoulsRE
 			}
 
 			RE::PlayerCharacter::GetSingleton()->InterruptCast(true);
+		}
+
+		if (!menu->RequiresUpdate())
+		{
+			menu->menuFlags.set(RE::IMenu::Flag::kRequiresUpdate);
 		}
 
 		if (usesOverlay && a_menuName != RE::HUDMenu::MENU_NAME)
@@ -148,6 +154,7 @@ namespace SkyrimSoulsRE
 		menuCreatorMap.emplace(RE::TweenMenu::MENU_NAME, ui->menuMap.find(RE::TweenMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::SleepWaitMenu::MENU_NAME, ui->menuMap.find(RE::SleepWaitMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::BarterMenu::MENU_NAME, ui->menuMap.find(RE::BarterMenu::MENU_NAME)->second.create);
+		menuCreatorMap.emplace(RE::CraftingMenu::MENU_NAME, ui->menuMap.find(RE::CraftingMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::GiftMenu::MENU_NAME, ui->menuMap.find(RE::GiftMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::FavoritesMenu::MENU_NAME, ui->menuMap.find(RE::FavoritesMenu::MENU_NAME)->second.create);
 		menuCreatorMap.emplace(RE::TrainingMenu::MENU_NAME, ui->menuMap.find(RE::TrainingMenu::MENU_NAME)->second.create);
@@ -191,12 +198,38 @@ namespace SkyrimSoulsRE
 		ContainerMenuEx::ParseTranslations();
 	}
 
+	void Process_UI_Hook(RE::ScrapHeap* a_scrapHeap)
+	{
+		// Call original
+		using func_t = void (*)(RE::ScrapHeap*);
+		REL::Relocation<func_t> func(REL::ID(82084).address());
+		func(a_scrapHeap);
+
+		RE::UI* ui = RE::UI::GetSingleton();
+
+		if (!ui->GameIsPaused())
+		{
+			using ProcessMessages_t = void (*)(RE::UI*);
+			REL::Relocation<ProcessMessages_t> ProcessMessages(REL::ID(82082).address());
+			ProcessMessages(ui);
+
+			using AdvanceMenus_t = void (*)(RE::UI*);
+			REL::Relocation<AdvanceMenus_t> AdvanceMenus(REL::ID(82083).address());
+			AdvanceMenus(ui);
+
+			using GetUnkExecuteUIScriptsSingleton_t = void* (*)(void);
+			REL::Relocation<GetUnkExecuteUIScriptsSingleton_t> GetUnkExecuteUIScriptsSingleton(REL::ID(52950).address());
+			void* unkExecuteUIScriptsSingleton = GetUnkExecuteUIScriptsSingleton();
+
+			using ExecuteUIScripts_t = void (*)(void*);
+			REL::Relocation<ExecuteUIScripts_t> ExecuteUIScripts(REL::ID(52952).address());
+			ExecuteUIScripts(unkExecuteUIScriptsSingleton);
+		}
+	}
+
 	void InstallHooks()
 	{
-		UnpausedTaskQueue::InstallHook();
-
 		Papyrus::InstallHook();
-		ConsoleCommandHooks::InstallHook();
 		CameraMovement::InstallHook();
 		Audio::InstallHook();
 		ItemMenuUpdater::InstallHook();
@@ -228,5 +261,11 @@ namespace SkyrimSoulsRE
 		TrainingMenuEx::InstallHook();
 		TutorialMenuEx::InstallHook();
 		TweenMenuEx::InstallHook();
+
+		// Disable UI job
+		REL::safe_write(Offsets::Job::UI.address() + 0xB, std::uint8_t(0xEB));
+
+		// Hook UI processing
+		SKSE::GetTrampoline().write_call<5>(Offsets::Main::Update.address() + 0xADF, (uintptr_t)Process_UI_Hook);
 	}
 }
