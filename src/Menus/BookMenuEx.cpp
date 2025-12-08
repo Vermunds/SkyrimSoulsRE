@@ -6,22 +6,26 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			{
+				RE::RefHandle handle;
+				RE::CreateRefHandle(handle, GetTargetReference().get());
+				AutoCloseManager::GetSingleton()->InitAutoClose(RE::BookMenu::MENU_NAME, handle, false);
+			}
+			break;
+
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
 				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BookMenu::MENU_NAME);
 			}
 		}
+
 		return _ProcessMessage(this, a_message);
 	}
 
 	RE::IMenu* BookMenuEx::Creator()
 	{
 		RE::BookMenu* menu = static_cast<RE::BookMenu*>(CreateMenu(RE::BookMenu::MENU_NAME));
-
-		RE::RefHandle handle;
-		RE::CreateRefHandle(handle, menu->GetTargetReference().get());
-		AutoCloseManager::GetSingleton()->InitAutoClose(RE::BookMenu::MENU_NAME, handle, false);
-
 		return menu;
 	}
 

@@ -4,18 +4,31 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS GiftMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		switch (a_message.type.get())
 		{
-			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-			if (hudMenu)
+		case RE::UI_MESSAGE_TYPE::kShow:
 			{
-				hudMenu->SetSkyrimSoulsMode(false);
+				RE::RefHandle handle = IsPlayerGifting() ? GetReceiverRefHandle() : GetGifterRefHandle();
+				if (handle)
+				{
+					AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+					autoCloseManager->InitAutoClose(RE::GiftMenu::MENU_NAME, handle, true);
+				}
+
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(true);
+				}
 			}
-		}
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
-		{
-			this->UpdateBottomBar();
-			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				this->UpdateBottomBar();
+				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
+			}
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -31,20 +44,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* GiftMenuEx::Creator()
 	{
 		RE::GiftMenu* menu = static_cast<RE::GiftMenu*>(CreateMenu(RE::GiftMenu::MENU_NAME));
-
-		RE::RefHandle handle = menu->IsPlayerGifting() ? menu->GetReceiverRefHandle() : menu->GetGifterRefHandle();
-		if (handle)
-		{
-			AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-			autoCloseManager->InitAutoClose(RE::GiftMenu::MENU_NAME, handle, true);
-		}
-
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-		if (hudMenu)
-		{
-			hudMenu->SetSkyrimSoulsMode(true);
-		}
-
 		return menu;
 	}
 

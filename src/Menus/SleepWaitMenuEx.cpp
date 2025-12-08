@@ -9,6 +9,17 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			{
+				bedReferenceMessageReceived = false;
+				lastTimeDateString[0] = '\0';
+
+				RE::FxDelegate* dlg = this->fxDelegate.get();
+				_StartSleepWait = dlg->callbacks.GetAlt("OK")->callback;
+				dlg->callbacks.GetAlt("OK")->callback = StartSleepWait_Hook;
+			}
+			break;
+
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
 				RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
@@ -35,9 +46,6 @@ namespace SkyrimSoulsRE
 				bedReferenceMessageReceived = true;
 				break;
 			}
-
-		default:
-			break;
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -111,13 +119,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* SleepWaitMenuEx::Creator()
 	{
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(CreateMenu(RE::SleepWaitMenu::MENU_NAME));
-		bedReferenceMessageReceived = false;
-		lastTimeDateString[0] = '\0';
-
-		RE::FxDelegate* dlg = menu->fxDelegate.get();
-		_StartSleepWait = dlg->callbacks.GetAlt("OK")->callback;
-		dlg->callbacks.GetAlt("OK")->callback = StartSleepWait_Hook;
-
 		return menu;
 	}
 

@@ -2,6 +2,23 @@
 
 namespace SkyrimSoulsRE
 {
+	RE::UI_MESSAGE_RESULTS HUDMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
+	{
+		switch (a_message.type.get())
+		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			RE::GFxValue val = true;
+			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
+			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);
+			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.SkyrimSoulsMode", &val);
+			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.QuestUpdateBaseInstance.SkyrimSoulsMode", &val);
+			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.MessagesBlock.SkyrimSoulsMode", &val);
+			break;
+		}
+
+		return _ProcessMessage(this, a_message);
+	}
+
 	void HUDMenuEx::SetSkyrimSoulsMode(bool a_isEnabled)
 	{
 		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
@@ -60,18 +77,12 @@ namespace SkyrimSoulsRE
 	RE::IMenu* HUDMenuEx::Creator()
 	{
 		RE::HUDMenu* menu = static_cast<RE::HUDMenu*>(CreateMenu(RE::HUDMenu::MENU_NAME));
-
-		RE::GFxValue val = true;
-		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
-		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);
-		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.SkyrimSoulsMode", &val);
-		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.QuestUpdateBaseInstance.SkyrimSoulsMode", &val);
-		menu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.MessagesBlock.SkyrimSoulsMode", &val);
-
 		return menu;
 	}
 
 	void HUDMenuEx::InstallHook()
 	{
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_HUDMenu[0]);
+		_ProcessMessage = vTable.write_vfunc(0x4, &HUDMenuEx::ProcessMessage_Hook);
 	}
 }

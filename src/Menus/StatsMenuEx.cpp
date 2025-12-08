@@ -5,23 +5,25 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS StatsMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		switch (a_message.type.get())
 		{
-			isSleeping = false;
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+				if (hudMenu)
+				{
+					hudMenu->UpdateHUD();
+				}
+			}
+			break;
+		case RE::UI_MESSAGE_TYPE::kHide:
+			{
+				isSleeping = false;
+			}
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);
-	}
-
-	void StatsMenuEx::AdvanceMovie_Hook(float a_interval, std::uint32_t a_currentTime)
-	{
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-		if (hudMenu)
-		{
-			hudMenu->UpdateHUD();
-		}
-
-		return _AdvanceMovie(this, a_interval, a_currentTime);
 	}
 
 	RE::IMenu* StatsMenuEx::Creator()
@@ -98,6 +100,5 @@ namespace SkyrimSoulsRE
 		//Hook ProcessMessage and AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_StatsMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &StatsMenuEx::ProcessMessage_Hook);
-		_AdvanceMovie = vTable.write_vfunc(0x5, &StatsMenuEx::AdvanceMovie_Hook);
 	}
 }

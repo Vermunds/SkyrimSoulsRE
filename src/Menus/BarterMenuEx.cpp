@@ -4,18 +4,43 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS BarterMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		switch (a_message.type.get())
 		{
-			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-			if (hudMenu)
+		case RE::UI_MESSAGE_TYPE::kShow:
 			{
-				hudMenu->SetSkyrimSoulsMode(false);
+				RE::RefHandle handle = this->GetTargetRefHandle();
+				if (handle)
+				{
+					AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+					autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, handle, true);
+				}
+
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(
+					RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(true);
+				}
+				break;
+			}
+
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BarterMenu::MENU_NAME);
+				break;
+			}
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			{
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(false);
+				}
+				break;
 			}
 		}
-		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
-		{
-			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BarterMenu::MENU_NAME);
-		}
+
 		return _ProcessMessage(this, a_message);
 	}
 
@@ -29,20 +54,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* BarterMenuEx::Creator()
 	{
 		RE::BarterMenu* menu = static_cast<RE::BarterMenu*>(CreateMenu(RE::BarterMenu::MENU_NAME));
-
-		RE::RefHandle handle = menu->GetTargetRefHandle();
-		if (handle)
-		{
-			AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-			autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, handle, true);
-		}
-
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-		if (hudMenu)
-		{
-			hudMenu->SetSkyrimSoulsMode(true);
-		}
-
 		return menu;
 	}
 

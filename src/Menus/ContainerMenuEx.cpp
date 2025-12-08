@@ -5,23 +5,43 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS ContainerMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		switch (a_message.type.get())
 		{
-			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-			if (hudMenu)
+		case RE::UI_MESSAGE_TYPE::kShow:
 			{
-				hudMenu->SetSkyrimSoulsMode(false);
-			}
-		}
-		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
-		{
-			this->UpdateBottomBar();
-			if (this->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
-			{
-				this->UpdatePickpocketChance();
-			}
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(true);
+				}
 
-			AutoCloseManager::GetSingleton()->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
+				AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+				bool checkForDeath = GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
+				autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, GetTargetRefHandle(), checkForDeath);
+			}
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			{
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(false);
+				}
+			}
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				this->UpdateBottomBar();
+				if (this->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
+				{
+					this->UpdatePickpocketChance();
+				}
+
+				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
+			}
+			break;
 		}
 		return _ProcessMessage(this, a_message);
 	}
@@ -118,17 +138,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* ContainerMenuEx::Creator()
 	{
 		RE::ContainerMenu* menu = static_cast<RE::ContainerMenu*>(CreateMenu(RE::ContainerMenu::MENU_NAME));
-
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-		if (hudMenu)
-		{
-			hudMenu->SetSkyrimSoulsMode(true);
-		}
-
-		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-		bool checkForDeath = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
-		autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, menu->GetTargetRefHandle(), checkForDeath);
-
 		return menu;
 	}
 

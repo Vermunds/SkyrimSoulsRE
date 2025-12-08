@@ -4,14 +4,17 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS JournalMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		switch (a_message.type.get())
 		{
-			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-			if (hudMenu)
+		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
-				hudMenu->UpdateHUD();
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
+				if (hudMenu)
+				{
+					hudMenu->UpdateHUD();
+				}
+				this->UpdateClock();
 			}
-			this->UpdateClock();
 		}
 
 		return _ProcessMessage(this, a_message);

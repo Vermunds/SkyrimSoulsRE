@@ -29,6 +29,16 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			{
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(true);
+				}
+				break;
+			}
+
 		case RE::UI_MESSAGE_TYPE::kHide:
 			{
 				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
@@ -38,6 +48,7 @@ namespace SkyrimSoulsRE
 				}
 				break;
 			}
+
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
 				if (IsViewingActiveEffects())
@@ -57,6 +68,8 @@ namespace SkyrimSoulsRE
 					this->UpdateBottomBar();
 				}
 			}
+			break;
+
 		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
 			{
 				// for SkyUI only
@@ -173,12 +186,6 @@ namespace SkyrimSoulsRE
 
 	RE::IMenu* MagicMenuEx::Creator()
 	{
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-		if (hudMenu)
-		{
-			hudMenu->SetSkyrimSoulsMode(true);
-		}
-
 		return CreateMenu(RE::MagicMenu::MENU_NAME);
 	}
 

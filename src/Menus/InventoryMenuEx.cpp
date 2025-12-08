@@ -4,21 +4,35 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS InventoryMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		RE::UI_MESSAGE_RESULTS result = _ProcessMessage(this, a_message);
-
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
+		switch (a_message.type.get())
 		{
-			HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-			if (hudMenu)
+		case RE::UI_MESSAGE_TYPE::kShow:
 			{
-				hudMenu->SetSkyrimSoulsMode(false);
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(true);
+				}
+			}
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			{
+				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
+				if (hudMenu)
+				{
+					hudMenu->SetSkyrimSoulsMode(false);
+				}
+			}
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			{
+				this->UpdateBottomBar();
 			}
 		}
-		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
-		{
-			this->UpdateBottomBar();
-		}
-		return result;
+
+		return _ProcessMessage(this, a_message);
 	}
 
 	void InventoryMenuEx::UpdateBottomBar()
