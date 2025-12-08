@@ -30,6 +30,6 @@ namespace SkyrimSoulsRE::Util
 				return std::wstring(it->second);
 			}
 		}
-		return std::wstring();
+		return a_key;
 	}
 }

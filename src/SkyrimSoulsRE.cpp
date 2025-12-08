@@ -193,8 +193,6 @@ namespace SkyrimSoulsRE
 		ui->menuMap.find("CustomMenu")->second.create = CustomMenuEx::Creator;
 
 		ui->Register(CombatAlertOverlayMenu::MENU_NAME, CombatAlertOverlayMenu::Creator);
-
-		ContainerMenuEx::ParseTranslations();
 	}
 
 	void Process_UI_Hook(RE::ScrapHeap* a_scrapHeap)

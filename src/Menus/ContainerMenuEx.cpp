@@ -1,4 +1,5 @@
 #include "Menus/ContainerMenuEx.h"
+#include "Util.h"
 
 namespace SkyrimSoulsRE
 {
@@ -83,6 +84,10 @@ namespace SkyrimSoulsRE
 					return;
 
 				std::wstring desc;
+
+				static std::wstring toSteal = Util::TranslateUIString(this->uiMovie.get(), L"$ TO STEAL");
+				static std::wstring toPlace = Util::TranslateUIString(this->uiMovie.get(), L"$ TO PLACE");
+
 				desc = isViewingContainer.GetBool() ? toSteal : toPlace;
 
 				std::wstring stealText(L"<font face=\'$EverywhereBoldFont\' size=\'24\' color=\'#FFFFFF\'>" + std::to_wstring(chance) + L"%</font>" + desc);
@@ -131,99 +136,5 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_ContainerMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &ContainerMenuEx::ProcessMessage_Hook);
-	}
-
-	void ContainerMenuEx::ParseTranslations()
-	{
-		bool foundToSteal = false;
-		bool foundToPlace = false;
-
-		RE::Setting* language = RE::INISettingCollection::GetSingleton()->GetSetting("sLanguage:General");
-		std::string path = "Interface\\";
-
-		// Construct translation filename
-		path += "Translate_";
-		path += (language && language->GetType() == RE::Setting::Type::kString) ? language->data.s : "ENGLISH";
-		path += ".txt";
-
-		SKSE::log::info("Reading translations from {}", path);
-
-		RE::BSResourceNiBinaryStream fileStream(path.c_str());
-		if (!fileStream.good())
-		{
-			SKSE::log::error("Failed to read file {}. Aborting.", path);
-			return;
-		}
-
-		wchar_t bom = 0;
-		bool ret = fileStream.read(&bom, 1);
-		if (!ret)
-		{
-			SKSE::log::error("Empty translation file. Aborting.");
-			return;
-		}
-
-		if (bom != L'\xFEFF')
-		{
-			SKSE::log::error("BOM Error, file must be encoded in UCS-2 LE. Aborting.");
-			return;
-		}
-
-		while (!(foundToSteal && foundToPlace))
-		{
-			std::wstring str;
-
-			bool notEOF = std::getline(fileStream, str);
-			if (!notEOF)  // End of file
-			{
-				SKSE::log::error("Unexpected end of file.");
-				break;
-			}
-
-			std::size_t len = str.length();
-
-			wchar_t last = str.at(len - 1);
-			if (last == '\r')
-				len--;
-
-			std::size_t delimIdx = 0;
-			for (std::size_t i = 0; i < len; ++i)
-			{
-				if (str.at(i) == L'\t')
-				{
-					delimIdx = i;
-					break;
-				}
-			}
-
-			if (delimIdx == 0)
-				continue;
-
-			std::wstring key = std::wstring{ str.substr(0, delimIdx) };
-			std::wstring translation = std::wstring{ str.substr(delimIdx + 1, len - delimIdx - 1) };
-
-			if (key == L"$ TO PLACE")
-			{
-				foundToPlace = true;
-				toPlace = translation;
-			}
-			else if (key == L"$ TO STEAL")
-			{
-				foundToSteal = true;
-				toSteal = translation;
-			}
-		}
-
-		if (!foundToPlace)
-		{
-			SKSE::log::error("Failed to find translation for \"$ TO PLACE\".");
-		}
-
-		if (!foundToSteal)
-		{
-			SKSE::log::error("Failed to find translation for \"$ TO STEAL\".");
-		}
-
-		SKSE::log::info("Reading translations finished.");
 	}
 }
