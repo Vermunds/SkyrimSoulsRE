@@ -8,18 +8,12 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-				if (hudMenu)
-				{
-					hudMenu->UpdateHUD();
-				}
-			}
+			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 			break;
+
 		case RE::UI_MESSAGE_TYPE::kHide:
-			{
-				isSleeping = false;
-			}
+
+			isSleeping = false;
 			break;
 		}
 

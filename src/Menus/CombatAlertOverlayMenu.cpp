@@ -17,10 +17,8 @@ namespace SkyrimSoulsRE
 		const bool success = scaleformManager->LoadMovieEx(menu, FILE_NAME, RE::BSScaleformManager::ScaleModeType::kExactFit, [](RE::GFxMovieDef* a_def) -> void {});
 		if (!success)
 		{
-			SKSE::log::critical("Combat Alert Overlay Menu - Failed to load SWF file.");
-
 			// Game shouldn't be loaded at this point yet, so just exit
-			throw new std::runtime_error("Combat Alert Overlay Menu - Failed to load SWF file.");
+			SKSE::stl::report_and_fail("Failed to load CombatAlertOverlayMenu");
 		}
 		_view = menu->uiMovie;
 		_view->SetMouseCursorCount(0);
@@ -78,11 +76,7 @@ namespace SkyrimSoulsRE
 
 	RE::UI_MESSAGE_RESULTS CombatAlertOverlayMenu::ProcessMessage(RE::UIMessage& a_message)
 	{
-		if (a_message.menu == CombatAlertOverlayMenu::MENU_NAME)
-		{
-			return RE::UI_MESSAGE_RESULTS::kHandled;
-		}
-		return RE::UI_MESSAGE_RESULTS::kPassOn;
+		return (a_message.menu == MENU_NAME) ? RE::UI_MESSAGE_RESULTS::kHandled : RE::UI_MESSAGE_RESULTS::kPassOn;
 	}
 
 	void CombatAlertOverlayMenu::InitExtensions()

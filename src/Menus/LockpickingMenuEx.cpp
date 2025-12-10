@@ -12,11 +12,7 @@ namespace SkyrimSoulsRE
 				RE::CreateRefHandle(handle, GetTargetReference().get());
 				AutoCloseManager::GetSingleton()->InitAutoClose(RE::LockpickingMenu::MENU_NAME, handle, false);
 
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(true);
-				}
+				SendSetSkyrimSoulsHUDModeMessage(true);
 			}
 			break;
 
@@ -25,6 +21,10 @@ namespace SkyrimSoulsRE
 				RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::LockpickingMenu::MENU_NAME);
 			}
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			SendSetSkyrimSoulsHUDModeMessage(false);
 			break;
 		}
 

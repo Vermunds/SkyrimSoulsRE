@@ -7,29 +7,16 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(true);
-				}
-			}
-			break;
-
-		case RE::UI_MESSAGE_TYPE::kHide:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(false);
-				}
-			}
+			SendSetSkyrimSoulsHUDModeMessage(true);
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				this->UpdateBottomBar();
-			}
+			UpdateBottomBar();
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			SendSetSkyrimSoulsHUDModeMessage(false);
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -45,12 +32,6 @@ namespace SkyrimSoulsRE
 	RE::IMenu* InventoryMenuEx::Creator()
 	{
 		RE::InventoryMenu* menu = static_cast<RE::InventoryMenu*>(CreateMenu(RE::InventoryMenu::MENU_NAME));
-
-		HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-		if (hudMenu)
-		{
-			hudMenu->SetSkyrimSoulsMode(true);
-		}
 		return menu;
 	}
 

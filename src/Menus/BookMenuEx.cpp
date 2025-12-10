@@ -4,20 +4,21 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS BookMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
 			{
 				RE::RefHandle handle;
 				RE::CreateRefHandle(handle, GetTargetReference().get());
-				AutoCloseManager::GetSingleton()->InitAutoClose(RE::BookMenu::MENU_NAME, handle, false);
+				autoCloseManager->InitAutoClose(RE::BookMenu::MENU_NAME, handle, false);
 			}
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BookMenu::MENU_NAME);
-			}
+			autoCloseManager->CheckAutoClose(RE::BookMenu::MENU_NAME);
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);

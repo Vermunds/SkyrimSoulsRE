@@ -4,9 +4,11 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS MessageBoxMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kUpdate:
 			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);

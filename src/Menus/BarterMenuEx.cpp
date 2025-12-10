@@ -4,41 +4,28 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS BarterMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
-			{
-				RE::RefHandle handle = this->GetTargetRefHandle();
-				if (handle)
-				{
-					AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
-					autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, handle, true);
-				}
 
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(
-					RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(true);
-				}
-				break;
+			SendSetSkyrimSoulsHUDModeMessage(true);
+			if (RE::RefHandle handle = GetTargetRefHandle())
+			{
+				autoCloseManager = AutoCloseManager::GetSingleton();
+				autoCloseManager->InitAutoClose(RE::BarterMenu::MENU_NAME, handle, true);
 			}
+			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::BarterMenu::MENU_NAME);
-				break;
-			}
+			autoCloseManager->CheckAutoClose(RE::BarterMenu::MENU_NAME);
+			UpdateBottomBar();
+			break;
 
 		case RE::UI_MESSAGE_TYPE::kHide:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(false);
-				}
-				break;
-			}
+			SendSetSkyrimSoulsHUDModeMessage(false);
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);

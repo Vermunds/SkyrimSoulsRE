@@ -136,6 +136,13 @@ namespace SkyrimSoulsRE
 		return count;
 	}
 
+	void SendSetSkyrimSoulsHUDModeMessage(bool a_enabled)
+	{
+		RE::BSUIMessageData* msgSetSkyrimSoulsHUDMode = RE::UIMessageDataFactory::Create<RE::BSUIMessageData>();
+		msgSetSkyrimSoulsHUDMode->data.b = a_enabled;
+		RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, HUDMenuEx::SET_SKYRIMSOULS_HUD_MODE_MESSAGE_TYPE, msgSetSkyrimSoulsHUDMode);
+	}
+
 	bool IsFullScreenMenuOpen()
 	{
 		RE::UI* ui = RE::UI::GetSingleton();

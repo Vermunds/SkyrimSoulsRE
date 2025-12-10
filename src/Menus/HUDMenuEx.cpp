@@ -7,13 +7,19 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
-			RE::GFxValue val = true;
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.SkyrimSoulsMode", &val);
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.QuestUpdateBaseInstance.SkyrimSoulsMode", &val);
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.MessagesBlock.SkyrimSoulsMode", &val);
+			{
+				RE::GFxValue val = true;
+
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.SkyrimSoulsMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.QuestUpdateBaseInstance.SkyrimSoulsMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.MessagesBlock.SkyrimSoulsMode", &val);
+			}
 			break;
+
+		case SET_SKYRIMSOULS_HUD_MODE_MESSAGE_TYPE:
+			SetSkyrimSoulsMode(static_cast<RE::BSUIMessageData*>(a_message.data)->data.b);
 		}
 
 		return _ProcessMessage(this, a_message);
@@ -63,14 +69,6 @@ namespace SkyrimSoulsRE
 
 			StealthMeterInstance.SetDisplayInfo(displayInfo);
 			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance", &StealthMeterInstance);
-		}
-	}
-
-	void HUDMenuEx::UpdateHUD()
-	{
-		for (RE::HUDObject* obj : this->objects)
-		{
-			obj->Update();
 		}
 	}
 

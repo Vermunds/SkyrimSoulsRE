@@ -4,6 +4,8 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS GiftMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
+
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
@@ -11,23 +13,20 @@ namespace SkyrimSoulsRE
 				RE::RefHandle handle = IsPlayerGifting() ? GetReceiverRefHandle() : GetGifterRefHandle();
 				if (handle)
 				{
-					AutoCloseManager* autoCloseManager = AutoCloseManager::GetSingleton();
 					autoCloseManager->InitAutoClose(RE::GiftMenu::MENU_NAME, handle, true);
 				}
 
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(true);
-				}
+				SendSetSkyrimSoulsHUDModeMessage(true);
 			}
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				this->UpdateBottomBar();
-				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::GiftMenu::MENU_NAME);
-			}
+			UpdateBottomBar();
+			autoCloseManager->CheckAutoClose(RE::GiftMenu::MENU_NAME);
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			SendSetSkyrimSoulsHUDModeMessage(false);
 			break;
 		}
 

@@ -22,18 +22,19 @@ namespace SkyrimSoulsRE
 
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kShow)
+		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
 			mapMenuCellLoadedEventHandler.Register();
-		}
-		else if (a_message.type == RE::UI_MESSAGE_TYPE::kHide)
-		{
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kHide:
 			mapMenuCellLoadedEventHandler.Unregister();
-		}
-		else if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
-		{
-			this->UpdateClock();
-			this->UpdatePlayerMarkerPosition();
+			break;
+
+		case RE::UI_MESSAGE_TYPE::kUpdate:
+			UpdateClock();
+			UpdatePlayerMarkerPosition();
 
 			if (cellRenderingUpdateNeeded)
 			{

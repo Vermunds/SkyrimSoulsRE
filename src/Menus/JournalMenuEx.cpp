@@ -7,14 +7,7 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::HUDMenu::MENU_NAME).get());
-				if (hudMenu)
-				{
-					hudMenu->UpdateHUD();
-				}
-				this->UpdateClock();
-			}
+			UpdateClock();
 		}
 
 		return _ProcessMessage(this, a_message);

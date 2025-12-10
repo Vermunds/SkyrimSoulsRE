@@ -5,9 +5,11 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS TweenMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
-		if (a_message.type == RE::UI_MESSAGE_TYPE::kUpdate)
+		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kUpdate:
 			UpdateInfo();
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);

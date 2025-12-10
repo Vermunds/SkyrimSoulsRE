@@ -54,6 +54,7 @@ namespace SkyrimSoulsRE
 	std::uint32_t GetCombatAlertOverlayCount();
 	std::uint32_t GetUnpausedMenuCount();
 	std::uint32_t GetSlowMotionCount();
+	void SendSetSkyrimSoulsHUDModeMessage(bool a_enabled);
 	bool IsFullScreenMenuOpen();
 
 	void InstallMenuHooks();

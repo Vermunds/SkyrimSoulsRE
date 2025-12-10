@@ -30,24 +30,8 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(true);
-				}
-				break;
-			}
-
-		case RE::UI_MESSAGE_TYPE::kHide:
-			{
-				HUDMenuEx* hudMenu = static_cast<HUDMenuEx*>(RE::UI::GetSingleton()->GetMenu(RE::InterfaceStrings::GetSingleton()->hudMenu).get());
-				if (hudMenu)
-				{
-					hudMenu->SetSkyrimSoulsMode(false);
-				}
-				break;
-			}
+			SendSetSkyrimSoulsHUDModeMessage(true);
+			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			{
@@ -144,6 +128,10 @@ namespace SkyrimSoulsRE
 					return result;
 				}
 			}
+
+		case RE::UI_MESSAGE_TYPE::kHide:
+			SendSetSkyrimSoulsHUDModeMessage(false);
+			break;
 		}
 
 		return _ProcessMessage(this, a_message);

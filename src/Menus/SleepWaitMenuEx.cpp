@@ -24,9 +24,9 @@ namespace SkyrimSoulsRE
 			{
 				RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 
-				if (!this->isActive)
+				if (!isActive)
 				{
-					this->UpdateClock();
+					UpdateClock();
 				}
 
 				if (bedReferenceMessageReceived)
