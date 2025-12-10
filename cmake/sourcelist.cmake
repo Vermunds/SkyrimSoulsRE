@@ -10,6 +10,7 @@ set(SOURCES
 	include/EngineFixesChecker.h
 	include/ItemMenuUpdater.h
 	include/MenuCache.h
+	include/MenuProcessing.h
 	include/Menus/BarterMenuEx.h
 	include/Menus/BookMenuEx.h
 	include/Menus/CombatAlertOverlayMenu.h
@@ -49,6 +50,7 @@ set(SOURCES
 	src/Controls/PlayerControlsEx.cpp
 	src/ItemMenuUpdater.cpp
 	src/MenuCache.cpp
+	src/MenuProcessing.cpp
 	src/Menus/BarterMenuEx.cpp
 	src/Menus/BookMenuEx.cpp
 	src/Menus/CombatAlertOverlayMenu.cpp

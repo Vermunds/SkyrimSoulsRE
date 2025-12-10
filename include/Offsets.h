@@ -136,8 +136,8 @@ namespace Offsets
 	{
 		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(42338));  // + 0x6D8
 
-		static constexpr REL::ID Unk_ExecuteUIScriptsGetSingleton(static_cast<std::uint64_t>(52950));
-		static constexpr REL::ID Unk_ExecuteUIScripts(static_cast<std::uint64_t>(52952));
+		static constexpr REL::ID GetExecuteConsoleCommandsSingleton(static_cast<std::uint64_t>(52950));
+		static constexpr REL::ID ExecuteConsoleCommands(static_cast<std::uint64_t>(52952));
 	}
 
 	namespace Papyrus::IsInMenuMode
@@ -151,6 +151,11 @@ namespace Offsets
 	{
 		static constexpr REL::ID CanLevelUp(static_cast<std::uint64_t>(41565));
 		static constexpr REL::ID GetXPAndLevelUpThreshold(static_cast<std::uint64_t>(41560));
+	}
+
+	namespace ScrapHeap
+	{
+		static constexpr REL::ID HookedFunc(static_cast<std::uint64_t>(82084));
 	}
 
 	namespace TESFurniture
