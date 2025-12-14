@@ -50,6 +50,12 @@ namespace SkyrimSoulsRE
 
 				cellRenderingUpdateNeeded = false;
 			}
+
+			// Prevent the original function to receive the message or else it will attempt to endlessly update the map markers
+			if (a_message.menu != MENU_NAME)
+			{
+				return RE::UI_MESSAGE_RESULTS::kHandled;
+			}
 		}
 
 		return _ProcessMessage(this, a_message);
