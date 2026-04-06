@@ -11,8 +11,6 @@ namespace SkyrimSoulsRE
 				RE::RefHandle handle;
 				RE::CreateRefHandle(handle, GetTargetReference().get());
 				AutoCloseManager::GetSingleton()->InitAutoClose(RE::LockpickingMenu::MENU_NAME, handle, false);
-
-				SendSetSkyrimSoulsHUDModeMessage(true);
 			}
 			break;
 
@@ -21,10 +19,6 @@ namespace SkyrimSoulsRE
 				RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 				AutoCloseManager::GetSingleton()->CheckAutoClose(RE::LockpickingMenu::MENU_NAME);
 			}
-			break;
-
-		case RE::UI_MESSAGE_TYPE::kHide:
-			SendSetSkyrimSoulsHUDModeMessage(false);
 			break;
 		}
 
@@ -39,7 +33,6 @@ namespace SkyrimSoulsRE
 
 	void LockpickingMenuEx::InstallHook()
 	{
-		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_LockpickingMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &LockpickingMenuEx::ProcessMessage_Hook);
 	}

@@ -12,8 +12,6 @@ namespace SkyrimSoulsRE
 	public:
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);  //04
 
-		void UpdateBottomBar();
-
 		static RE::IMenu* Creator();
 		static void InstallHook();
 

@@ -1,12 +1,11 @@
 #include "Menus/SleepWaitMenuEx.h"
-#include "AutoCloseManager.h"
-#include "SlowMotionHandler.h"
-#include "Util.h"
 
 namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS SleepWaitMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+#pragma warning(push)
+#pragma warning(disable : 4063)  // SET_BED_REFERENCE_MESSAGE_TYPE is a custom value outside the named enumerators; suppress C4063: case '11000' is not a valid value for switch of enum 'RE::UI_MESSAGE_TYPE'
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
@@ -26,7 +25,7 @@ namespace SkyrimSoulsRE
 
 				if (!isActive)
 				{
-					UpdateClock();
+					Update();
 				}
 
 				if (bedReferenceMessageReceived)
@@ -47,12 +46,19 @@ namespace SkyrimSoulsRE
 				break;
 			}
 		}
+#pragma warning(pop)
 
 		return _ProcessMessage(this, a_message);
 	}
 
-	void SleepWaitMenuEx::UpdateClock()
+	void SleepWaitMenuEx::Update()
 	{
+		Settings* settings = Settings::GetSingleton();
+		if (!settings->updateSleepWaitMenuClock)
+		{
+			return;
+		}
+
 		char timeDateString[200];
 		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, sizeof(timeDateString), false);
 
@@ -61,11 +67,11 @@ namespace SkyrimSoulsRE
 			return;
 		}
 
-		std::memcpy(lastTimeDateString, timeDateString, sizeof(timeDateString));
-
 		RE::GFxValue args[1];
 		args[0].SetString(timeDateString);
-		this->uiMovie->Invoke("_root.SleepWaitMenu_mc.SetCurrentTime", nullptr, args, 1);
+		this->root.Invoke("SetCurrentTime", nullptr, args, 1);
+
+		std::memcpy(lastTimeDateString, timeDateString, sizeof(timeDateString));
 	}
 
 	bool SleepWaitMenuEx::CanSleep_Hook(RE::PlayerCharacter* a_player, RE::TESObjectREFR* a_bedRef)

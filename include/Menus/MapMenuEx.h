@@ -26,7 +26,7 @@ namespace SkyrimSoulsRE
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);  // 04
 
 		void UpdatePlayerMarkerPosition();
-		void UpdateClock();
+		void Update();
 
 		static RE::IMenu* Creator();
 		static void InstallHook();
@@ -42,5 +42,7 @@ namespace SkyrimSoulsRE
 
 		using UpdateClouds_t = decltype(UpdateClouds_Hook);
 		static inline std::function<UpdateClouds_t> _UpdateClouds;
+
+		static inline char lastTimeDateString[200] = { 0 };
 	};
 }

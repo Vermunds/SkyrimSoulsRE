@@ -136,18 +136,18 @@ namespace SkyrimSoulsRE
 		return count;
 	}
 
-	void SendSetSkyrimSoulsHUDModeMessage(bool a_enabled)
-	{
-		RE::BSUIMessageData* msgSetSkyrimSoulsHUDMode = RE::UIMessageDataFactory::Create<RE::BSUIMessageData>();
-		msgSetSkyrimSoulsHUDMode->data.b = a_enabled;
-		RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, HUDMenuEx::SET_SKYRIMSOULS_HUD_MODE_MESSAGE_TYPE, msgSetSkyrimSoulsHUDMode);
-	}
-
 	bool IsFullScreenMenuOpen()
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
 		return ui->IsMenuOpen(RE::MapMenu::MENU_NAME) || ui->IsMenuOpen(RE::StatsMenu::MENU_NAME);
 	}
+
+	bool IsInSurvivalMode()
+	{
+		const RE::BGSDefaultObjectManager* dobj = RE::BGSDefaultObjectManager::GetSingleton();
+		const RE::TESGlobal* survival = dobj ? dobj->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECT::kSurvivalModeEnabled) : nullptr;
+		return survival ? survival->value == 1.0f : false;
+	};
 
 	void InstallMenuHooks()
 	{

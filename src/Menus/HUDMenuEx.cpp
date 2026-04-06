@@ -10,50 +10,47 @@ namespace SkyrimSoulsRE
 			{
 				RE::GFxValue val = true;
 
-				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SkyrimSoulsMode", &val);
-				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SkyrimSoulsMode", &val);
-				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.SkyrimSoulsMode", &val);
-				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.QuestUpdateBaseInstance.SkyrimSoulsMode", &val);
-				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.MessagesBlock.SkyrimSoulsMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.InventoryMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.InventoryMode", &val);
+				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.InventoryMode", &val);
 			}
 			break;
-
-		case SET_SKYRIMSOULS_HUD_MODE_MESSAGE_TYPE:
-			SetSkyrimSoulsMode(static_cast<RE::BSUIMessageData*>(a_message.data)->data.b);
 		}
 
 		return _ProcessMessage(this, a_message);
 	}
 
-	void HUDMenuEx::SetSkyrimSoulsMode(bool a_isEnabled)
+	bool HUDMenuEx::SetHudMode_Hook(RE::GFxValue::ObjectInterface* a_this, void* a_data, RE::GFxValue* a_result, const char* a_name, const RE::GFxValue* a_args, RE::UPInt a_numArgs, bool a_isDObj)
 	{
-		RE::InterfaceStrings* interfaceStrings = RE::InterfaceStrings::GetSingleton();
-		RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
-		RE::MessageDataFactoryManager* msgFactory = RE::MessageDataFactoryManager::GetSingleton();
+		bool result = a_this->Invoke(a_data, a_result, a_name, a_args, a_numArgs, a_isDObj);
+
+		RE::UI* ui = RE::UI::GetSingleton();
+		RE::GPtr<RE::HUDMenu> hudMenu = ui->GetMenu<RE::HUDMenu>(RE::HUDMenu::MENU_NAME);
+		if (!hudMenu)
+		{
+			SKSE::log::error("Failed to intercept SetMode in HUDMenu. Instance not found.");
+			return result;
+		}
+
 		Settings* settings = Settings::GetSingleton();
 
-		auto creator = msgFactory->GetCreator(interfaceStrings->hudData);
-		RE::HUDData* messageData = static_cast<RE::HUDData*>(creator->Create());
-		messageData->type = RE::HUD_MESSAGE_TYPE::kSetMode;
-		messageData->text = "SkyrimSoulsMode";
-		messageData->show = a_isEnabled;
+		std::string mode = a_args[0].GetString();
+		bool show = a_args[1].GetBool();
 
-		msgQueue->AddMessage(interfaceStrings->hudMenu, RE::UI_MESSAGE_TYPE::kUpdate, messageData);
-
-		if (!settings->disableHUDModifications)
+		if (!settings->disableHUDModifications && mode == "InventoryMode")
 		{
 			RE::GFxValue StealthMeterInstance;
 			RE::GFxValue::DisplayInfo displayInfo;
-			if (!this->uiMovie->GetVariable(&StealthMeterInstance, "_root.HUDMovieBaseInstance.StealthMeterInstance"))
+			if (!hudMenu->uiMovie->GetVariable(&StealthMeterInstance, "_root.HUDMovieBaseInstance.StealthMeterInstance"))
 			{
 				settings->disableHUDModifications = true;
-				SKSE::log::error("Incompatible HUD Menu! Disabling HUD modifications for current session. Please report this so I can add support for the mods you're using.");
-				return;
+				SKSE::log::error("Incompatible HUD Menu! Disabling HUD modifications for current session.");
+				return result;
 			}
 
 			StealthMeterInstance.GetDisplayInfo(&displayInfo);
 
-			if (a_isEnabled)
+			if (show)
 			{
 				HUDMenuEx::stealthMeterPosX = displayInfo.GetX();
 				HUDMenuEx::stealthMeterPosY = displayInfo.GetY();
@@ -68,8 +65,10 @@ namespace SkyrimSoulsRE
 			}
 
 			StealthMeterInstance.SetDisplayInfo(displayInfo);
-			this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance", &StealthMeterInstance);
+			hudMenu->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance", &StealthMeterInstance);
 		}
+
+		return result;
 	}
 
 	RE::IMenu* HUDMenuEx::Creator()
@@ -82,5 +81,8 @@ namespace SkyrimSoulsRE
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_HUDMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &HUDMenuEx::ProcessMessage_Hook);
+
+		SKSE::Trampoline& trampoline = SKSE::GetTrampoline();
+		trampoline.write_call<5>(Offsets::Menus::HUDMenu::ProcessMessage.address() + 0x990, (uintptr_t)SetHudMode_Hook);
 	}
 }

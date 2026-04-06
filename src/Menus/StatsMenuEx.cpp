@@ -1,4 +1,6 @@
 #include "Menus/StatsMenuEx.h"
+#include "Util.h"
+
 #include <xbyak/xbyak.h>
 
 namespace SkyrimSoulsRE
@@ -7,8 +9,12 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			lastState = GetUpdatedState();
+			break;
 		case RE::UI_MESSAGE_TYPE::kUpdate:
 			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
+			Update();
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kHide:
@@ -18,6 +24,74 @@ namespace SkyrimSoulsRE
 		}
 
 		return _ProcessMessage(this, a_message);
+	}
+
+	StatsMenuState StatsMenuEx::GetUpdatedState()
+	{
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		StatsMenuState state{};
+
+		state.health = player->GetActorValue(RE::ActorValue::kHealth);
+		state.maxHealth = state.health - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kHealth);
+		state.stamina = player->GetActorValue(RE::ActorValue::kStamina);
+		state.maxStamina = state.stamina - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kStamina);
+		state.magicka = player->GetActorValue(RE::ActorValue::kMagicka);
+		state.maxMagicka = state.magicka - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kMagicka);
+
+		state.playerData = *player->skills->data;  // Should be trivially copyable
+
+		// Name and race should already be updated by the game and not really change anyways
+
+		return state;
+	}
+
+	void StatsMenuEx::Update()
+	{
+		Settings* settings = Settings::GetSingleton();
+
+		StatsMenuState newState = GetUpdatedState();
+
+		if (settings->updateStatsMenuPlayerInfo)
+		{
+			bool updatePlayerInfoRequired =
+				Util::IsActorValueMeterUpdateNeeded(lastState.health, lastState.maxHealth, newState.health, newState.maxHealth, settings->bottomBarMeterUpdateSteps) ||
+				Util::IsActorValueMeterUpdateNeeded(lastState.stamina, lastState.maxStamina, newState.stamina, newState.maxStamina, settings->bottomBarMeterUpdateSteps) ||
+				Util::IsActorValueMeterUpdateNeeded(lastState.magicka, lastState.maxMagicka, newState.magicka, newState.maxMagicka, settings->bottomBarMeterUpdateSteps) ||
+				lastState.playerData.xp != newState.playerData.xp ||
+				lastState.playerData.levelThreshold != newState.playerData.levelThreshold;
+
+			if (updatePlayerInfoRequired)
+			{
+				using func_t = void (*)(RE::StatsMenu*);
+				static REL::Relocation<func_t> SetPlayerInfo(Offsets::Menus::StatsMenu::SetPlayerInfo);
+				SetPlayerInfo(this);
+			}
+		}
+
+		if (settings->updateStatsMenuSkillList)
+		{
+			bool updateSkillListRequired = false;
+			for (std::uint32_t i = 0; i < RE::PlayerCharacter::PlayerSkills::Data::Skill::kTotal; ++i)
+			{
+				const RE::PlayerCharacter::PlayerSkills::Data::SkillData& lastSkill = lastState.playerData.skills[i];
+				const RE::PlayerCharacter::PlayerSkills::Data::SkillData& newSkill = newState.playerData.skills[i];
+
+				if (lastSkill.level != newSkill.level || lastSkill.xp != newSkill.xp || lastSkill.levelThreshold != newSkill.levelThreshold || lastState.playerData.legendaryLevels[i] != newState.playerData.legendaryLevels[i])
+				{
+					updateSkillListRequired = true;
+					break;
+				}
+			}
+
+			if (updateSkillListRequired)
+			{
+				using func_t = void (*)(RE::StatsMenu*);
+				static REL::Relocation<func_t> UpdateSkillList(Offsets::Menus::StatsMenu::UpdateSkillList);
+				UpdateSkillList(this);
+			}
+		}
+
+		lastState = newState;
 	}
 
 	RE::IMenu* StatsMenuEx::Creator()
@@ -39,6 +113,9 @@ namespace SkyrimSoulsRE
 
 	void StatsMenuEx::InstallHook()
 	{
+		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_StatsMenu[0]);
+		_ProcessMessage = vTable.write_vfunc(0x4, &StatsMenuEx::ProcessMessage_Hook);
+
 		SKSE::Trampoline& trampoline = SKSE::GetTrampoline();
 
 		// Fix level up when sleeping using survival mode
@@ -77,22 +154,11 @@ namespace SkyrimSoulsRE
 		void* codeLoc = SKSE::GetTrampoline().allocate(code);
 		trampoline.write_branch<5>(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFC0, codeLoc);
 
-		// Fix for menu not appearing
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x84E, std::uint32_t(0x90909090));
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x852, std::uint16_t(0x9090));
-
 		// Prevent setting kFreezeFrameBackground flag
 		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xA10, std::uint32_t(0x90909090));
-
-		// Keep the menu updated
-		REL::safe_write(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x1040, std::uint16_t(0x9090));
 
 		// Fix for controls not working
 		REL::safe_write(Offsets::Menus::StatsMenu::CanProcess.address() + 0x46, std::uint32_t(0x90909090));
 		REL::safe_write(Offsets::Menus::StatsMenu::CanProcess.address() + 0x4A, std::uint16_t(0x9090));
-
-		//Hook ProcessMessage and AdvanceMovie
-		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_StatsMenu[0]);
-		_ProcessMessage = vTable.write_vfunc(0x4, &StatsMenuEx::ProcessMessage_Hook);
 	}
 }

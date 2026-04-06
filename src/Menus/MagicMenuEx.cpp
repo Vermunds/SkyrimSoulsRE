@@ -1,28 +1,61 @@
 #include "Menus/MagicMenuEx.h"
+#include "Util.h"
 
 namespace SkyrimSoulsRE
 {
 	bool MagicMenuEx::IsViewingActiveEffects()
 	{
-		RE::GFxValue selectedIndex, categoryList, inventoryLists;
-
-		bool success = this->root.GetMember("inventoryLists", &inventoryLists);
-		if (!success)
-			return false;
-
-		success = inventoryLists.GetMember("categoryList", &categoryList);
-		if (!success)
-			return false;
-
-		success = categoryList.GetMember("_selectedIndex", &selectedIndex);
-		if (!success)
-			return false;
-
-		if (selectedIndex.GetNumber() == 9.0f)
+		RE::GFxValue inventoryLists;
+		if (this->root.GetMember("inventoryLists", &inventoryLists))  // SkyUI
 		{
-			return true;
+			RE::GFxValue categoryList;
+			RE::GFxValue selectedIndex;
+
+			if (!inventoryLists.GetMember("_currCategoryIndex", &selectedIndex))
+			{
+				return false;
+			}
+
+			return static_cast<int>(std::round(selectedIndex.GetNumber())) == 9;
 		}
+		else if (this->root.GetMember("InventoryLists_mc", &inventoryLists))  // Vanilla
+		{
+			RE::GFxValue currentCategoryIndex;
+			if (!inventoryLists.GetMember("iCurrCategoryIndex", &currentCategoryIndex))
+			{
+				return false;
+			}
+
+			return static_cast<int>(std::round(currentCategoryIndex.GetNumber())) == 9;
+		}
+
 		return false;
+	}
+
+	MagicMenuState MagicMenuEx::GetUpdatedState()
+	{
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		MagicMenuState state{};
+		state.health = player->GetActorValue(RE::ActorValue::kHealth);
+		state.maxHealth = state.health - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kHealth);
+		state.stamina = player->GetActorValue(RE::ActorValue::kStamina);
+		state.maxStamina = state.stamina - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kStamina);
+		state.magicka = player->GetActorValue(RE::ActorValue::kMagicka);
+		state.maxMagicka = state.magicka - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kMagicka);
+
+		RE::BSSimpleList<RE::ActiveEffect*>* activeEffects = player->GetActiveEffectList();
+		for (RE::ActiveEffect* activeEffect : *activeEffects)
+		{
+			if (activeEffect->flags.any(RE::ActiveEffect::Flag::kInactive) || activeEffect->GetBaseObject()->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHideInUI))
+			{
+				continue;
+			}
+
+			uint64_t h = std::hash<RE::ActiveEffect*>()(activeEffect);
+			state.activeEffectsHash ^= h + 0x9e3779b97f4a7c15ULL + (state.activeEffectsHash << 6) + (state.activeEffectsHash >> 2);
+		}
+
+		return state;
 	}
 
 	RE::UI_MESSAGE_RESULTS MagicMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
@@ -30,146 +63,186 @@ namespace SkyrimSoulsRE
 		switch (a_message.type.get())
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
-			SendSetSkyrimSoulsHUDModeMessage(true);
+			{
+				RE::GFxValue skyuiVersion;
+
+				isSkyUI6 = this->uiMovie->GetVariable(&skyuiVersion, "_global.MagicMenu.SKYUI_VERSION_MAJOR") && skyuiVersion.IsNumber() && static_cast<int32_t>(skyuiVersion.GetNumber()) >= 6;
+				lastState = MagicMenuState{};
+			}
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				if (IsViewingActiveEffects())
-				{
-					// Update the list without the spells included
-					wasViewingActiveEffects = true;
-					this->itemList->Update();
-				}
-				else if (wasViewingActiveEffects)
-				{
-					// Update the list with the spells included
-					wasViewingActiveEffects = false;
-					this->itemList->Update();
-				}
-				else
-				{
-					this->UpdateBottomBar();
-				}
-			}
-			break;
-
-		case RE::UI_MESSAGE_TYPE::kInventoryUpdate:
-			{
-				// for SkyUI only
-				if (IsViewingActiveEffects())
-				{
-					RE::GFxValue listEnumeration, clipPool, entryClipManager, categoryList, inventoryLists;
-
-					bool success = this->root.GetMember("inventoryLists", &inventoryLists);
-					if (!success)
-						break;
-
-					success = inventoryLists.GetMember("categoryList", &categoryList);
-					if (!success)
-						break;
-
-					success = categoryList.GetMember("_entryClipManager", &entryClipManager);
-					if (!success)
-						break;
-
-					success = entryClipManager.GetMember("_clipPool", &clipPool);
-					if (!success)
-						break;
-
-					success = categoryList.GetMember("listEnumeration", &listEnumeration);
-					if (!success)
-						break;
-
-					assert(clipPool.GetType() == RE::GFxValue::ValueType::kArray);
-
-					std::int32_t count = clipPool.GetArraySize();
-
-					std::vector<bool> listEnableState(count);
-					std::vector<double> listAlphaState(count);
-
-					for (std::int32_t i = 0; i < count; ++i)
-					{
-						RE::GFxValue entry, value;
-						if (clipPool.GetElement(i, &entry))
-						{
-							entry.GetMember("enabled", &value);
-							listEnableState[i] = value.GetBool();
-
-							entry.GetMember("_alpha", &value);
-							listAlphaState[i] = value.GetNumber();
-						}
-					}
-
-					blockSpells = true;
-					RE::UI_MESSAGE_RESULTS result = _ProcessMessage(this, a_message);
-					blockSpells = false;
-
-					for (std::int32_t i = 0; i < count; ++i)
-					{
-						RE::GFxValue entry, value;
-
-						if (clipPool.GetElement(i, &entry))
-						{
-							value = RE::GFxValue{ listEnableState[i] };
-							entry.SetMember("enabled", value);
-
-							value = RE::GFxValue{ listAlphaState[i] };
-							entry.SetMember("_alpha", value);
-						}
-
-						RE::GFxValue index{ i };
-						if (listEnumeration.Invoke("at", &entry, &index, 1) && listEnableState[i])
-						{
-							entry.SetMember("filterFlag", 1);
-						}
-					}
-
-					return result;
-				}
-			}
-
-		case RE::UI_MESSAGE_TYPE::kHide:
-			SendSetSkyrimSoulsHUDModeMessage(false);
+			Update();
 			break;
 		}
 
 		return _ProcessMessage(this, a_message);
 	}
 
-	// Called during ProcessMessage
-	// Prevent spells from being added to the itemlist, while viewing active effects for performance reasons
-	void MagicMenuEx::AddSpells_Hook(RE::PlayerCharacter* a_player, void* a_unk1)
+	// Called during itemlist update
+	RE::BSContainer::ForEachResult MagicMenuEx::MagicMenuAddActiveEffectVisitor_Visit_Hook(RE::MagicMenuAddActiveEffectVisitor* a_this, RE::ActiveEffect* a_effect)
 	{
-		if (blockSpells)
+		if (a_effect->flags.any(RE::ActiveEffect::Flag::kInactive) || a_effect->GetBaseObject()->data.flags.any(RE::EffectSetting::EffectSettingData::Flag::kHideInUI))
 		{
-			return;
+			return RE::BSContainer::ForEachResult::kContinue;
 		}
 
-		using func_t = decltype(&AddSpells_Hook);
-		REL::Relocation<func_t> func(Offsets::Menus::MagicMenu::AddSpells);
-		return func(a_player, a_unk1);
-	}
+		RE::BSContainer::ForEachResult result = _MagicMenuAddActiveEffectVisitor_Visit(a_this, a_effect);
 
-	// Called during ProcessMessage
-	// Prevent shouts from being added to the itemlist, while viewing active effects for performance reasons
-	void MagicMenuEx::AddShouts_Hook(RE::ItemList* a_list, void* a_unk1, RE::RefHandle a_playerRefHandle)
-	{
-		if (blockSpells)
+		if (a_this->itemList->items.empty())
 		{
-			return;
+			return result;
 		}
 
-		using func_t = decltype(&AddShouts_Hook);
-		REL::Relocation<func_t> func(Offsets::Menus::MagicMenu::AddShout);
-		return func(a_list, a_unk1, a_playerRefHandle);
+		RE::MagicItemList::Item* lastEntry = a_this->itemList->items.back();
+
+		if (lastEntry)
+		{
+			activeEffectMappings.emplace(lastEntry, ActiveEffectData{ a_effect, std::string{} });
+		}
+
+		return result;
 	}
 
-	void MagicMenuEx::UpdateBottomBar()
+	// Called during itemlist reset - clear the map here to account for cases where the itemlist is reset without an inventory update
+	bool MagicMenuEx::MagicItemList_Reset_Hook(RE::GFxValue::ObjectInterface* a_this, void* a_pdata, std::uint32_t a_idx, std::uint32_t a_count)
 	{
-		using func_t = decltype(&MagicMenuEx::UpdateBottomBar);
-		REL::Relocation<func_t> func(Offsets::Menus::MagicMenu::UpdateBottomBar);
-		return func(this);
+		activeEffectMappings.clear();
+
+		return a_this->RemoveElements(a_pdata, a_idx, a_count);
+	}
+
+	void MagicMenuEx::UpdateActiveEffectTimers()
+	{
+		RE::MagicItemList::Item* selectedItem = this->itemList->GetSelectedItem();
+
+		RE::GFxValue entryClipManager;
+		bool entryClipManagerFetched = false;
+		bool entryClipManagerNotFound = false;
+
+		for (RE::MagicItemList::Item* entry : this->itemList->items)
+		{
+			if (!entry)
+			{
+				continue;
+			}
+
+			auto it = activeEffectMappings.find(entry);
+			if (it == activeEffectMappings.end())
+			{
+				continue;
+			}
+			ActiveEffectData& activeEffectData = it->second;
+
+			float remaining = std::max(0.0f, activeEffectData.effect->duration - activeEffectData.effect->elapsedSeconds);
+
+			static const std::string dayLabel = isSkyUI6 ? Util::TranslateSkyUIString(this->uiMovie.get(), "$d") : "d";
+			static const std::string hourLabel = isSkyUI6 ? Util::TranslateSkyUIString(this->uiMovie.get(), "$h") : "h";
+			static const std::string minuteLabel = isSkyUI6 ? Util::TranslateSkyUIString(this->uiMovie.get(), "$m") : "m";
+			static const std::string secondLabel = isSkyUI6 ? Util::TranslateSkyUIString(this->uiMovie.get(), "$s") : "s";
+
+			std::string newDisplay = Util::FormatTimeRemaining(remaining, dayLabel, hourLabel, minuteLabel, secondLabel);
+			std::string& prevDisplay = activeEffectData.lastDisplay;
+
+			if (!prevDisplay.empty() && prevDisplay == newDisplay)
+			{
+				continue;
+			}
+
+			prevDisplay = newDisplay;
+
+			RE::GFxValue clipIndex;
+			entry->obj.GetMember("clipIndex", &clipIndex);
+			if (!clipIndex.IsNumber())
+			{
+				continue;
+			}
+
+			// Update entry data
+			RE::GFxValue val(remaining);
+			RE::GFxValue textVal;
+			textVal.SetString(newDisplay.c_str());
+			entry->obj.SetMember("timeRemaining", val);
+			entry->obj.SetMember("timeRemainingDisplay", textVal);
+
+			// Update item card if selected
+			if (selectedItem == entry)
+			{
+				this->itemCard->obj.SetMember("timeRemaining", remaining);
+				this->root.Invoke("UpdateItemCardInfo", nullptr, &this->itemCard->obj, 1);
+			}
+
+			// Update list entry (SkyUI)
+			if (entryClipManagerNotFound)
+			{
+				continue;
+			}
+
+			if (!entryClipManagerFetched)
+			{
+				this->itemList->root.GetMember("_entryClipManager", &entryClipManager);
+				if (!entryClipManager.IsObject())
+				{
+					entryClipManagerNotFound = true;
+					continue;
+				}
+
+				entryClipManagerFetched = true;
+			}
+
+			RE::GFxValue clip;
+			entryClipManager.Invoke("getClip", &clip, &clipIndex, 1);
+			if (!clip.IsObject())
+			{
+				continue;
+			}
+
+			RE::GFxValue args[2];
+			args[0] = entry->obj;
+			this->itemList->root.GetMember("listState", &args[1]);
+			if (!args[1].IsObject())
+			{
+				continue;
+			}
+
+			clip.Invoke("setEntry", nullptr, args, 2);
+		}
+	}
+
+	void MagicMenuEx::Update()
+	{
+		Settings* settings = Settings::GetSingleton();
+
+		MagicMenuState newState = GetUpdatedState();
+
+		if (settings->updateMagicMenuBottomBar)
+		{
+			bool meterUpdateRequired = Util::IsActorValueMeterUpdateNeeded(lastState.health, lastState.maxHealth, newState.health, newState.maxHealth, settings->bottomBarMeterUpdateSteps) ||
+			                           Util::IsActorValueMeterUpdateNeeded(lastState.stamina, lastState.maxStamina, newState.stamina, newState.maxStamina, settings->bottomBarMeterUpdateSteps) ||
+			                           Util::IsActorValueMeterUpdateNeeded(lastState.magicka, lastState.maxMagicka, newState.magicka, newState.maxMagicka, settings->bottomBarMeterUpdateSteps);
+
+			if (meterUpdateRequired)
+			{
+				using func_t = void (*)(RE::MagicMenu*);
+				REL::Relocation<func_t> func(Offsets::Menus::MagicMenu::UpdateBottomBar);
+				func(this);
+			}
+		}
+
+		if (settings->updateMagicMenuActiveEffectTimers && IsViewingActiveEffects())
+		{
+			bool listUpdateRequired = (newState.activeEffectsHash != lastState.activeEffectsHash);
+			if (listUpdateRequired)
+			{
+				itemList->Update();
+			}
+			else
+			{
+				UpdateActiveEffectTimers();
+			}
+		}
+
+		lastState = newState;
 	}
 
 	RE::IMenu* MagicMenuEx::Creator()
@@ -179,11 +252,15 @@ namespace SkyrimSoulsRE
 
 	void MagicMenuEx::InstallHook()
 	{
-		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MagicMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MagicMenuEx::ProcessMessage_Hook);
 
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x53, AddSpells_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::Menus::MagicMenu::UpdateItemList.address() + 0x9A, AddShouts_Hook);
+		REL::Relocation<std::uintptr_t> vTableAddActiveEffectVisitor(RE::VTABLE___MagicMenuAddActiveEffectVisitor[0]);
+		_MagicMenuAddActiveEffectVisitor_Visit = vTableAddActiveEffectVisitor.write_vfunc(0x1, &MagicMenuEx::MagicMenuAddActiveEffectVisitor_Visit_Hook);
+
+		SKSE::Trampoline& trampoline = SKSE::GetTrampoline();
+		trampoline.write_call<5>(Offsets::MagicItemList::Reset.address() + 0x3B, (uintptr_t)MagicItemList_Reset_Hook);
+
+		activeEffectMappings.reserve(128);
 	}
 }

@@ -7,8 +7,17 @@ namespace SkyrimSoulsRE
 	{
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			{
+				lastState = GetUpdatedState();
+
+				RE::GFxValue skyuiVersion;
+				isSkyUI6 = this->uiMovie->GetVariable(&skyuiVersion, "_global.TweenMenu.SKYUI_VERSION_MAJOR") && skyuiVersion.IsNumber() && static_cast<int32_t>(skyuiVersion.GetNumber()) >= 6;
+			}
+			break;
+
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			UpdateInfo();
+			Update();
 			break;
 		}
 
@@ -17,113 +26,113 @@ namespace SkyrimSoulsRE
 
 	TweenMenuState TweenMenuEx::GetUpdatedState()
 	{
-		using CanLevelUp_t = bool (RE::PlayerCharacter::PlayerSkills::*)();
-		REL::Relocation<CanLevelUp_t> CanLevelUp(Offsets::PlayerCharacter::PlayerSkills::CanLevelUp);
-
-		using GetXPAndLevelUpThreshold_t = void (RE::PlayerCharacter::PlayerSkills::*)(float&, float&);
-		REL::Relocation<GetXPAndLevelUpThreshold_t> GetXPAndLevelUpThreshold(Offsets::PlayerCharacter::PlayerSkills::GetXPAndLevelUpThreshold);
-
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		const auto IsInSurvivalMode = []() {
-			const auto dobj = RE::BGSDefaultObjectManager::GetSingleton();
-			const auto survival = dobj ? dobj->GetObject<RE::TESGlobal>(RE::DEFAULT_OBJECT::kSurvivalModeEnabled) : nullptr;
-			return survival ? survival->value == 1.0F : false;
-		};
+		TweenMenuState state{};
 
-		TweenMenuState state;
-
-		RE::Calendar::GetSingleton()->GetTimeDateString(state.timeDateString, sizeof(state.timeDateString), false);
-		state.canLevelUp = CanLevelUp(player->skills) && !IsInSurvivalMode();
-		GetXPAndLevelUpThreshold(player->skills, state.xp, state.levelUpThreshold);
-
+		RE::Calendar::GetSingleton()->GetTimeDateString(state.timeDateString, sizeof(state.timeDateString), true);
+		state.canLevelUp = player->skills->CanLevelUp() && !IsInSurvivalMode();
+		state.xp = player->skills->data->xp;
+		state.levelUpThreshold = player->skills->data->levelThreshold;
 		state.level = player->GetLevel();
 
 		return state;
 	}
 
-	void TweenMenuEx::UpdateInfo()
+	void TweenMenuEx::Update()
 	{
-		TweenMenuState currentState = GetUpdatedState();
-
-		// Update clock
-		if (std::memcmp(lastState.timeDateString, currentState.timeDateString, sizeof(TweenMenuState::timeDateString)) != 0)
+		Settings* settings = Settings::GetSingleton();
+		if (!settings->updateTweenMenuBottomBar)
 		{
-			std::memcpy(lastState.timeDateString, currentState.timeDateString, sizeof(TweenMenuState::timeDateString));
-
-			RE::GFxValue dateText;
-			this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText");
-
-			if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
-			{
-				RE::GFxValue newDate(currentState.timeDateString);
-				dateText.SetMember("htmlText", newDate);
-			}
+			return;
 		}
 
-		// Update "can level up" (this doesn't fully update everything related to this but it seems to work)
-		if (currentState.canLevelUp != lastState.canLevelUp)
+		TweenMenuState newState = GetUpdatedState();
+
+		bool timeDateChanged = std::memcmp(lastState.timeDateString, newState.timeDateString, sizeof(TweenMenuState::timeDateString)) != 0;
+		bool xpChanged = newState.canLevelUp != lastState.canLevelUp || newState.level != lastState.level || newState.xp != lastState.xp || newState.levelUpThreshold != lastState.levelUpThreshold;
+
+		if (isSkyUI6)
 		{
-			lastState.canLevelUp = currentState.canLevelUp;
-
-			RE::GFxValue canLevelUpText;
-			this->uiMovie->GetVariable(&canLevelUpText, "_root.TweenMenu_mc.Selections_mc.SkillsText_mc.textField");
-
-			if (canLevelUpText.GetType() != RE::GFxValue::ValueType::kUndefined)
+			if (timeDateChanged)
 			{
-				if (currentState.canLevelUp)
+				RE::FxResponseArgs<1> args;
+				args.Add(newState.timeDateString);
+				this->fxDelegate->Invoke(this->uiMovie.get(), "SetDateString", args);
+			}
+
+			if (xpChanged)
+			{
+				RE::FxResponseArgs<3> args;
+				args.Add(newState.canLevelUp);
+				args.Add(newState.level);
+				args.Add((newState.xp / newState.levelUpThreshold) * 100.0f);
+				this->fxDelegate->Invoke(this->uiMovie.get(), "SetPlayerInfo", args);
+			}
+		}
+		else
+		{
+			if (timeDateChanged)
+			{
+				RE::GFxValue dateText;
+				if (this->uiMovie->GetVariable(&dateText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.DateText"))
 				{
-					static std::wstring levelUpText = Util::TranslateUIString(this->uiMovie.get(), L"$LEVEL UP");
-					canLevelUpText.SetMember("text", levelUpText.c_str());
+					RE::GFxValue newDate(newState.timeDateString);
+					dateText.SetMember("htmlText", newDate);
 				}
-				else
+			}
+
+			if (newState.canLevelUp != lastState.canLevelUp)
+			{
+				RE::GFxValue canLevelUpText;
+				if (this->uiMovie->GetVariable(&canLevelUpText, "_root.TweenMenu_mc.Selections_mc.SkillsText_mc.textField") &&
+					canLevelUpText.GetType() != RE::GFxValue::ValueType::kUndefined)
 				{
-					static std::wstring levelUpText = Util::TranslateUIString(this->uiMovie.get(), L"$SKILLS");
-					canLevelUpText.SetMember("text", levelUpText.c_str());
+					if (newState.canLevelUp)
+					{
+						static std::wstring levelUpText = Util::TranslateUIString(this->uiMovie.get(), L"$LEVEL UP");
+						canLevelUpText.SetMember("text", levelUpText.c_str());
+					}
+					else
+					{
+						static std::wstring skillsText = Util::TranslateUIString(this->uiMovie.get(), L"$SKILLS");
+						canLevelUpText.SetMember("text", skillsText.c_str());
+					}
+				}
+			}
+
+			if (newState.level != lastState.level)
+			{
+				RE::GFxValue levelText;
+				if (this->uiMovie->GetVariable(&levelText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.LevelNumberLabel") &&
+					levelText.GetType() != RE::GFxValue::ValueType::kUndefined)
+				{
+					levelText.SetMember("text", newState.level);
+				}
+			}
+
+			if (newState.xp != lastState.xp || newState.levelUpThreshold != lastState.levelUpThreshold)
+			{
+				RE::GFxValue xpMeter;
+				if (this->uiMovie->GetVariable(&xpMeter, "_root.TweenMenu_mc.LevelMeter") &&
+					xpMeter.GetType() != RE::GFxValue::ValueType::kUndefined)
+				{
+					std::array<RE::GFxValue, 1> xpArgs = { (newState.xp / newState.levelUpThreshold) * 100.0f };
+					xpMeter.Invoke<1>("SetPercent", xpArgs);
 				}
 			}
 		}
 
-		// Update level
-		if (currentState.level != lastState.level)
-		{
-			lastState.level = currentState.level;
-
-			RE::GFxValue levelText;
-			this->uiMovie->GetVariable(&levelText, "_root.TweenMenu_mc.BottomBarTweener_mc.BottomBar_mc.LevelNumberLabel");
-
-			if (levelText.GetType() != RE::GFxValue::ValueType::kUndefined)
-			{
-				levelText.SetMember("text", currentState.level);
-			}
-		}
-
-		// Update xp
-		if (currentState.xp != lastState.xp)
-		{
-			lastState.xp = currentState.xp;
-
-			RE::GFxValue xpMeter;
-			this->uiMovie->GetVariable(&xpMeter, "_root.TweenMenu_mc.LevelMeter");
-
-			// need to invoke SetPercent
-			if (xpMeter.GetType() != RE::GFxValue::ValueType::kUndefined)
-			{
-				std::array<RE::GFxValue, 1> args = { (currentState.xp / currentState.levelUpThreshold) * 100.0f };
-				xpMeter.Invoke<1>("SetPercent", args);
-			}
-		}
+		lastState = newState;
 	}
 
 	RE::IMenu* TweenMenuEx::Creator()
 	{
 		RE::TweenMenu* menu = static_cast<RE::TweenMenu*>(CreateMenu(RE::TweenMenu::MENU_NAME));
-		lastState = TweenMenuState();
 		return menu;
 	}
 
 	void TweenMenuEx::InstallHook()
 	{
-		//Hook AdvanceMovie
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_TweenMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &TweenMenuEx::ProcessMessage_Hook);
 

@@ -19,6 +19,20 @@ namespace SkyrimSoulsRE
 		float autoCloseDistance;
 		float autoCloseTolerance;
 
+		//Data Updates
+		std::uint32_t bottomBarMeterUpdateSteps;
+		bool updateInventoryMenuBottomBar;
+		bool updateContainerMenuBottomBar;
+		bool updateContainerMenuPickpocketChance;
+		bool updateMagicMenuBottomBar;
+		bool updateMagicMenuActiveEffectTimers;
+		bool updateStatsMenuPlayerInfo;
+		bool updateStatsMenuSkillList;
+		bool updateTweenMenuBottomBar;
+		bool updateJournalMenuBottomBar;
+		bool updateMapMenuBottomBar;
+		bool updateSleepWaitMenuClock;
+
 		//Controls
 		bool enableMovementInMenus;
 		bool enableToggleRun;
@@ -55,8 +69,8 @@ namespace SkyrimSoulsRE
 		bool isUsingDME = false;
 
 	private:
-		Settings(){};
-		~Settings(){};
+		Settings() {};
+		~Settings() {};
 		Settings(const Settings&) = delete;
 		Settings& operator=(const Settings&) = delete;
 	};

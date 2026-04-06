@@ -26,6 +26,7 @@ namespace SkyrimSoulsRE
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
 			mapMenuCellLoadedEventHandler.Register();
+			lastTimeDateString[0] = '\0';
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kHide:
@@ -33,8 +34,8 @@ namespace SkyrimSoulsRE
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			UpdateClock();
-			UpdatePlayerMarkerPosition();
+			Update();
+			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 
 			if (cellRenderingUpdateNeeded)
 			{
@@ -64,7 +65,7 @@ namespace SkyrimSoulsRE
 	void MapMenuEx::UpdatePlayerMarkerPosition()
 	{
 		// This function should handle any edge-cases (interiors, child worldspaces, etc.)
-		auto func = reinterpret_cast<bool (*)(RE::MapCamera*, RE::NiPoint3&, RE::NiAVObject*)>(Offsets::Menus::MapMenu::UpdatePlayerMarkerPosFunc.address());
+		auto func = reinterpret_cast<bool (*)(RE::MapCamera*, RE::NiPoint3&, RE::NiAVObject*)>(Offsets::Menus::MapMenu::SetMarkerPosition.address());
 		func(&this->camera, this->playerMarkerPosition, nullptr);
 
 		// Now we need to update the marker position
@@ -79,22 +80,29 @@ namespace SkyrimSoulsRE
 		}
 	}
 
-	void MapMenuEx::UpdateClock()
+	void MapMenuEx::Update()
 	{
-		char timeDateString[200];
-		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, true);
+		UpdatePlayerMarkerPosition();
 
-		RE::GFxValue dateText;
-		if (this->uiMovie->GetVariable(&dateText, "_root.bottomBar.DateText"))  //SkyUI
+		Settings* settings = Settings::GetSingleton();
+		if (!settings->updateMapMenuBottomBar)
 		{
-			RE::GFxValue newDate(timeDateString);
-			dateText.SetMember("htmlText", newDate);
+			return;
 		}
-		else if (this->uiMovie->GetVariable(&dateText, "_root.Bottom.DateText"))  // non-SkyUI
+
+		char timeDateString[200];
+		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, sizeof(timeDateString), false);
+
+		if (std::memcmp(lastTimeDateString, timeDateString, sizeof(timeDateString)) == 0)
 		{
-			RE::GFxValue newDate(timeDateString);
-			dateText.SetMember("htmlText", newDate);
+			return;
 		}
+
+		RE::FxResponseArgs<1> args;
+		args.Add(timeDateString);
+		this->fxDelegate->Invoke(this->uiMovie.get(), "SetDateString", args);
+
+		std::memcpy(lastTimeDateString, timeDateString, sizeof(timeDateString));
 	}
 
 	RE::IMenu* MapMenuEx::Creator()

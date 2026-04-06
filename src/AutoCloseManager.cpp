@@ -2,17 +2,8 @@
 #include "Settings.h"
 #include "Util.h"
 
-#include <cmath>
-
 namespace SkyrimSoulsRE
 {
-	RE::TESObjectREFR* GetReferenceFromHandle(RE::RefHandle a_handle)
-	{
-		RE::TESObjectREFRPtr refptr = nullptr;
-		RE::TESObjectREFR::LookupByHandle(a_handle, refptr);
-		return refptr.get();
-	}
-
 	void AutoCloseManager::CheckAutoClose(std::string_view a_menuName)
 	{
 		auto it = _autoCloseDataMap.find(a_menuName);
@@ -22,14 +13,13 @@ namespace SkyrimSoulsRE
 		}
 		AutoCloseData& data = it->second;
 
-		Settings* settings = Settings::GetSingleton();
+		const Settings* settings = Settings::GetSingleton();
 		const float maxDistance = settings->autoCloseDistance;
 		const float tolerance = settings->autoCloseTolerance;
 
-		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
-		RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
+		const RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 
-		RE::TESObjectREFR* target = GetReferenceFromHandle(data.targetRefHandle);
+		const RE::TESObjectREFR* target = Util::GetReferenceFromHandle(data.targetRefHandle);
 
 		if (data.dialogueMode)
 		{
@@ -111,7 +101,7 @@ namespace SkyrimSoulsRE
 			isPickpocketMenu = menu->GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
 		}
 
-		RE::TESObjectREFR* target = GetReferenceFromHandle(a_refHandle);
+		RE::TESObjectREFR* target = Util::GetReferenceFromHandle(a_refHandle);
 
 		RE::MenuTopicManager* mtm = RE::MenuTopicManager::GetSingleton();
 		REX::W32::EnterCriticalSection(&mtm->criticalSection);
@@ -204,7 +194,7 @@ namespace SkyrimSoulsRE
 
 	void AutoCloseManager::AutoCloseData::PrintDebugInfo(std::string_view a_menuName)
 	{
-		RE::TESObjectREFR* target = GetReferenceFromHandle(targetRefHandle);
+		RE::TESObjectREFR* target = Util::GetReferenceFromHandle(targetRefHandle);
 
 		if (dialogueMode)
 		{

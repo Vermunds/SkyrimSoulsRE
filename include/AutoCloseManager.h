@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 namespace SkyrimSoulsRE
 {
 	class AutoCloseManager

@@ -15,7 +15,7 @@ namespace SkyrimSoulsRE
 
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
 
-		void UpdateClock();
+		void Update();
 
 		static bool CanSleep_Hook(RE::PlayerCharacter* a_player, RE::TESObjectREFR* a_bedRef);
 		static void StartSleepWait_Hook(const RE::FxDelegateArgs& a_args);

@@ -15,29 +15,15 @@ namespace SkyrimSoulsRE
 				{
 					autoCloseManager->InitAutoClose(RE::GiftMenu::MENU_NAME, handle, true);
 				}
-
-				SendSetSkyrimSoulsHUDModeMessage(true);
 			}
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			UpdateBottomBar();
 			autoCloseManager->CheckAutoClose(RE::GiftMenu::MENU_NAME);
-			break;
-
-		case RE::UI_MESSAGE_TYPE::kHide:
-			SendSetSkyrimSoulsHUDModeMessage(false);
 			break;
 		}
 
 		return _ProcessMessage(this, a_message);
-	}
-
-	void GiftMenuEx::UpdateBottomBar()
-	{
-		using func_t = decltype(&GiftMenuEx::UpdateBottomBar);
-		REL::Relocation<func_t> func(Offsets::Menus::GiftMenu::UpdateBottomBar);
-		return func(this);
 	}
 
 	RE::IMenu* GiftMenuEx::Creator()

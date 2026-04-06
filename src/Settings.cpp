@@ -72,6 +72,33 @@ namespace SkyrimSoulsRE
 		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseDistance", settings->autoCloseDistance, "#  The maximum distance (in in-game units) before the menus will automatically close.\n#  Too small values can cause the menus to close unexpectedly.", true);
 		ini.SetDoubleValue("AUTOCLOSE", "fAutoCloseTolerance", settings->autoCloseTolerance, "#  The maximum distance (in in-game units) where the menus NEVER auto-close (in relation to the players initial position when the menu was opened).\n#  This is used as a failsafe when the initial distance is larger than the maximum allowed to prevent the menu from closing immediately (e.g. a container opened by a script).", true);
 
+		//Data updates
+		settings->bottomBarMeterUpdateSteps = ini.GetLongValue("DATA_UPDATES", "iBottomBarMeterUpdateSteps", 100);
+		settings->updateInventoryMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateInventoryMenuBottomBar", true);
+		settings->updateContainerMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateContainerMenuBottomBar", true);
+		settings->updateContainerMenuPickpocketChance = ini.GetBoolValue("DATA_UPDATES", "bUpdateContainerMenuPickpocketChance", true);
+		settings->updateMagicMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateMagicMenuBottomBar", true);
+		settings->updateMagicMenuActiveEffectTimers = ini.GetBoolValue("DATA_UPDATES", "bUpdateMagicMenuActiveEffectTimers", true);
+		settings->updateStatsMenuPlayerInfo = ini.GetBoolValue("DATA_UPDATES", "bUpdateStatsMenuPlayerInfo", true);
+		settings->updateStatsMenuSkillList = ini.GetBoolValue("DATA_UPDATES", "bUpdateStatsMenuSkillList", true);
+		settings->updateTweenMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateTweenMenuBottomBar", true);
+		settings->updateJournalMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateJournalMenuBottomBar", true);
+		settings->updateMapMenuBottomBar = ini.GetBoolValue("DATA_UPDATES", "bUpdateMapMenuBottomBar", true);
+		settings->updateSleepWaitMenuClock = ini.GetBoolValue("DATA_UPDATES", "bUpdateSleepWaitMenuClock", true);
+
+		ini.SetLongValue("DATA_UPDATES", "iBottomBarMeterUpdateSteps", settings->bottomBarMeterUpdateSteps, "#  Actor value meter update divisor for the bottom bar. The bar updates only when the value crosses 1/divisor of the maximum. 0 updates on any change.", false, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateInventoryMenuBottomBar", settings->updateInventoryMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateContainerMenuBottomBar", settings->updateContainerMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateContainerMenuPickpocketChance", settings->updateContainerMenuPickpocketChance, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateMagicMenuBottomBar", settings->updateMagicMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateMagicMenuActiveEffectTimers", settings->updateMagicMenuActiveEffectTimers, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateStatsMenuPlayerInfo", settings->updateStatsMenuPlayerInfo, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateStatsMenuSkillList", settings->updateStatsMenuSkillList, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateTweenMenuBottomBar", settings->updateTweenMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateJournalMenuBottomBar", settings->updateJournalMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateMapMenuBottomBar", settings->updateMapMenuBottomBar, nullptr, true);
+		ini.SetBoolValue("DATA_UPDATES", "bUpdateSleepWaitMenuClock", settings->updateSleepWaitMenuClock, nullptr, true);
+
 		//Controls
 		settings->enableMovementInMenus = ini.GetBoolValue("CONTROLS", "bEnableMovementInMenus", true);
 		settings->enableToggleRun = ini.GetBoolValue("CONTROLS", "bEnableToggleRun", false);

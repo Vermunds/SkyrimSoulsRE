@@ -4,27 +4,61 @@ namespace SkyrimSoulsRE
 {
 	RE::UI_MESSAGE_RESULTS JournalMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
+		RE::UI_MESSAGE_RESULTS result = _ProcessMessage(this, a_message);
+
 		switch (a_message.type.get())
 		{
+		case RE::UI_MESSAGE_TYPE::kShow:
+			lastState = GetUpdatedState();
+			break;
+
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			UpdateClock();
+			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
+			Update();
+			break;
 		}
 
-		return _ProcessMessage(this, a_message);
+		return result;
 	}
 
-	void JournalMenuEx::UpdateClock()
+	JournalMenuState JournalMenuEx::GetUpdatedState()
 	{
-		char timeDateString[200];
-		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, 200, true);
+		JournalMenuState state{};
+		RE::Calendar::GetSingleton()->GetTimeDateString(state.lastTimeDateString, sizeof(state.lastTimeDateString), true);
 
-		RE::GFxValue dateText;
-		this->uiMovie->GetVariable(&dateText, "_root.QuestJournalFader.Menu_mc.BottomBar_mc.DateText");
-		if (dateText.GetType() != RE::GFxValue::ValueType::kUndefined)
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		state.level = static_cast<float>(player->GetLevel());
+		state.xp = player->skills->data->xp;
+		state.levelUpThreshold = player->skills->data->levelThreshold;
+
+		return state;
+	}
+
+	void JournalMenuEx::Update()
+	{
+		Settings* settings = Settings::GetSingleton();
+		if (!settings->updateJournalMenuBottomBar)
 		{
-			RE::GFxValue newDate(timeDateString);
-			dateText.SetMember("htmlText", newDate);
+			return;
 		}
+
+		JournalMenuState newState = GetUpdatedState();
+
+		bool timeDateChanged = std::memcmp(lastState.lastTimeDateString, newState.lastTimeDateString, sizeof(JournalMenuState::lastTimeDateString)) != 0;
+		bool xpChanged = newState.level != lastState.level || newState.xp != lastState.xp || newState.levelUpThreshold != lastState.levelUpThreshold;
+
+		if (timeDateChanged || xpChanged)
+		{
+			float xpPercent = (newState.xp / newState.levelUpThreshold) * 100.0f;
+
+			RE::GFxValue args[3];
+			args[0].SetString(newState.lastTimeDateString);
+			args[1].SetNumber(newState.level);
+			args[2].SetNumber(xpPercent);
+			this->uiMovie->Invoke("_root.QuestJournalFader.Menu_mc.BottomBar_mc.SetPlayerInfo", nullptr, args, 3);
+		}
+
+		lastState = newState;
 	}
 
 	RE::IMenu* JournalMenuEx::Creator()

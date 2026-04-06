@@ -23,7 +23,7 @@ namespace SkyrimSoulsRE
 		RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);  // 05
 
 		TweenMenuState GetUpdatedState();
-		void UpdateInfo();
+		void Update();
 
 		static RE::IMenu* Creator();
 		static void InstallHook();
@@ -32,5 +32,6 @@ namespace SkyrimSoulsRE
 		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
 
 		static inline TweenMenuState lastState = {};
+		static inline bool isSkyUI6 = false;
 	};
 }

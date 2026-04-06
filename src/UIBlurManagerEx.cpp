@@ -20,6 +20,6 @@ namespace SkyrimSoulsRE
 
 	void UIBlurManagerEx::InstallHook()
 	{
-		SKSE::GetTrampoline().write_branch<5>(RE::Offset::UIBlurManager::IncrementBlurCount.address(), (std::uintptr_t)IncrementBlurCount_Hook);
+		SKSE::GetTrampoline().write_branch<5>(Offsets::UIBlurManager::IncrementBlurCount.address(), (std::uintptr_t)IncrementBlurCount_Hook);
 	}
 }

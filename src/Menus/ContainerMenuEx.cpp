@@ -11,7 +11,7 @@ namespace SkyrimSoulsRE
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
 			{
-				SendSetSkyrimSoulsHUDModeMessage(true);
+				lastState = GetUpdatedState();
 
 				bool checkForDeath = GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket;
 				autoCloseManager->InitAutoClose(RE::ContainerMenu::MENU_NAME, GetTargetRefHandle(), checkForDeath);
@@ -19,26 +19,46 @@ namespace SkyrimSoulsRE
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			{
-				UpdateBottomBar();
-				if (GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
-				{
-					UpdatePickpocketChance();
-				}
 
-				autoCloseManager->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
-			}
-			break;
+			Update();
+			autoCloseManager->CheckAutoClose(RE::ContainerMenu::MENU_NAME);
 
-		case RE::UI_MESSAGE_TYPE::kHide:
-			SendSetSkyrimSoulsHUDModeMessage(false);
 			break;
 		}
 		return _ProcessMessage(this, a_message);
 	}
 
-	std::int32_t ContainerMenuEx::CalcPickPocketChance(RE::StandardItemData* a_itemData)
+	ContainerMenuState ContainerMenuEx::GetUpdatedState() const
 	{
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		ContainerMenuState state{};
+		state.health = player->GetActorValue(RE::ActorValue::kHealth);
+		state.maxHealth = state.health - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kHealth);
+		state.stamina = player->GetActorValue(RE::ActorValue::kStamina);
+		state.maxStamina = state.stamina - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kStamina);
+		state.magicka = player->GetActorValue(RE::ActorValue::kMagicka);
+		state.maxMagicka = state.magicka - player->GetActorValueModifier(RE::ACTOR_VALUE_MODIFIER::kDamage, RE::ActorValue::kMagicka);
+
+		state.selectedItemData = itemList && itemList->GetSelectedItem() ? &itemList->GetSelectedItem()->data : nullptr;
+		state.pickpocketChance = CalcPickPocketChance();
+
+		return state;
+	}
+
+	std::int32_t ContainerMenuEx::CalcPickPocketChance() const
+	{
+		if (!itemList || GetContainerMode() != RE::ContainerMenu::ContainerMode::kPickpocket)
+		{
+			return -1;
+		}
+
+		RE::ItemList::Item* item = itemList->GetSelectedItem();
+		if (!item)
+		{
+			return -1;
+		}
+		RE::StandardItemData& itemData = item->data;
+
 		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
 		RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(GetTargetRefHandle());
 
@@ -49,81 +69,59 @@ namespace SkyrimSoulsRE
 
 		RE::Actor* targetActor = static_cast<RE::Actor*>(containerRef.get());
 
-		float itemWeight = a_itemData->objDesc->GetWeight();
+		float itemWeight = itemData.objDesc->GetWeight();
 		std::uint32_t count = 1;
 
-		if (a_itemData->objDesc->object->IsAmmo() || a_itemData->objDesc->object->IsLockpick() || a_itemData->objDesc->object->IsGold())
+		if (itemData.objDesc->object->IsAmmo() || itemData.objDesc->object->IsLockpick() || itemData.objDesc->object->IsGold())
 		{
-			count = a_itemData->GetCount();
+			count = itemData.GetCount();
 			itemWeight = -1.0f;
 		}
 
-		std::uint32_t stealValue = targetActor->GetStealValue(a_itemData->objDesc, count, true);
+		std::uint32_t stealValue = targetActor->GetStealValue(itemData.objDesc, count, true);
 
 		bool isDetected = targetActor->RequestDetectionLevel(player, RE::DETECTION_PRIORITY::kNormal) > 0;
-		float playerSkill = player->GetActorValue(RE::ActorValue::kPickpocket);
+		float playerSkill = player->GetClampedActorValue(RE::ActorValue::kPickpocket);
 		float targetSkill = targetActor->GetActorValue(RE::ActorValue::kPickpocket);
 
-		auto chance = RE::AIFormulas::ComputePickpocketSuccess(playerSkill, targetSkill, stealValue, itemWeight, player, targetActor, isDetected, a_itemData->objDesc->object);
-
-		if (chance > 100)
-		{
-			chance = 100;
-		}
-		else if (chance < 0)
-		{
-			chance = 0;
-		}
-
-		return chance;
+		return RE::AIFormulas::ComputePickpocketSuccess(playerSkill, targetSkill, stealValue, itemWeight, player, targetActor, isDetected, itemData.objDesc->object);
 	}
 
-	void ContainerMenuEx::UpdatePickpocketChance()
+	void ContainerMenuEx::Update()
 	{
-		RE::TESObjectREFRPtr containerRef = RE::TESObjectREFR::LookupByHandle(GetTargetRefHandle());
+		Settings* settings = Settings::GetSingleton();
 
-		if (containerRef && containerRef->formType == RE::FormType::ActorCharacter)
+		ContainerMenuState newState = GetUpdatedState();
+
+		if (settings->updateContainerMenuPickpocketChance && GetContainerMode() == RE::ContainerMenu::ContainerMode::kPickpocket)
 		{
-			RE::ItemList::Item* item = this->itemList->GetSelectedItem();
-			if (item)
+			if (lastState.selectedItemData == newState.selectedItemData)
 			{
-				std::int32_t chance = CalcPickPocketChance(&item->data);
+				bool pickpocketChanceUpdateRequired = (newState.pickpocketChance != lastState.pickpocketChance);
 
-				RE::GFxValue isViewingContainer;
-
-				if (!this->uiMovie->Invoke("_root.Menu_mc.isViewingContainer", &isViewingContainer, nullptr, 0))
-					return;
-
-				std::wstring desc;
-
-				static std::wstring toSteal = Util::TranslateUIString(this->uiMovie.get(), L"$ TO STEAL");
-				static std::wstring toPlace = Util::TranslateUIString(this->uiMovie.get(), L"$ TO PLACE");
-
-				desc = isViewingContainer.GetBool() ? toSteal : toPlace;
-
-				std::wstring stealText(L"<font face=\'$EverywhereBoldFont\' size=\'24\' color=\'#FFFFFF\'>" + std::to_wstring(chance) + L"%</font>" + desc);
-
-				RE::GFxValue stealTextObj;
-				RE::GFxValue newText(stealText.c_str());
-				if (this->uiMovie->GetVariable(&stealTextObj, "_root.Menu_mc.itemCardFadeHolder.StealTextInstance.PercentTextInstance"))
+				if (pickpocketChanceUpdateRequired)
 				{
-					//SkyUI
-					stealTextObj.SetMember("htmlText", newText);
-				}
-				else if (this->uiMovie->GetVariable(&stealTextObj, "_root.Menu_mc.ItemCardFadeHolder_mc.StealTextInstance.PercentTextInstance"))
-				{
-					//vanilla
-					stealTextObj.SetMember("htmlText", newText);
+					itemCard->obj.SetMember("pickpocketChance", newState.pickpocketChance);
+					root.Invoke("UpdateItemCardInfo", nullptr, &itemCard->obj, 1);
 				}
 			}
 		}
-	}
 
-	void ContainerMenuEx::UpdateBottomBar()
-	{
-		using func_t = decltype(&ContainerMenuEx::UpdateBottomBar);
-		REL::Relocation<func_t> func(Offsets::Menus::ContainerMenu::UpdateBottomBar);
-		return func(this);
+		if (settings->updateContainerMenuBottomBar)
+		{
+			bool meterUpdateRequired = Util::IsActorValueMeterUpdateNeeded(lastState.health, lastState.maxHealth, newState.health, newState.maxHealth, settings->bottomBarMeterUpdateSteps) ||
+			                           Util::IsActorValueMeterUpdateNeeded(lastState.stamina, lastState.maxStamina, newState.stamina, newState.maxStamina, settings->bottomBarMeterUpdateSteps) ||
+			                           Util::IsActorValueMeterUpdateNeeded(lastState.magicka, lastState.maxMagicka, newState.magicka, newState.maxMagicka, settings->bottomBarMeterUpdateSteps);
+
+			if (meterUpdateRequired)
+			{
+				using func_t = void (*)(RE::ContainerMenu*);
+				REL::Relocation<func_t> func(Offsets::Menus::ContainerMenu::UpdateBottomBar);
+				func(this);
+			}
+		}
+
+		lastState = newState;
 	}
 
 	RE::IMenu* ContainerMenuEx::Creator()
