@@ -49,7 +49,7 @@ namespace Offsets
 
 	namespace Main
 	{
-		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));  // + 0xADF
+		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));  // + 0xADF; + 0x325
 		static constexpr REL::ID Render(static_cast<std::uint64_t>(36555));  // + 0x5CA
 	}
 

@@ -165,6 +165,13 @@ namespace SkyrimSoulsRE
 		// Fix for flickering/non-moving clouds
 		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(trampoline.write_call<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
 
+		// Fix for flickering in Map menu, caused by the deferred menu processing
+		// This disables the map mode rendering for the menu, which is not exactly what we want, but it works for now
+		// TODO: Figure out the actual cause
+		REL::safe_write(Offsets::Main::Update.address() + 0x325, std::uint16_t(0x00B0));  // mov al, 0
+		REL::safe_write(Offsets::Main::Update.address() + 0x327, std::uint16_t(0x9090));
+		REL::safe_write(Offsets::Main::Update.address() + 0x329, std::uint8_t(0x90));
+
 		// Fix for first person model reappearing overlaid on the screen when the map menu is open for an extended period of time
 		struct CameraUpdate_Code : Xbyak::CodeGenerator
 		{
