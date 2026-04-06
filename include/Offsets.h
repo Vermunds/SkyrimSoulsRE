@@ -94,6 +94,8 @@ namespace Offsets
 			static constexpr REL::ID UpdateClouds_Hook(static_cast<std::uint64_t>(53148));  // + 0x10E
 			static constexpr REL::ID UpdateClouds_UpdateValue(static_cast<std::uint64_t>(391006));
 
+			static constexpr REL::ID UpdatePlayerCamera_Hook(static_cast<std::uint64_t>(36581));  // + 0x6A; + 0x70; + 0x71
+
 			static constexpr REL::ID PlayerMarkerRefHandle(static_cast<std::uint64_t>(406633));
 			static constexpr REL::ID SetMarkerPosition(static_cast<std::uint64_t>(53021));
 

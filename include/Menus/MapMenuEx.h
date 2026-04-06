@@ -33,6 +33,7 @@ namespace SkyrimSoulsRE
 
 		static void BGSTerrainManager_Update_Hook(RE::BGSTerrainManager* a_this, std::uint64_t a_unk1, std::uint64_t a_unk2);
 		static bool UpdateClouds_Hook(RE::NiAVObject* a_obj, RE::NiUpdateData* a_data);
+		static bool UpdatePlayerCamera_Hook();
 
 		using ProcessMessage_t = decltype(&RE::MapMenu::ProcessMessage);
 		static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
