@@ -138,6 +138,12 @@ namespace SkyrimSoulsRE
 		return *isInMenuMode_1 || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
 	}
 
+	bool MapMenuEx::ApplyEOFImageSpace_Hook()
+	{
+		bool* enableEOFImageSpace = reinterpret_cast<bool*>(Offsets::Misc::EnableEOFImageSpaceValue.address());  // Original check
+		return *enableEOFImageSpace && !RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
+	}
+
 	void MapMenuEx::InstallHook()
 	{
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MapMenu[0]);
@@ -165,40 +171,66 @@ namespace SkyrimSoulsRE
 		// Fix for flickering/non-moving clouds
 		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(trampoline.write_call<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
 
-		// Fix for flickering in Map menu, caused by the deferred menu processing
-		// This disables the map mode rendering for the menu, which is not exactly what we want, but it works for now
-		// TODO: Figure out the actual cause
-		REL::safe_write(Offsets::Main::Update.address() + 0x325, std::uint16_t(0x00B0));  // mov al, 0
-		REL::safe_write(Offsets::Main::Update.address() + 0x327, std::uint16_t(0x9090));
-		REL::safe_write(Offsets::Main::Update.address() + 0x329, std::uint8_t(0x90));
-
 		// Fix for first person model reappearing overlaid on the screen when the map menu is open for an extended period of time
-		struct CameraUpdate_Code : Xbyak::CodeGenerator
 		{
-			CameraUpdate_Code(uintptr_t a_funcAddress, uintptr_t a_retAddress)
+			struct CameraUpdate_Code : Xbyak::CodeGenerator
 			{
-				Xbyak::Label funcAddress;
-				Xbyak::Label retAddress;
+				CameraUpdate_Code(uintptr_t a_funcAddress, uintptr_t a_retAddress)
+				{
+					Xbyak::Label funcAddress;
+					Xbyak::Label retAddress;
 
-				push(rcx);
-				call(ptr[rip + funcAddress]);
-				pop(rcx);
-				cmp(al, 0);
-				jmp(ptr[rip + retAddress]);
+					push(rcx);
+					call(ptr[rip + funcAddress]);
+					pop(rcx);
+					cmp(al, 0);
+					jmp(ptr[rip + retAddress]);
 
-				L(funcAddress);
-				dq(a_funcAddress);
+					L(funcAddress);
+					dq(a_funcAddress);
 
-				L(retAddress);
-				dq(a_retAddress);
-			}
-		};
+					L(retAddress);
+					dq(a_retAddress);
+				}
+			};
 
-		CameraUpdate_Code code{ std::uintptr_t(UpdatePlayerCamera_Hook), Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x71 };
-		void* codeLoc = SKSE::GetTrampoline().allocate(code);
+			CameraUpdate_Code code{ std::uintptr_t(UpdatePlayerCamera_Hook), Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x71 };
+			void* codeLoc = SKSE::GetTrampoline().allocate(code);
 
-		SKSE::GetTrampoline().write_branch<6>(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x6A, codeLoc);
+			SKSE::GetTrampoline().write_branch<6>(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x6A, codeLoc);
 
-		REL::safe_write(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x70, std::uint8_t(0x90));
+			REL::safe_write(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x70, std::uint8_t(0x90));
+		}
+
+		// Fix for flickering world map due to End-of-frame image spaces being rendered
+		{
+			struct ApplyEOFImageSpace_Code : Xbyak::CodeGenerator
+			{
+				ApplyEOFImageSpace_Code(uintptr_t a_funcAddress, uintptr_t a_retAddress)
+				{
+					Xbyak::Label funcAddress;
+					Xbyak::Label retAddress;
+
+					push(rcx);
+					call(ptr[rip + funcAddress]);
+					pop(rcx);
+					cmp(al, 0);
+					jmp(ptr[rip + retAddress]);
+
+					L(funcAddress);
+					dq(a_funcAddress);
+
+					L(retAddress);
+					dq(a_retAddress);
+				}
+			};
+
+			ApplyEOFImageSpace_Code code{ std::uintptr_t(ApplyEOFImageSpace_Hook), Offsets::Main::Draw.address() + 0xA33 };
+			void* codeLoc = SKSE::GetTrampoline().allocate(code);
+
+			SKSE::GetTrampoline().write_branch<6>(Offsets::Main::Draw.address() + 0xA2C, codeLoc);
+
+			REL::safe_write(Offsets::Main::Draw.address() + 0xA32, std::uint8_t(0x90));
+		}
 	}
 }
