@@ -1,5 +1,4 @@
 set(SOURCES
-	include/AudioHooks.h
 	include/AutoCloseManager.h
 	include/Controls/BSWin32KeyboardDeviceEx.h
 	include/Controls/CameraMovement.h
@@ -42,7 +41,6 @@ set(SOURCES
 	include/SlowMotionHandler.h
 	include/UIBlurManagerEx.h
 	include/Util.h
-	src/AudioHooks.cpp
 	src/AutoCloseManager.cpp
 	src/Controls/BSWin32KeyboardDeviceEx.cpp
 	src/Controls/CameraMovement.cpp

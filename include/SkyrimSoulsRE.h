@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AudioHooks.h"
 #include "AutoCloseManager.h"
 #include "ItemMenuUpdater.h"
 #include "MenuCache.h"
