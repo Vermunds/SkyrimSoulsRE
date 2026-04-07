@@ -202,6 +202,8 @@ namespace SkyrimSoulsRE
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MapMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MapMenuEx::ProcessMessage_Hook);
 
+		auto& trampoline = SKSE::GetTrampoline();
+
 		// Prevent setting kFreezeFrameBackground flag when opening local map
 		REL::safe_write(Offsets::Menus::MapMenu::LocalMapUpdaterFunc.address() + 0x53, std::uint32_t(0x90909090));
 		REL::safe_write(Offsets::Menus::MapMenu::LocalMapUpdaterFunc.address() + 0x9D, std::uint16_t(0x9090));
@@ -215,8 +217,6 @@ namespace SkyrimSoulsRE
 		MapInputHandlerEx<RE::MapZoomHandler>::InstallHook(RE::VTABLE_MapZoomHandler[0]);
 		MapInputHandlerEx<RE::MapLookHandler>::InstallHook(RE::VTABLE_MapLookHandler[0]);
 
-		auto& trampoline = SKSE::GetTrampoline();
-
 		// Prevent TerrainManager from updating while the menu is open.
 		// This prevents child worldspaces from rendering on top of their parents. Possibly avoids other issues as well.
 		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*>(trampoline.write_call<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x5D, (std::uintptr_t)BGSTerrainManager_Update_Hook));
@@ -227,8 +227,8 @@ namespace SkyrimSoulsRE
 		// By default if the menu is unpaused and the player opens the map, audio will stop working.
 		// This is because the listener position is linked to the camera, which is now far up in the sky.
 		// These functions set position and rotation back to its expected values manually.
-		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0xC6, (std::uintptr_t)MapMenuAudioHooks::SetListenerPosition_Hook);
-		SKSE::GetTrampoline().write_call<5>(Offsets::BSAudioManager::Hook.address() + 0x12E, (std::uintptr_t)MapMenuAudioHooks::SetListenerRotation_Hook);
+		trampoline.write_call<5>(Offsets::BSAudioManager::Hook.address() + 0xC6, (std::uintptr_t)MapMenuAudioHooks::SetListenerPosition_Hook);
+		trampoline.write_call<5>(Offsets::BSAudioManager::Hook.address() + 0x12E, (std::uintptr_t)MapMenuAudioHooks::SetListenerRotation_Hook);
 
 		// Fix for first person model reappearing overlaid on the screen when the map menu is open for an extended period of time
 		{
@@ -254,9 +254,9 @@ namespace SkyrimSoulsRE
 			};
 
 			CameraUpdate_Code code{ std::uintptr_t(UpdatePlayerCamera_Hook), Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x71 };
-			void* codeLoc = SKSE::GetTrampoline().allocate(code);
+			void* codeLoc = trampoline.allocate(code);
 
-			SKSE::GetTrampoline().write_branch<6>(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x6A, codeLoc);
+			trampoline.write_branch<6>(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x6A, codeLoc);
 
 			REL::safe_write(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x70, std::uint8_t(0x90));
 		}
@@ -285,9 +285,9 @@ namespace SkyrimSoulsRE
 			};
 
 			ApplyEOFImageSpace_Code code{ std::uintptr_t(ApplyEOFImageSpace_Hook), Offsets::Main::Draw.address() + 0xA33 };
-			void* codeLoc = SKSE::GetTrampoline().allocate(code);
+			void* codeLoc = trampoline.allocate(code);
 
-			SKSE::GetTrampoline().write_branch<6>(Offsets::Main::Draw.address() + 0xA2C, codeLoc);
+			trampoline.write_branch<6>(Offsets::Main::Draw.address() + 0xA2C, codeLoc);
 
 			REL::safe_write(Offsets::Main::Draw.address() + 0xA32, std::uint8_t(0x90));
 		}
