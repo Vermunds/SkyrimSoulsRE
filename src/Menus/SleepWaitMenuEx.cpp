@@ -28,7 +28,7 @@ namespace SkyrimSoulsRE
 					Update();
 				}
 
-				if (bedReferenceMessageReceived)
+				if (bedReferenceMessageReceived && !isActive)
 				{
 					AutoCloseManager::GetSingleton()->CheckAutoClose(RE::SleepWaitMenu::MENU_NAME);
 				}
@@ -111,15 +111,19 @@ namespace SkyrimSoulsRE
 	void SleepWaitMenuEx::StartSleepWait_Hook(const RE::FxDelegateArgs& a_args)
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
+		RE::Main* main = RE::Main::GetSingleton();
 
 		RE::SleepWaitMenu* menu = static_cast<RE::SleepWaitMenu*>(a_args.GetHandler());
 		if (!menu->PausesGame())
 		{
 			menu->menuFlags.set(RE::IMenu::Flag::kPausesGame);
 			ui->numPausesGame++;
+			main->freezeTime = true;
 		}
 
 		_StartSleepWait(a_args);
+
+		main->freezeTime = false;
 	}
 
 	RE::IMenu* SleepWaitMenuEx::Creator()
