@@ -48,7 +48,7 @@ namespace SkyrimSoulsRE
 
 		TweenMenuState newState = GetUpdatedState();
 
-		bool timeDateChanged = std::memcmp(lastState.timeDateString, newState.timeDateString, sizeof(TweenMenuState::timeDateString)) != 0;
+		bool timeDateChanged = std::strncmp(lastState.timeDateString, newState.timeDateString, sizeof(TweenMenuState::timeDateString)) != 0;
 		bool xpChanged = newState.canLevelUp != lastState.canLevelUp || newState.level != lastState.level || newState.xp != lastState.xp || newState.levelUpThreshold != lastState.levelUpThreshold;
 
 		if (isSkyUI6)

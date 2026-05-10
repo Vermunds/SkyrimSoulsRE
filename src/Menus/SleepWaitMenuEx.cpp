@@ -62,7 +62,7 @@ namespace SkyrimSoulsRE
 		char timeDateString[200];
 		RE::Calendar::GetSingleton()->GetTimeDateString(timeDateString, sizeof(timeDateString), false);
 
-		if (std::memcmp(lastTimeDateString, timeDateString, sizeof(timeDateString)) == 0)
+		if (std::strncmp(lastTimeDateString, timeDateString, sizeof(timeDateString)) == 0)
 		{
 			return;
 		}

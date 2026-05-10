@@ -50,7 +50,7 @@ namespace SkyrimSoulsRE
 
 		JournalMenuState newState = GetUpdatedState();
 
-		bool timeDateChanged = std::memcmp(lastState.lastTimeDateString, newState.lastTimeDateString, sizeof(JournalMenuState::lastTimeDateString)) != 0;
+		bool timeDateChanged = std::strncmp(lastState.lastTimeDateString, newState.lastTimeDateString, sizeof(JournalMenuState::lastTimeDateString)) != 0;
 		bool xpChanged = newState.level != lastState.level || newState.xp != lastState.xp || newState.levelUpThreshold != lastState.levelUpThreshold;
 
 		if (timeDateChanged || xpChanged)
