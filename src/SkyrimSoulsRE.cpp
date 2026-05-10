@@ -1,5 +1,35 @@
 #include "SkyrimSoulsRE.h"
 
+#include "Menus/BarterMenuEx.h"
+#include "Menus/BookMenuEx.h"
+#include "Menus/CombatAlertOverlayMenu.h"
+#include "Menus/ConsoleEx.h"
+#include "Menus/ContainerMenuEx.h"
+#include "Menus/CustomMenuEx.h"
+#include "Menus/DialogueMenuEx.h"
+#include "Menus/FavoritesMenuEx.h"
+#include "Menus/GiftMenuEx.h"
+#include "Menus/HUDMenuEx.h"
+#include "Menus/InventoryMenuEx.h"
+#include "Menus/JournalMenuEx.h"
+#include "Menus/LevelUpMenuEx.h"
+#include "Menus/LockpickingMenuEx.h"
+#include "Menus/MagicMenuEx.h"
+#include "Menus/MapMenuEx.h"
+#include "Menus/MessageBoxMenuEx.h"
+#include "Menus/ModManagerMenuEx.h"
+#include "Menus/SleepWaitMenuEx.h"
+#include "Menus/StatsMenuEx.h"
+#include "Menus/TrainingMenuEx.h"
+#include "Menus/TutorialMenuEx.h"
+#include "Menus/TweenMenuEx.h"
+
+#include "Controls/BSWin32KeyboardDeviceEx.h"
+#include "Controls/CameraMovement.h"
+#include "Controls/InputHandlerEx.h"
+#include "Controls/MenuControlsEx.h"
+#include "Controls/PlayerControlsEx.h"
+
 namespace SkyrimSoulsRE
 {
 	using MenuFlag = RE::IMenu::Flag;

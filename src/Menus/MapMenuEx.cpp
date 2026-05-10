@@ -1,4 +1,5 @@
 #include "Menus/MapMenuEx.h"
+#include "Controls/MapInputHandlerEx.h"
 
 #include <xbyak/xbyak.h>
 

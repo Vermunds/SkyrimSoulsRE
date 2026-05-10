@@ -57,12 +57,12 @@ namespace SkyrimSoulsRE::Util
 			return "-";
 		}
 
-		int s = int(std::round(a_seconds));
-		int m = s / 60;
+		int32_t s = int32_t(std::round(a_seconds));
+		int32_t m = s / 60;
 		s %= 60;
-		int h = m / 60;
+		int32_t h = m / 60;
 		m %= 60;
-		int d = h / 24;
+		int32_t d = h / 24;
 		h %= 24;
 
 		std::ostringstream ss;
