@@ -51,7 +51,6 @@ namespace Offsets
 	{
 		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));  // + 0xADF
 		static constexpr REL::ID Render(static_cast<std::uint64_t>(36555));  // + 0x5CA
-		static constexpr REL::ID Draw(static_cast<std::uint64_t>(36559));    // + 0xA2C
 	}
 
 	namespace Menus
@@ -127,7 +126,7 @@ namespace Offsets
 		static constexpr REL::ID GetExecuteConsoleCommandsSingleton(static_cast<std::uint64_t>(52950));
 		static constexpr REL::ID ExecuteConsoleCommands(static_cast<std::uint64_t>(52952));
 
-		static constexpr REL::ID EnableEOFImageSpaceValue(static_cast<std::uint64_t>(391055));
+		static constexpr REL::ID RequestSaveScreenshot(static_cast<std::uint64_t>(403755));
 
 	}
 

@@ -187,14 +187,8 @@ namespace SkyrimSoulsRE
 
 	bool MapMenuEx::UpdatePlayerCamera_Hook()
 	{
-		bool* isInMenuMode_1 = reinterpret_cast<bool*>(Offsets::Papyrus::IsInMenuMode::Value1.address());  // Original check
-		return *isInMenuMode_1 || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
-	}
-
-	bool MapMenuEx::ApplyEOFImageSpace_Hook()
-	{
-		bool* enableEOFImageSpace = reinterpret_cast<bool*>(Offsets::Misc::EnableEOFImageSpaceValue.address());  // Original check
-		return *enableEOFImageSpace && !RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
+		bool* isInMenuMode_2 = reinterpret_cast<bool*>(Offsets::Papyrus::IsInMenuMode::Value2.address());  // Original check
+		return *isInMenuMode_2 || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
 	}
 
 	void MapMenuEx::InstallHook()
@@ -260,36 +254,6 @@ namespace SkyrimSoulsRE
 
 			REL::safe_write(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x70, std::uint8_t(0x90));
 		}
-
-		// Fix for flickering world map due to End-of-frame image spaces being rendered
-		{
-			struct ApplyEOFImageSpace_Code : Xbyak::CodeGenerator
-			{
-				ApplyEOFImageSpace_Code(uintptr_t a_funcAddress, uintptr_t a_retAddress)
-				{
-					Xbyak::Label funcAddress;
-					Xbyak::Label retAddress;
-
-					push(rcx);
-					call(ptr[rip + funcAddress]);
-					pop(rcx);
-					cmp(al, 0);
-					jmp(ptr[rip + retAddress]);
-
-					L(funcAddress);
-					dq(a_funcAddress);
-
-					L(retAddress);
-					dq(a_retAddress);
-				}
-			};
-
-			ApplyEOFImageSpace_Code code{ std::uintptr_t(ApplyEOFImageSpace_Hook), Offsets::Main::Draw.address() + 0xA33 };
-			void* codeLoc = trampoline.allocate(code);
-
-			trampoline.write_branch<6>(Offsets::Main::Draw.address() + 0xA2C, codeLoc);
-
-			REL::safe_write(Offsets::Main::Draw.address() + 0xA32, std::uint8_t(0x90));
-		}
 	}
+
 }
