@@ -238,7 +238,6 @@ namespace SkyrimSoulsRE
 		CameraMovement::InstallHook();
 		ItemMenuUpdater::InstallHook();
 		UIBlurManagerEx::InstallHook();
-		MenuCache::InstallHook();
 		MenuProcessing::InstallHook();
 
 		MenuControlsEx::InstallHook();

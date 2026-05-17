@@ -2,7 +2,6 @@
 
 #include "AutoCloseManager.h"
 #include "ItemMenuUpdater.h"
-#include "MenuCache.h"
 #include "MenuProcessing.h"
 #include "Offsets.h"
 #include "PapyrusHook.h"
