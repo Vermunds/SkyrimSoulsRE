@@ -227,7 +227,7 @@ namespace SkyrimSoulsRE
 		settings->mapMenuCustomSky = ini.GetBoolValue("MAP_MENU", "bMapMenuCustomSky", true);
 
 		ini.SetBoolValue("MAP_MENU", "bMapMenuAmbientSoundLoop", settings->mapMenuAmbientSoundLoop, "# If enabled, the map menu looping ambient sound will play as normal. By default it is disabled since the game world is unpaused and both would play simultaneously.", true);
-		ini.SetBoolValue("MAP_MENU", "bMapMenuCustomSky", settings->mapMenuCustomSky, "# If enabled, the map menu will use a separate sky/weather state decoupled from the real world weather.\n# This prevents the map from affecting gameplay (e.g. weather changes, precipitation), but it can be invasive. Disable for compatibility.", true);
+		ini.SetBoolValue("MAP_MENU", "bMapMenuCustomSky", settings->mapMenuCustomSky, "# If enabled, the map menu will use a separate sky/weather state decoupled from the real world weather.\n# This prevents the map from affecting gameplay (e.g. weather changes, precipitation), but it can be invasive.\n# Highly recommended to keep it enabled, but can be disabled if it conflicts with something.", true);
 
 
 		ini.SaveFile(R"(.\Data\SKSE\Plugins\SkyrimSoulsRE.ini)");
