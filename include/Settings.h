@@ -48,9 +48,6 @@ namespace SkyrimSoulsRE
 		//Blur
 		bool disableBlur;
 
-		//Saving
-		std::uint32_t saveDelayMS;
-
 		//HUD
 		bool disableHUDModifications;
 		float sneakMeterPosX;
@@ -62,8 +59,9 @@ namespace SkyrimSoulsRE
 		//Messages
 		bool hideEngineFixesWarning;
 
-		// Experimental
-		bool enableMenuCaching;
+		// Map Menu
+		bool mapMenuAmbientSoundLoop;
+		bool mapMenuCustomSky;
 
 		// Dialogue Movement Enabler compatibility (internal setting)
 		bool isUsingDME = false;

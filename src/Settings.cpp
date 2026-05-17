@@ -218,17 +218,17 @@ namespace SkyrimSoulsRE
 		settings->disableBlur = ini.GetBoolValue("BLUR", "bDisableBlur", false);
 		ini.SetBoolValue("BLUR", "bDisableBlur", settings->disableBlur, "# If this is enabled, background blur will be disabled in menus", true);
 
-		//Saving
-		settings->saveDelayMS = ini.GetLongValue("SAVING", "iSaveDelayMS", 1000);
-		ini.SetLongValue("SAVING", "iSaveDelayMS", settings->saveDelayMS, "# Additional delay (in milliseconds) when saving from the Journal Menu, to make sure that saving happens form a paused state.\n# Larger values will increase the time saving takes.", false, true);
-
 		//Messages
 		settings->hideEngineFixesWarning = ini.GetBoolValue("MESSAGES", "bHideEngineFixesWarning", false);
 		ini.SetBoolValue("MESSAGES", "bHideEngineFixesWarning", settings->hideEngineFixesWarning, "# Disables the warning message on startup if Engine Fixes is not detected.", true);
 
-		// Experimental
-		settings->enableMenuCaching = ini.GetBoolValue("EXPERIMENTAL", "bEnableMenuCaching", false);
-		ini.SetBoolValue("EXPERIMENTAL", "bEnableMenuCaching", settings->enableMenuCaching, "# Enable caching of menu instances. Can reduce stuttering when opening menus while using heavy interface mods.\n# Effective only after a menu has been opened at least once in a session.\n# Warning - this feature is highly experiemnal. From my testing it looks stable, but still, use it at your own risk.", true);
+		// Map Menu
+		settings->mapMenuAmbientSoundLoop = ini.GetBoolValue("MAP_MENU", "bMapMenuAmbientSoundLoop", false);
+		settings->mapMenuCustomSky = ini.GetBoolValue("MAP_MENU", "bMapMenuCustomSky", true);
+
+		ini.SetBoolValue("MAP_MENU", "bMapMenuAmbientSoundLoop", settings->mapMenuAmbientSoundLoop, "# If enabled, the map menu looping ambient sound will play as normal. By default it is disabled since the game world is unpaused and both would play simultaneously.", true);
+		ini.SetBoolValue("MAP_MENU", "bMapMenuCustomSky", settings->mapMenuCustomSky, "# If enabled, the map menu will use a separate sky/weather state decoupled from the real world weather.\n# This prevents the map from affecting gameplay (e.g. weather changes, precipitation), but it can be invasive. Disable for compatibility.", true);
+
 
 		ini.SaveFile(R"(.\Data\SKSE\Plugins\SkyrimSoulsRE.ini)");
 	}

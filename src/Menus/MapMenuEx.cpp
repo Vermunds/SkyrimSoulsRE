@@ -246,7 +246,7 @@ namespace SkyrimSoulsRE
 		case RE::UI_MESSAGE_TYPE::kShow:
 			mapMenuCellLoadedEventHandler.Register();
 			lastTimeDateString[0] = '\0';
-			if (!mapSky)
+			if (!mapSky && Settings::GetSingleton()->mapMenuCustomSky)
 			{
 				mapSky = std::make_unique<MapSky>();
 			}
@@ -378,6 +378,8 @@ namespace SkyrimSoulsRE
 
 	void MapMenuEx::InstallHook()
 	{
+		Settings* settings = Settings::GetSingleton();
+
 		REL::Relocation<std::uintptr_t> vTable(RE::VTABLE_MapMenu[0]);
 		_ProcessMessage = vTable.write_vfunc(0x4, &MapMenuEx::ProcessMessage_Hook);
 
@@ -389,8 +391,11 @@ namespace SkyrimSoulsRE
 		REL::safe_write(Offsets::Menus::MapMenu::LocalMapUpdaterFunc.address() + 0x9F, std::uint8_t(0x90));
 
 		// Disable map menu background sound
-		REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x52D, std::uint8_t(0xEB));
-		REL::safe_fill(Offsets::Menus::MapMenu::Dtor.address() + 0x1BB, std::uint8_t(0x90), 5);
+		if (settings->mapMenuAmbientSoundLoop)
+		{
+			REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x52D, std::uint8_t(0xEB));
+			REL::safe_fill(Offsets::Menus::MapMenu::Dtor.address() + 0x1BB, std::uint8_t(0x90), 5);
+		}
 
 		// Re enable certain sounds - the map mutes some effects
 		REL::safe_write(Offsets::Menus::MapMenu::Ctor.address() + 0x4F9, std::uint8_t(0xEB));
@@ -417,14 +422,18 @@ namespace SkyrimSoulsRE
 		// Fix player not updating while the menu is open, causing various issues
 		trampoline.write_call<6>(Offsets::Main::UpdatePlayer.address() + 0x7A, (std::uintptr_t)UpdatePlayer_Hook);
 
-		// Hook Sky Job
-		_SkyUpdate = *reinterpret_cast<Sky_Update_t*>(trampoline.write_branch<5>(Offsets::Job::Sky.address() + 0x33, (std::uintptr_t)Sky_Update_Hook));
+		// Hook Sky Job - decouples the map weather from real world weather so the map can't affect gameplay.
+		// Can be disabled for compatibility.
+		if (settings->mapMenuCustomSky)
+		{
+			_SkyUpdate = *reinterpret_cast<Sky_Update_t*>(trampoline.write_branch<5>(Offsets::Job::Sky.address() + 0x33, (std::uintptr_t)Sky_Update_Hook));
 
-		// Disable sky related stuff when Map Menu opens/closes - we handle it ourselves
-		REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x96, std::uint16_t(0x02E9));  // jmp + nop
-		REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x98, std::uint32_t(0x90000001));
+			// Disable sky related stuff when Map Menu opens/closes - we handle it ourselves
+			REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x96, std::uint16_t(0x02E9));  // jmp + nop
+			REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x98, std::uint32_t(0x90000001));
 
-		REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7C, std::uint16_t(0x85E9));  // jmp + nop
-		REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7E, std::uint32_t(0x90000000));
+			REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7C, std::uint16_t(0x85E9));  // jmp + nop
+			REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7E, std::uint32_t(0x90000000));
+		}
 	}
 }
