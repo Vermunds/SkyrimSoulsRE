@@ -116,6 +116,7 @@ namespace SkyrimSoulsRE
 
 		//Slowmotion
 		settings->slowMotionMultiplier = static_cast<float>(ini.GetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", 0.5));
+		settings->slowMotionCombatOnly = ini.GetBoolValue("SLOWMOTION", "bSlowMotionCombatOnly", false);
 
 		settings->slowMotionMenus[RE::BarterMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_BarterMenu", false);
 		settings->slowMotionMenus[RE::BookMenu::MENU_NAME.data()] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_BookMenu", false);
@@ -139,6 +140,7 @@ namespace SkyrimSoulsRE
 		settings->slowMotionMenus["CustomMenu"] = ini.GetBoolValue("SLOWMOTION", "bEnableSlowMotion_CustomMenu", false);
 
 		ini.SetDoubleValue("SLOWMOTION", "fSlowMotionMultiplier", settings->slowMotionMultiplier, "# This is the multiplier that will affect the game speed when a menu is open.\n# 1.0 is no slowdown, 0.5 is half the speed, etc.\n# Too low values can result in dropped items floating in space.", true);
+		ini.SetBoolValue("SLOWMOTION", "bSlowMotionCombatOnly", settings->slowMotionCombatOnly, "# If enabled, slow-motion will only be applied when the player is in combat.", true);
 
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BarterMenu", settings->slowMotionMenus[RE::BarterMenu::MENU_NAME.data()], "#  Enable or disable slow-motion when a menu is open. Configurable on a per-menu basis.", true);
 		ini.SetBoolValue("SLOWMOTION", "bEnableSlowMotion_BookMenu", settings->slowMotionMenus[RE::BookMenu::MENU_NAME.data()], nullptr, true);

@@ -1,30 +1,21 @@
+#include "SkyrimSoulsRE.h"
+
 #include "SlowMotionHandler.h"
 
 namespace SkyrimSoulsRE
 {
-	bool SlowMotionHandler::isInSlowMotion = false;
-	float SlowMotionHandler::currentSlowMotionMultiplier = 1.0f;
 
 	void SlowMotionHandler::EnableSlowMotion()
 	{
 		Settings* settings = Settings::GetSingleton();
 
-		float slowMotionMultiplier = settings->slowMotionMultiplier;
-		float* timescaleMult1 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value1.address());
-		float* timescaleMult2 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value2.address());
+		static float* timescaleMult1 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value1.address());
+		static float* timescaleMult2 = reinterpret_cast<float*>(Offsets::GlobalTimescaleMultiplier::Value2.address());
 
-		float multiplier;
-		if (slowMotionMultiplier > 0.0f && 1.0f >= slowMotionMultiplier)
-		{
-			multiplier = slowMotionMultiplier;
-		}
-		else
-		{
-			multiplier = 1.0f;
-		}
+		float multiplier = std::clamp(settings->slowMotionMultiplier, 0.01f, 1.0f);
 
 		isInSlowMotion = true;
-		currentSlowMotionMultiplier = settings->slowMotionMultiplier;
+		currentSlowMotionMultiplier = multiplier;
 		*timescaleMult1 = multiplier * (*timescaleMult1);
 		*timescaleMult2 = *timescaleMult1;
 	}
@@ -50,19 +41,25 @@ namespace SkyrimSoulsRE
 		}
 	}
 
-	RE::BSEventNotifyControl SlowMotionHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher)
+	void SlowMotionHandler::Update()
 	{
 		std::uint32_t slowMotionCount = GetSlowMotionCount();
-		if (!isInSlowMotion && slowMotionCount)
+
+		bool shouldBeActive = slowMotionCount > 0;
+		if (shouldBeActive && Settings::GetSingleton()->slowMotionCombatOnly)
+		{
+			RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+			shouldBeActive = player && player->IsInCombat();
+		}
+
+		if (!isInSlowMotion && shouldBeActive)
 		{
 			EnableSlowMotion();
 		}
-		else if (isInSlowMotion && !slowMotionCount)
+		else if (isInSlowMotion && !shouldBeActive)
 		{
 			DisableSlowMotion();
 		}
-
-		return RE::BSEventNotifyControl::kContinue;
 	}
 
 	SlowMotionHandler* SlowMotionHandler::GetSingleton()

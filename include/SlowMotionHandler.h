@@ -1,25 +1,23 @@
 #pragma once
 
-#include "SkyrimSoulsRE.h"
-
 namespace SkyrimSoulsRE
 {
-	class SlowMotionHandler : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+	class SlowMotionHandler
 	{
 	public:
-		static bool isInSlowMotion;
-		static float currentSlowMotionMultiplier;
-
-		static void EnableSlowMotion();
-		static void DisableSlowMotion();
-
-		RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_dispatcher) override;
+		void Update();
 
 		static SlowMotionHandler* GetSingleton();
-		
+
 	private:
-		SlowMotionHandler(){};
-		~SlowMotionHandler(){};
+		bool isInSlowMotion = false;
+		float currentSlowMotionMultiplier = 1.0f;
+
+		void EnableSlowMotion();
+		void DisableSlowMotion();
+
+		SlowMotionHandler() {};
+		~SlowMotionHandler() {};
 		SlowMotionHandler(const SlowMotionHandler&) = delete;
 		SlowMotionHandler& operator=(const SlowMotionHandler&) = delete;
 	};

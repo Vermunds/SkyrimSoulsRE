@@ -6,7 +6,6 @@
 #include "Offsets.h"
 #include "PapyrusHook.h"
 #include "Settings.h"
-#include "SlowMotionHandler.h"
 #include "UIBlurManagerEx.h"
 
 namespace SkyrimSoulsRE

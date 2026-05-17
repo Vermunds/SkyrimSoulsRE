@@ -44,6 +44,7 @@ namespace SkyrimSoulsRE
 		//slow motion
 		std::map<std::string, bool> slowMotionMenus;
 		float slowMotionMultiplier;
+		bool slowMotionCombatOnly;
 
 		//Blur
 		bool disableBlur;

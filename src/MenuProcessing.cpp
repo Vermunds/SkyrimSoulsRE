@@ -1,5 +1,6 @@
 #include "MenuProcessing.h"
 #include "Offsets.h"
+#include "SlowMotionHandler.h"
 
 namespace SkyrimSoulsRE::MenuProcessing
 {
@@ -36,6 +37,8 @@ namespace SkyrimSoulsRE::MenuProcessing
 
 				void* executeConsoleCommandsSingleton = _GetExecuteConsoleCommandsSingleton();
 				_ExecuteConsoleCommands(executeConsoleCommandsSingleton);
+
+				SlowMotionHandler::GetSingleton()->Update();
 			}
 		}
 	}
