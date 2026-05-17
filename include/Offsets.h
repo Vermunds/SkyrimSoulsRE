@@ -99,6 +99,7 @@ namespace Offsets
 		namespace MapMenu
 		{
 			static constexpr REL::ID Ctor(static_cast<std::uint64_t>(53093));  // + 0x52D
+			static constexpr REL::ID Dtor(static_cast<std::uint64_t>(53094));
 
 			static constexpr REL::ID LocalMapUpdaterFunc(static_cast<std::uint64_t>(53112));  // + 0x53; + 0x9D; + 0x9F
 
