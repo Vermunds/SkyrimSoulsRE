@@ -186,10 +186,10 @@ namespace SkyrimSoulsRE
 		return false;  // do not update again
 	}
 
-	bool MapMenuEx::UpdatePlayerCamera_Hook()
+	bool MapMenuEx::UpdatePlayer_Hook(RE::PlayerCharacter* a_this)
 	{
-		bool* isInMenuMode_2 = reinterpret_cast<bool*>(Offsets::Papyrus::IsInMenuMode::Value2.address());  // Original check
-		return *isInMenuMode_2 || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
+		return a_this->Get3D2() || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
+	}
 	}
 
 	void MapMenuEx::InstallHook()
@@ -225,36 +225,11 @@ namespace SkyrimSoulsRE
 		trampoline.write_call<5>(Offsets::BSAudioManager::Hook.address() + 0xC6, (std::uintptr_t)MapMenuAudioHooks::SetListenerPosition_Hook);
 		trampoline.write_call<5>(Offsets::BSAudioManager::Hook.address() + 0x12E, (std::uintptr_t)MapMenuAudioHooks::SetListenerRotation_Hook);
 
-		// Fix for first person model reappearing overlaid on the screen when the map menu is open for an extended period of time
-		{
-			struct CameraUpdate_Code : Xbyak::CodeGenerator
-			{
-				CameraUpdate_Code(uintptr_t a_funcAddress, uintptr_t a_retAddress)
-				{
-					Xbyak::Label funcAddress;
-					Xbyak::Label retAddress;
+		// Fix player not updating while the menu is open, causing various issues
+		trampoline.write_call<6>(Offsets::Main::UpdatePlayer.address() + 0x7A, (std::uintptr_t)UpdatePlayer_Hook);
 
-					push(rcx);
-					call(ptr[rip + funcAddress]);
-					pop(rcx);
-					cmp(al, 0);
-					jmp(ptr[rip + retAddress]);
 
-					L(funcAddress);
-					dq(a_funcAddress);
 
-					L(retAddress);
-					dq(a_retAddress);
-				}
-			};
-
-			CameraUpdate_Code code{ std::uintptr_t(UpdatePlayerCamera_Hook), Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x71 };
-			void* codeLoc = trampoline.allocate(code);
-
-			trampoline.write_branch<6>(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x6A, codeLoc);
-
-			REL::safe_write(Offsets::Menus::MapMenu::UpdatePlayerCamera_Hook.address() + 0x70, std::uint8_t(0x90));
-		}
 	}
 
 }
