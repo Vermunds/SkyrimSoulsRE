@@ -99,7 +99,6 @@ namespace SkyrimSoulsRE
 		currentRoom = a_sky->currentRoom;
 		previousRoom = a_sky->previousRoom;
 		extLightingOverride = a_sky->extLightingOverride;
-		cloudsLastWeather = a_sky->clouds ? a_sky->clouds->lastWeather : nullptr;
 	}
 
 	void MapMenuEx::MapSky::SkyState::RestoreState(RE::Sky* a_sky) const

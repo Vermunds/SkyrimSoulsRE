@@ -57,8 +57,6 @@ namespace SkyrimSoulsRE
 				RE::ObjectRefHandle currentRoom;
 				RE::ObjectRefHandle previousRoom;
 				RE::BGSLightingTemplate* extLightingOverride;
-
-				RE::TESWeather* cloudsLastWeather;
 			};
 
 			static inline auto ImageSpaceManager_Func1 = reinterpret_cast<void (*)(RE::ImageSpaceManager*, RE::ImageSpaceBaseData*)>(Offsets::ImageSpaceManager::MapWeatherFunc1.address());
