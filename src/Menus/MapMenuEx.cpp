@@ -3,6 +3,8 @@
 
 #include <xbyak/xbyak.h>
 
+#undef GetObject
+
 namespace SkyrimSoulsRE
 {
 	namespace MapMenuAudioHooks
@@ -55,7 +57,6 @@ namespace SkyrimSoulsRE
 			REL::Relocation<func_t> func{ Offsets::BSAudioManager::SetListenerRotation };
 			return func(a_audioManager, a_unk1, a_unk2);
 		}
-
 	}
 
 	void MapMenuEx::MapMenuCellLoadedEventHandler::Unregister()
@@ -76,6 +77,169 @@ namespace SkyrimSoulsRE
 		holder->AddEventSink<RE::TESCellFullyLoadedEvent>(this);
 	}
 
+	void MapMenuEx::MapSky::SkyState::SaveState(RE::Sky* a_sky)
+	{
+		currentClimate = a_sky->currentClimate;
+		currentWeather = a_sky->currentWeather;
+		lastWeather = a_sky->lastWeather;
+		defaultWeather = a_sky->defaultWeather;
+		overrideWeather = a_sky->overrideWeather;
+		region = a_sky->region;
+		currentGameHour = a_sky->currentGameHour;
+		currentWeatherPct = a_sky->currentWeatherPct;
+		flags = a_sky->flags;
+		lastMoonPhaseUpdate = a_sky->lastMoonPhaseUpdate;
+		unk174 = a_sky->unk174;
+		unk178 = a_sky->unk178;
+		unk17C = a_sky->unk17C;
+		fogPower = a_sky->fogPower;
+		mode = a_sky->mode;
+		flash = a_sky->flash;
+		flashTime = a_sky->flashTime;
+		currentRoom = a_sky->currentRoom;
+		previousRoom = a_sky->previousRoom;
+		extLightingOverride = a_sky->extLightingOverride;
+		cloudsLastWeather = a_sky->clouds ? a_sky->clouds->lastWeather : nullptr;
+	}
+
+	void MapMenuEx::MapSky::SkyState::RestoreState(RE::Sky* a_sky) const
+	{
+		a_sky->currentClimate = currentClimate;
+		a_sky->currentWeather = currentWeather;
+		a_sky->lastWeather = lastWeather;
+		a_sky->defaultWeather = defaultWeather;
+		a_sky->overrideWeather = overrideWeather;
+		a_sky->region = region;
+		a_sky->currentGameHour = currentGameHour;
+		a_sky->currentWeatherPct = currentWeatherPct;
+		a_sky->flags = flags;
+		a_sky->lastMoonPhaseUpdate = lastMoonPhaseUpdate;
+		a_sky->unk174 = unk174;
+		a_sky->unk178 = unk178;
+		a_sky->unk17C = unk17C;
+		a_sky->fogPower = fogPower;
+		a_sky->mode = mode;
+		a_sky->flash = flash;
+		a_sky->flashTime = flashTime;
+		a_sky->currentRoom = currentRoom;
+		a_sky->previousRoom = previousRoom;
+		a_sky->extLightingOverride = extLightingOverride;
+	}
+
+	MapMenuEx::MapSky::MapSky()
+	{
+		RE::BGSDefaultObjectManager* defaultObjectmanager = RE::BGSDefaultObjectManager::GetSingleton();
+		m_mapWeather = defaultObjectmanager->GetObject<RE::TESWeather>(RE::DEFAULT_OBJECTS::kWorldMapWeather);
+	}
+
+	void MapMenuEx::MapSky::Apply(RE::Sky* a_sky)
+	{
+		static RE::ImageSpaceManager* imageSpaceManager = RE::ImageSpaceManager::GetSingleton();
+		static RE::ImageSpaceBaseData* weatherUpdatebaseData = reinterpret_cast<RE::ImageSpaceBaseData*>(Offsets::ImageSpaceManager::WeatherUpdateBaseData.address());
+
+		RE::PlayerRegionState* playerRegionState = RE::PlayerRegionState::GetSingleton();
+		RE::TESRegion* prevRegion = playerRegionState->unk48;
+		playerRegionState->unk48 = nullptr;
+
+		SkyState state;
+		state.SaveState(a_sky);
+
+		a_sky->mode = RE::Sky::Mode::kFull;
+		a_sky->extLightingOverride = nullptr;
+
+		a_sky->currentWeather = m_mapWeather;
+		a_sky->overrideWeather = m_mapWeather;
+		a_sky->defaultWeather = nullptr;
+		a_sky->lastWeather = nullptr;
+		a_sky->region = nullptr;
+		a_sky->currentWeatherPct = 1.0f;
+		a_sky->flash = 0.0f;
+		a_sky->flashTime = 0;
+
+		a_sky->currentRoom.reset();
+		a_sky->previousRoom.reset();
+
+		if (a_sky->precip)
+		{
+			if (a_sky->precip->currentPrecip)
+			{
+				a_sky->precip->currentPrecip->flags.set(RE::NiAVObject::Flag::kHidden);
+			}
+			if (a_sky->precip->lastPrecip)
+			{
+				a_sky->precip->lastPrecip->flags.set(RE::NiAVObject::Flag::kHidden);
+			}
+		}
+
+		if (a_sky->sun)
+		{
+			a_sky->sun->sunBaseNode->flags.set(RE::NiAVObject::Flag::kHidden);
+			a_sky->sun->sunGlareNode->flags.set(RE::NiAVObject::Flag::kHidden);
+		}
+
+		if (a_sky->atmosphere)
+		{
+			a_sky->atmosphere->updateFogDistance = true;
+		}
+
+		Sky_UpdateSunGlareLensFlare(a_sky);
+		Sky_UpdatePartial(a_sky, 0.0f);
+		if (a_sky->clouds)
+		{
+			a_sky->clouds->forceUpdate = true;
+			a_sky->clouds->Update(a_sky, 0.0f);
+		}
+
+		ImageSpaceManager_Func1(imageSpaceManager, weatherUpdatebaseData);
+		ImageSpaceManager_Func2(imageSpaceManager);
+		ImageSpaceManager_Func3(imageSpaceManager);
+
+		state.RestoreState(a_sky);
+
+		playerRegionState->unk48 = prevRegion;
+	}
+
+	void MapMenuEx::MapSky::Finish(RE::Sky* a_sky)
+	{
+		static RE::ImageSpaceManager* imageSpaceManager = RE::ImageSpaceManager::GetSingleton();
+
+		ImageSpaceManager_Func1(imageSpaceManager, 0);
+		ImageSpaceManager_Func2(imageSpaceManager);
+
+		if (a_sky->precip)
+		{
+			if (a_sky->precip->currentPrecip)
+			{
+				a_sky->precip->currentPrecip->flags.reset(RE::NiAVObject::Flag::kHidden);
+			}
+			if (a_sky->precip->lastPrecip)
+			{
+				a_sky->precip->lastPrecip->flags.reset(RE::NiAVObject::Flag::kHidden);
+			}
+		}
+
+		if (a_sky->sun)
+		{
+			a_sky->sun->sunBaseNode->flags.reset(RE::NiAVObject::Flag::kHidden);
+			a_sky->sun->sunGlareNode->flags.reset(RE::NiAVObject::Flag::kHidden);
+		}
+
+		if (a_sky->clouds)
+		{
+			// Fix for wrong clouds after weather change while the menu is open
+			RE::TESWeather* lastWeather = a_sky->lastWeather;
+			a_sky->lastWeather = nullptr;
+			a_sky->clouds->forceUpdate = true;
+			a_sky->clouds->Update(a_sky, 0.0f);
+			a_sky->lastWeather = lastWeather;
+		}
+
+		if (a_sky->atmosphere)
+		{
+			a_sky->atmosphere->updateFogDistance = true;
+		}
+	}
+
 	RE::UI_MESSAGE_RESULTS MapMenuEx::ProcessMessage_Hook(RE::UIMessage& a_message)
 	{
 		switch (a_message.type.get())
@@ -83,6 +247,10 @@ namespace SkyrimSoulsRE
 		case RE::UI_MESSAGE_TYPE::kShow:
 			mapMenuCellLoadedEventHandler.Register();
 			lastTimeDateString[0] = '\0';
+			if (!mapSky)
+			{
+				mapSky = std::make_unique<MapSky>();
+			}
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kHide:
@@ -96,7 +264,7 @@ namespace SkyrimSoulsRE
 			if (cellRenderingUpdateNeeded)
 			{
 				// Force map mode rendering for newly loaded cells as well
-				auto func = reinterpret_cast<void (*)()>(Offsets::Menus::MapMenu::EnableMapModeRenderingFunc.address());
+				auto func = reinterpret_cast<void (*)()>(Offsets::Menus::MapMenu::EnableMapModeTerrainRendering.address());
 				func();
 
 				// This has the side-effect that LOD trees will disappear, so re-enable them again (they still won't appear in Map Menu)
@@ -190,6 +358,23 @@ namespace SkyrimSoulsRE
 	{
 		return a_this->Get3D2() || RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME);
 	}
+
+	void MapMenuEx::Sky_Update_Hook(RE::Sky* a_this, float a_timeDelta)
+	{
+		static bool isActive = false;
+
+		_SkyUpdate(a_this, a_timeDelta);
+
+		if (RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME) && mapSky)
+		{
+			isActive = true;
+			mapSky->Apply(a_this);
+		}
+		else if (isActive)
+		{
+			isActive = false;
+			mapSky->Finish(a_this);
+		}
 	}
 
 	void MapMenuEx::InstallHook()
@@ -228,8 +413,14 @@ namespace SkyrimSoulsRE
 		// Fix player not updating while the menu is open, causing various issues
 		trampoline.write_call<6>(Offsets::Main::UpdatePlayer.address() + 0x7A, (std::uintptr_t)UpdatePlayer_Hook);
 
+		// Hook Sky Job
+		_SkyUpdate = *reinterpret_cast<Sky_Update_t*>(trampoline.write_branch<5>(Offsets::Job::Sky.address() + 0x33, (std::uintptr_t)Sky_Update_Hook));
 
+		// Disable sky related stuff when Map Menu opens/closes - we handle it ourselves
+		REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x96, std::uint16_t(0x02E9));  // jmp + nop
+		REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::EnableMapMode.address() + 0x98, std::uint32_t(0x90000001));
 
+		REL::safe_write<std::uint16_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7C, std::uint16_t(0x85E9));  // jmp + nop
+		REL::safe_write<std::uint32_t>(Offsets::Menus::MapMenu::DisableMapMode.address() + 0x7E, std::uint32_t(0x90000000));
 	}
-
 }

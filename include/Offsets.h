@@ -26,6 +26,15 @@ namespace Offsets
 		static constexpr REL::ID Value2(static_cast<std::uint64_t>(388443));
 	}
 
+	namespace ImageSpaceManager
+	{
+		static constexpr REL::ID MapWeatherFunc1(static_cast<std::uint64_t>(105684));
+		static constexpr REL::ID MapWeatherFunc2(static_cast<std::uint64_t>(105687));
+		static constexpr REL::ID MapWeatherFunc3(static_cast<std::uint64_t>(105690));
+
+		static constexpr REL::ID WeatherUpdateBaseData(static_cast<std::uint64_t>(401110));
+	}
+
 	namespace ItemMenuUpdater
 	{
 		static constexpr REL::ID RequestItemListUpdate(static_cast<std::uint64_t>(52849));
@@ -40,6 +49,7 @@ namespace Offsets
 	namespace Job
 	{
 		static constexpr REL::ID UI(static_cast<std::uint64_t>(39042));  // + 0xB
+		static constexpr REL::ID Sky(static_cast<std::uint64_t>(36584));
 	}
 
 	namespace MagicItemList
@@ -98,7 +108,10 @@ namespace Offsets
 			static constexpr REL::ID PlayerMarkerRefHandle(static_cast<std::uint64_t>(406633));
 			static constexpr REL::ID SetMarkerPosition(static_cast<std::uint64_t>(53021));
 
-			static constexpr REL::ID EnableMapModeRenderingFunc(static_cast<std::uint64_t>(53154));
+			static constexpr REL::ID EnableMapModeTerrainRendering(static_cast<std::uint64_t>(53154));
+
+			static constexpr REL::ID EnableMapMode(static_cast<std::uint64_t>(53146));
+			static constexpr REL::ID DisableMapMode(static_cast<std::uint64_t>(53147));
 		}
 
 		namespace StatsMenu
@@ -140,6 +153,13 @@ namespace Offsets
 	{
 		static constexpr REL::ID HookedFunc(static_cast<std::uint64_t>(82084));
 	}
+
+	namespace Sky
+	{
+		static constexpr REL::ID UpdatePartial(static_cast<std::uint64_t>(26230));
+		static constexpr REL::ID UpdateSunGlareLensFlare(static_cast<std::uint64_t>(26246));
+	}
+
 
 	namespace TESFurniture
 	{
