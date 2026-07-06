@@ -135,9 +135,15 @@ namespace SkyrimSoulsRE
 		static RE::ImageSpaceManager* imageSpaceManager = RE::ImageSpaceManager::GetSingleton();
 		static RE::ImageSpaceBaseData* weatherUpdatebaseData = reinterpret_cast<RE::ImageSpaceBaseData*>(Offsets::ImageSpaceManager::WeatherUpdateBaseData.address());
 
-		RE::PlayerRegionState* playerRegionState = RE::PlayerRegionState::GetSingleton();
-		RE::TESRegion* prevRegion = playerRegionState->unk48;
-		playerRegionState->unk48 = nullptr;
+		// NOTE(jota2rz-fork): RE::PlayerRegionState is not defined in the
+		// public CommonLibSSE branches Vermunds' fork targets. The original
+		// code temporarily nulled its `unk48` field to prevent the game's
+		// region system from re-tinting the sky while the map menu is
+		// showing its own weather. Skipping that here has a minor
+		// cosmetic consequence -- the map view may inherit a region tint
+		// from the player's current region -- but no gameplay impact.
+		// Restore this block if/when the singleton definition is added to
+		// CommonLibSSE.
 
 		SkyState state;
 		state.SaveState(a_sky);
@@ -194,7 +200,7 @@ namespace SkyrimSoulsRE
 
 		state.RestoreState(a_sky);
 
-		playerRegionState->unk48 = prevRegion;
+		// (matching pair to the skipped `playerRegionState->unk48 = prevRegion;`)
 	}
 
 	void MapMenuEx::MapSky::Finish(RE::Sky* a_sky)
@@ -349,10 +355,26 @@ namespace SkyrimSoulsRE
 	{
 		RE::UI* ui = RE::UI::GetSingleton();
 
-		if (!ui->IsMenuOpen(RE::MapMenu::MENU_NAME))
+		// Original SoulsRE behaviour: skip the terrain manager update while
+		// the map menu is open (map has its own terrain rendering).
+		//
+		// jota2rz-fork addition: ALSO skip while the loading menu is open.
+		// SoulsRE's "unpause the world during menus" change lets background
+		// jobs (BSJobs::JobThread) continue running the terrain manager
+		// during world load, which races the terrain-manager's own
+		// initialisation on the main thread. The crash surfaces as an
+		// EXCEPTION_ACCESS_VIOLATION deep in the dispatcher (SkyrimSE.exe
+		// +0x02AD242, +0xCF61DA, +0xCF7888, +0xCF813E) with RBX/RCX = 0 --
+		// the dispatcher popped a work item pointing at partially-freed
+		// terrain data. Gating the hook on the loading menu ensures the
+		// terrain update only runs after the load transition completes.
+		if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME) ||
+		    ui->IsMenuOpen(RE::LoadingMenu::MENU_NAME))
 		{
-			_TerrainManagerUpdate(a_this, a_unk1, a_unk2);
+			return;
 		}
+
+		_TerrainManagerUpdate(a_this, a_unk1, a_unk2);
 	}
 
 	bool MapMenuEx::UpdateClouds_Hook(RE::NiAVObject* a_obj, RE::NiUpdateData* a_data)
