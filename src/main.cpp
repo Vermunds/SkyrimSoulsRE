@@ -3,6 +3,7 @@
 
 #include "HookUtils.h"
 #include "SkyrimSoulsRE.h"
+#include "SteamOverlayFix.h"
 #include "Version.h"
 
 constexpr auto MESSAGEBOX_WARNING = 0x00001030L;  // MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL
@@ -111,6 +112,11 @@ extern "C"
 
 		SKSE::AllocTrampoline(1 << 9, true);
 		SKSE::Init(a_skse, false);
+
+		// jota2rz-fork: install Steam-overlay pause fix as early as possible.
+		// IAT-patches steam_api64!SteamAPI_RegisterCallback so Skyrim's
+		// registration for GameOverlayActivated_t is silently dropped.
+		SkyrimSoulsRE::SteamOverlayFix::Install();
 
 		const SKSE::MessagingInterface* messaging = SKSE::GetMessagingInterface();
 		if (messaging->RegisterListener("SKSE", MessageHandler))

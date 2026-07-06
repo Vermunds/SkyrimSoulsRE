@@ -42,6 +42,7 @@ set(SOURCES
 	include/Settings.h
 	include/SkyrimSoulsRE.h
 	include/SlowMotionHandler.h
+	include/SteamOverlayFix.h
 	include/UIBlurManagerEx.h
 	include/Util.h
 	src/AutoCloseManager.cpp
@@ -82,6 +83,7 @@ set(SOURCES
 	src/Settings.cpp
 	src/SkyrimSoulsRE.cpp
 	src/SlowMotionHandler.cpp
+	src/SteamOverlayFix.cpp
 	src/UIBlurManagerEx.cpp
 	src/main.cpp
 	src/Util.cpp
