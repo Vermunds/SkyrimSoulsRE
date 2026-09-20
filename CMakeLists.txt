@@ -69,4 +69,5 @@ target_link_libraries(
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
 		spdlog::spdlog
+		ModConfigUI
 )

@@ -79,7 +79,7 @@ namespace SkyrimSoulsRE
 	{
 		// This function is called in TESFurniture::Activate just before the menu is opened.
 		// We can grab the reference here for auto-close.
-		
+
 		// Go to Bed opens the menu itself — let it handle everything normally. This is fine because the player can't move with this mod anyway.
 		if (Settings::GetSingleton()->isUsingGoToBed)
 		{

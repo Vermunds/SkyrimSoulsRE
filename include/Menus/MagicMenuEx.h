@@ -2,8 +2,6 @@
 
 #include "SkyrimSoulsRE.h"
 
-#include <unordered_set>
-
 namespace SkyrimSoulsRE
 {
 	struct MagicMenuState

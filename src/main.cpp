@@ -2,6 +2,7 @@
 #undef MessageBox
 
 #include "HookUtils.h"
+#include "ModConfigUI.h"
 #include "SkyrimSoulsRE.h"
 #include "Version.h"
 
@@ -76,6 +77,7 @@ static void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 			SkyrimSoulsRE::Settings* settings = SkyrimSoulsRE::Settings::GetSingleton();
 			CheckEngineFixes(settings);
 			CheckModCompatibility(settings);
+			SkyrimSoulsRE::InstallModConfigUI();
 		}
 		break;
 	}

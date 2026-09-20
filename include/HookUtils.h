@@ -1,7 +1,5 @@
 #pragma once
 
-#include <source_location>
-
 namespace SkyrimSoulsRE::HookUtils
 {
 	namespace Detail
