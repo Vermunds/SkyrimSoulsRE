@@ -1,6 +1,6 @@
 #include "MenuProcessing.h"
-#include "CombatPauseHandler.h"
 #include "HookUtils.h"
+#include "MenuFlagHandler.h"
 #include "Offsets.h"
 #include "SlowMotionHandler.h"
 
@@ -30,7 +30,7 @@ namespace SkyrimSoulsRE::MenuProcessing
 			// Add
 			RE::UI* ui = RE::UI::GetSingleton();
 
-			CombatPauseHandler::GetSingleton()->Update();
+			MenuFlagHandler::GetSingleton()->Update();
 
 			if (!ui->GameIsPaused())
 			{

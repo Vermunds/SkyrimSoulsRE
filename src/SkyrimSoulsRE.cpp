@@ -27,6 +27,8 @@
 #include "Menus/ModMenus/DragonbornsBestiary/BestiaryMenuEx.h"
 #include "Menus/ModMenus/QuestJournalOverhaul/QuestMenuEx.h"
 
+#include "MenuFlagHandler.h"
+
 #include "Controls/BSWin32KeyboardDeviceEx.h"
 #include "Controls/CameraMovement.h"
 #include "Controls/InputHandlerEx.h"
@@ -62,64 +64,26 @@ namespace SkyrimSoulsRE
 	{
 		SKSE::log::info("Creating menu {}", a_menuName);
 
-		RE::UI* ui = RE::UI::GetSingleton();
-		Settings* settings = Settings::GetSingleton();
-
 		RE::IMenu* menu = menuCreatorMap.find(a_menuName.data())->second();
 
 		ResetMenuInput();
 
-		bool isConsole = a_menuName == RE::Console::MENU_NAME;
-		bool isUnpaused = settings->unpausedMenus.find(a_menuName.data()) != settings->unpausedMenus.end() && settings->unpausedMenus[a_menuName.data()];
-		bool usesOverlay = isConsole ? false : settings->overlayMenus[a_menuName.data()];
-
 		if (menu->PausesGame())
 		{
-			if (isUnpaused)
-			{
-				menu->menuFlags.reset(MenuFlag::kPausesGame);
-
-				if (!isConsole)
-				{
-					bool usesSlowMotion = settings->slowMotionMenus[a_menuName.data()];
-
-					if (usesSlowMotion)
-					{
-						menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUsesSlowMotion));
-					}
-
-					menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUnpaused));
-				}
-			}
-
 			RE::PlayerCharacter::GetSingleton()->InterruptCast(true);
 		}
 
 		if (!menu->RequiresUpdate())
 		{
-			menu->menuFlags.set(RE::IMenu::Flag::kRequiresUpdate);
-		}
-
-		if (usesOverlay && a_menuName != RE::HUDMenu::MENU_NAME)
-		{
-			menu->menuFlags.set(static_cast<MenuFlag>(MenuFlagEx::kUsesCombatAlertOverlay));
-
-			if (!ui->IsMenuOpen(CombatAlertOverlayMenu::MENU_NAME))
-			{
-				RE::UIMessageQueue* msgQueue = RE::UIMessageQueue::GetSingleton();
-				msgQueue->AddMessage(CombatAlertOverlayMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-			}
-		}
-
-		if (menu->FreezeFrameBackground() && isUnpaused)
-		{
-			menu->menuFlags.reset(MenuFlag::kFreezeFrameBackground);
+			menu->menuFlags.set(MenuFlag::kRequiresUpdate);
 		}
 
 		if (menu->InventoryItemMenu() && a_menuName != RE::FavoritesMenu::MENU_NAME)
 		{
 			menu->depthPriority = 1;
 		}
+
+		MenuFlagHandler::GetSingleton()->UpdateMenu(menu, a_menuName, false);
 
 		return menu;
 	}
