@@ -82,7 +82,7 @@ namespace SkyrimSoulsRE
 		settings->unpausedMenus["CustomMenu"] = IniGetBool(ini, "UNPAUSED_MENUS", "bCustomMenu", UNPAUSED_CUSTOM_MENU_DEFAULT_VALUE);
 		settings->unpausedMenus[QuestMenuEx::MENU_NAME.data()] = IniGetBool(ini, "UNPAUSED_MENUS", "bQuestJournalOverhaul_QuestMenu", UNPAUSED_QUEST_JOURNAL_OVERHAUL_QUEST_MENU_DEFAULT_VALUE);
 		settings->unpausedMenus[BestiaryMenuEx::MENU_NAME.data()] = IniGetBool(ini, "UNPAUSED_MENUS", "bDragonbornsBestiary_BestiaryMenu", UNPAUSED_DRAGONBORNS_BESTIARY_BESTIARY_MENU_DEFAULT_VALUE);
-		settings->pauseDuringCombat = IniGetBool(ini, "UNPAUSED_MENUS", "bPauseDuringCombat", PAUSE_DURING_COMBAT_DEFAULT_VALUE, "# If true, all affected menus will be paused if the player is in combat. The console is not affected.");
+		settings->pauseDuringCombat = IniGetBool(ini, "UNPAUSED_MENUS", "bPauseDuringCombat", PAUSE_DURING_COMBAT_DEFAULT_VALUE, "# If true, all affected menus will be paused if the player is in combat.");
 
 		IniSection(ini, "AUTOCLOSE");
 		settings->autoCloseMenus = IniGetBool(ini, "AUTOCLOSE", "bAutoCloseMenus", AUTO_CLOSE_MENUS_DEFAULT_VALUE, "#  Auto close menus if the distance to the object is larger than the specified value.");

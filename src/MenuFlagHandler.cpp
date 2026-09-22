@@ -37,7 +37,7 @@ namespace SkyrimSoulsRE
 		}
 
 		// Check if we should care about this menu at all
-		if (!a_menu->menuFlags.all(MenuFlag::kPausesGame) && !a_menu->menuFlags.all(static_cast<MenuFlag>(MenuFlagEx::kUnpaused)))
+		if (!isConsole && !a_menu->menuFlags.all(MenuFlag::kPausesGame) && !a_menu->menuFlags.all(static_cast<MenuFlag>(MenuFlagEx::kUnpaused)))
 		{
 			return;
 		}
@@ -125,7 +125,7 @@ namespace SkyrimSoulsRE
 				continue;
 			}
 
-			UpdateMenu(menu, entry.first.c_str(), true);
+			UpdateMenu(menu, entry.first.c_str(), menu->OnStack());
 		}
 	}
 
