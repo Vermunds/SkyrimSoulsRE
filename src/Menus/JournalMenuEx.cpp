@@ -14,12 +14,6 @@ namespace SkyrimSoulsRE
 			break;
 
 		case RE::UI_MESSAGE_TYPE::kUpdate:
-			if (!RE::UI::GetSingleton()->IsMenuOpen(RE::MapMenu::MENU_NAME))  // this can break rendering in Map Menu
-			{
-				// Create a screenshot every frame so it's always up to date
-				uint32_t* requestSaveScreenShotValue = reinterpret_cast<uint32_t*>(Offsets::Misc::RequestSaveScreenshot.address());
-				*requestSaveScreenShotValue = 1;
-			}
 			RE::UIMessageQueue::GetSingleton()->AddMessage(RE::HUDMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kUpdate, nullptr);
 			Update();
 			break;

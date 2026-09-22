@@ -3,6 +3,17 @@
 
 namespace Offsets
 {
+	namespace BGSSaveLoadFileEntry
+	{
+		static constexpr REL::ID Save(static_cast<std::uint64_t>(35533));  // + 0x3E; + 0x60
+	}
+
+	namespace BGSSaveLoadManager
+	{
+		static constexpr REL::ID ProcessEvents(static_cast<std::uint64_t>(35772));
+		static constexpr REL::ID RequestSave(static_cast<std::uint64_t>(35769));
+	}
+
 	namespace BGSTerrainManager
 	{
 		static constexpr REL::ID TerrainManager_UpdateFunc(static_cast<std::uint64_t>(39102));  // + 0x5D
@@ -70,6 +81,11 @@ namespace Offsets
 		namespace BookMenu
 		{
 			static constexpr REL::ID ProcessMessage(static_cast<std::uint64_t>(51049));
+		}
+
+		namespace Console
+		{
+			static constexpr REL::ID SaveGameHandler(static_cast<std::uint64_t>(22940));
 		}
 
 		namespace ContainerMenu
@@ -147,9 +163,6 @@ namespace Offsets
 
 		static constexpr REL::ID GetExecuteConsoleCommandsSingleton(static_cast<std::uint64_t>(52950));
 		static constexpr REL::ID ExecuteConsoleCommands(static_cast<std::uint64_t>(52952));
-
-		static constexpr REL::ID RequestSaveScreenshot(static_cast<std::uint64_t>(403755));
-
 	}
 
 	namespace Papyrus::IsInMenuMode
@@ -179,5 +192,10 @@ namespace Offsets
 	namespace UIBlurManager
 	{
 		static constexpr REL::ID IncrementBlurCount(static_cast<std::uint64_t>(52776));
+	}
+
+	namespace UISaveLoadManager
+	{
+		static constexpr REL::ID SaveGame(static_cast<std::uint64_t>(52923));  // + 0x2B
 	}
 }

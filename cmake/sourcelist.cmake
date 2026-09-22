@@ -40,6 +40,7 @@ set(SOURCES
 	include/PCH.h
 	include/MenuFlagHandler.h
 	include/PapyrusHook.h
+	include/SaveHandler.h
 	include/Settings.h
 	include/SkyrimSoulsRE.h
 	include/SlowMotionHandler.h
@@ -81,6 +82,7 @@ set(SOURCES
 	src/Menus/ModMenus/DragonbornsBestiary/BestiaryMenuEx.cpp
 	src/Menus/ModMenus/QuestJournalOverhaul/QuestMenuEx.cpp
 	src/PapyrusHook.cpp
+	src/SaveHandler.cpp
 	src/Settings.cpp
 	src/SkyrimSoulsRE.cpp
 	src/SlowMotionHandler.cpp

@@ -28,6 +28,7 @@
 #include "Menus/ModMenus/QuestJournalOverhaul/QuestMenuEx.h"
 
 #include "MenuFlagHandler.h"
+#include "SaveHandler.h"
 
 #include "Controls/BSWin32KeyboardDeviceEx.h"
 #include "Controls/CameraMovement.h"
@@ -201,6 +202,7 @@ namespace SkyrimSoulsRE
 		ItemMenuUpdater::InstallHook();
 		UIBlurManagerEx::InstallHook();
 		MenuProcessing::InstallHook();
+		SaveHandler::InstallHook();
 
 		MenuControlsEx::InstallHook();
 		PlayerControlsEx::InstallHook();
