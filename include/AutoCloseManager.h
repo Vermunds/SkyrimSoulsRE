@@ -20,6 +20,7 @@ namespace SkyrimSoulsRE
 		{
 			RE::RefHandle targetRefHandle = 0;
 			bool initiallyDisabled = false;
+			bool initiallyDead = false;
 			float initialDistance = 0.0f;
 			float minDistance = 0.0f;
 			bool checkForDeath = false;

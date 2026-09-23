@@ -56,7 +56,7 @@ namespace SkyrimSoulsRE
 
 			if (data.checkForDeath && target->Is(RE::FormType::ActorCharacter))
 			{
-				if (target->IsDead(true))
+				if (target->IsDead(true) && !data.initiallyDead)
 				{
 					CloseMenu(data, a_menuName, "Target character died");
 					return;
@@ -127,6 +127,7 @@ namespace SkyrimSoulsRE
 			data.initialDistance = containerData.initialDistance;
 			data.minDistance = containerData.minDistance;
 			data.initiallyDisabled = containerData.initiallyDisabled;
+			data.initiallyDead = containerData.initiallyDead;
 			data.checkForDeath = containerData.checkForDeath;
 			data.dialogueMode = containerData.dialogueMode;
 
@@ -138,6 +139,7 @@ namespace SkyrimSoulsRE
 		data.initialDistance = target ? GetBBDistance(player, target) : 0.0f;
 		data.minDistance = data.initialDistance;
 		data.initiallyDisabled = target ? target->IsDisabled() : false;
+		data.initiallyDead = target && target->Is(RE::FormType::ActorCharacter) ? target->IsDead(true) : false;
 		data.checkForDeath = a_checkForDeath;
 		data.dialogueMode = false;
 
@@ -205,8 +207,8 @@ namespace SkyrimSoulsRE
 		else
 		{
 			SKSE::log::info(
-				"Auto-close data for {} | Target: {} | Initial distance: {} | Initially disabled: {} | Check for death: {} | Dialogue mode: {}",
-				a_menuName, Util::GetRefDebugString(target), initialDistance, initiallyDisabled, checkForDeath, dialogueMode);
+				"Auto-close data for {} | Target: {} | Initial distance: {} | Initially disabled: {} | Initially dead: {} | Check for death: {} | Dialogue mode: {}",
+				a_menuName, Util::GetRefDebugString(target), initialDistance, initiallyDisabled, initiallyDead, checkForDeath, dialogueMode);
 		}
 	}
 }
