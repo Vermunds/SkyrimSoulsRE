@@ -1,5 +1,4 @@
 #pragma once
-#include "RE/P/PlayerControls.h"
 
 namespace SkyrimSoulsRE
 {
