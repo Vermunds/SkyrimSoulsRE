@@ -54,6 +54,17 @@ namespace
 			SKSE::log::info("Go To Bed not detected. Disabling compatibility.");
 			a_settings->isUsingGoToBed = false;
 		}
+
+		if (REX::W32::GetModuleHandleA("UniqueMapWeather.dll"))
+		{
+			SKSE::log::info("Unique Map Weather detected. Enabling compatibility.");
+			a_settings->isUsingUniqueMapWeather = true;
+		}
+		else
+		{
+			SKSE::log::info("Unique Map Weather not detected. Disabling compatibility.");
+			a_settings->isUsingUniqueMapWeather = false;
+		}
 	}
 
 	// This will run immediately after SKSE::MessagingInterface::kDataLoaded

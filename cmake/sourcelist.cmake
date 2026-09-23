@@ -46,6 +46,7 @@ set(SOURCES
 	include/SlowMotionHandler.h
 	include/UIBlurManagerEx.h
 	include/Util.h
+	include/WorldMapWeatherHandler.h
 	src/AutoCloseManager.cpp
 	src/MenuFlagHandler.cpp
 	src/HookUtils.cpp
@@ -89,4 +90,5 @@ set(SOURCES
 	src/UIBlurManagerEx.cpp
 	src/main.cpp
 	src/Util.cpp
+	src/WorldMapWeatherHandler.cpp
 )

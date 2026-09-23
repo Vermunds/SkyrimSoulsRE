@@ -177,6 +177,7 @@ namespace SkyrimSoulsRE
 		IniSection(ini, "MAP_MENU");
 		settings->mapMenuAmbientSoundLoop = IniGetBool(ini, "MAP_MENU", "bMapMenuAmbientSoundLoop", MAP_MENU_AMBIENT_SOUND_LOOP_DEFAULT_VALUE, "# If enabled, the map menu looping ambient sound will play as normal. By default it is disabled since the game world is unpaused and both would play simultaneously.");
 		settings->mapMenuCustomSky = IniGetBool(ini, "MAP_MENU", "bMapMenuCustomSky", MAP_MENU_CUSTOM_SKY_DEFAULT_VALUE, "# If enabled, the map menu will use a separate sky/weather state decoupled from the real world weather.\n# This prevents the map from affecting gameplay (e.g. weather changes, precipitation), but it can be invasive.\n# Highly recommended to keep it enabled, but can be disabled if it conflicts with something.");
+		settings->mapMenuUniqueMapWeather = IniGetBool(ini, "MAP_MENU", "bMapMenuUniqueMapWeather", MAP_MENU_UNIQUE_MAP_WEATHER_DEFAULT_VALUE, "# Adds support for Unique Map Weather by doodlum when decoupled map weather is enabled.\n# Does nothing if the mod is not installed.");
 
 		SKSE::log::info("Settings loaded.");
 
@@ -299,6 +300,7 @@ namespace SkyrimSoulsRE
 
 		ini.SetBoolValue("MAP_MENU", "bMapMenuAmbientSoundLoop", settings->mapMenuAmbientSoundLoop, nullptr, true);
 		ini.SetBoolValue("MAP_MENU", "bMapMenuCustomSky", settings->mapMenuCustomSky, nullptr, true);
+		ini.SetBoolValue("MAP_MENU", "bMapMenuUniqueMapWeather", settings->mapMenuUniqueMapWeather, nullptr, true);
 
 		ini.SaveFile(INI_PATH);
 
@@ -419,6 +421,7 @@ namespace SkyrimSoulsRE
 
 		settings->mapMenuAmbientSoundLoop = MAP_MENU_AMBIENT_SOUND_LOOP_DEFAULT_VALUE;
 		settings->mapMenuCustomSky = MAP_MENU_CUSTOM_SKY_DEFAULT_VALUE;
+		settings->mapMenuUniqueMapWeather = MAP_MENU_UNIQUE_MAP_WEATHER_DEFAULT_VALUE;
 
 		SaveSettings();
 	}

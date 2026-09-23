@@ -376,6 +376,9 @@ namespace SkyrimSoulsRE
 		a_renderer.SeparatorText(Translate("$SSRE_Menu_Map"));
 		SaveCheckbox(a_renderer, "$SSRE_MapMenuAmbientSoundLoop", "$SSRE_MapMenuAmbientSoundLoop_Tooltip", &settings->mapMenuAmbientSoundLoop, MAP_MENU_AMBIENT_SOUND_LOOP_DEFAULT_VALUE);
 		SaveCheckbox(a_renderer, "$SSRE_MapMenuCustomSky", "$SSRE_MapMenuCustomSky_Tooltip", &settings->mapMenuCustomSky, MAP_MENU_CUSTOM_SKY_DEFAULT_VALUE);
+		a_renderer.BeginDisabled(!settings->mapMenuCustomSky);
+		SaveCheckbox(a_renderer, "$SSRE_MapMenuUniqueMapWeather", "$SSRE_MapMenuUniqueMapWeather_Tooltip", &settings->mapMenuUniqueMapWeather, MAP_MENU_UNIQUE_MAP_WEATHER_DEFAULT_VALUE);
+		a_renderer.EndDisabled();
 
 		a_renderer.SeparatorText(Translate("$SSRE_Section_Messages"));
 		SaveCheckbox(a_renderer, "$SSRE_HideEngineFixesWarning", "$SSRE_HideEngineFixesWarning_Tooltip", &settings->hideEngineFixesWarning, HIDE_ENGINE_FIXES_WARNING_DEFAULT_VALUE);

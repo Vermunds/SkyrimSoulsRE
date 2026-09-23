@@ -1,6 +1,7 @@
 #include "Menus/MapMenuEx.h"
 #include "Controls/MapInputHandlerEx.h"
 #include "HookUtils.h"
+#include "WorldMapWeatherHandler.h"
 
 #undef GetObject
 
@@ -127,13 +128,47 @@ namespace SkyrimSoulsRE
 	MapMenuEx::MapSky::MapSky()
 	{
 		RE::BGSDefaultObjectManager* defaultObjectmanager = RE::BGSDefaultObjectManager::GetSingleton();
-		m_mapWeather = defaultObjectmanager->GetObject<RE::TESWeather>(RE::DEFAULT_OBJECTS::kWorldMapWeather);
+		m_defaultMapWeather = defaultObjectmanager->GetObject<RE::TESWeather>(RE::DEFAULT_OBJECTS::kWorldMapWeather);
+	}
+
+	RE::TESWeather* MapMenuEx::MapSky::GetCurrentMapWeather()
+	{
+		// Unique Map Weather hooks the same function that we skip for the custom map sky.
+		// This adds support for Unique Map Weather directly, but only if the mod is installed and support is enabled
+		Settings* settings = Settings::GetSingleton();
+		if (!settings->mapMenuUniqueMapWeather || !settings->isUsingUniqueMapWeather)
+		{
+			return m_defaultMapWeather;
+		}
+
+		RE::GPtr<RE::MapMenu> mapMenu = RE::UI::GetSingleton()->GetMenu<RE::MapMenu>();
+		if (!mapMenu)
+		{
+			return m_defaultMapWeather;
+		}
+
+		RE::TESWorldSpace* worldSpace = mapMenu->worldSpace;
+		if (!worldSpace)
+		{
+			return m_defaultMapWeather;
+		}
+
+		// Apply runs every frame, so each worldspace's config is only read once
+		auto it = m_uniqueWeathers.find(worldSpace->GetFormID());
+		if (it == m_uniqueWeathers.end())
+		{
+			it = m_uniqueWeathers.emplace(worldSpace->GetFormID(), WorldMapWeatherHandler::GetUniqueWeather(worldSpace->GetFormEditorID())).first;
+		}
+
+		return it->second ? it->second : m_defaultMapWeather;
 	}
 
 	void MapMenuEx::MapSky::Apply(RE::Sky* a_sky)
 	{
 		static RE::ImageSpaceManager* imageSpaceManager = RE::ImageSpaceManager::GetSingleton();
 		static RE::ImageSpaceBaseData* weatherUpdatebaseData = reinterpret_cast<RE::ImageSpaceBaseData*>(Offsets::ImageSpaceManager::WeatherUpdateBaseData.address());
+
+		RE::TESWeather* mapWeather = GetCurrentMapWeather();
 
 		RE::PlayerRegionState* playerRegionState = RE::PlayerRegionState::GetSingleton();
 		RE::TESRegion* prevRegion = playerRegionState->unk48;
@@ -145,8 +180,8 @@ namespace SkyrimSoulsRE
 		a_sky->mode = RE::Sky::Mode::kFull;
 		a_sky->extLightingOverride = nullptr;
 
-		a_sky->currentWeather = m_mapWeather;
-		a_sky->overrideWeather = m_mapWeather;
+		a_sky->currentWeather = mapWeather;
+		a_sky->overrideWeather = mapWeather;
 		a_sky->defaultWeather = nullptr;
 		a_sky->lastWeather = nullptr;
 		a_sky->region = nullptr;

@@ -66,7 +66,12 @@ namespace SkyrimSoulsRE
 			static inline auto Sky_UpdateSunGlareLensFlare = reinterpret_cast<void (*)(RE::Sky*)>(Offsets::Sky::UpdateSunGlareLensFlare.address());
 			static inline auto Sky_UpdatePartial = reinterpret_cast<void (*)(RE::Sky*, float)>(Offsets::Sky::UpdatePartial.address());
 
-			RE::TESWeather* m_mapWeather;
+			// Returns the weather the map should use: the worldspace override if one is configured,
+			// the kWorldMapWeather default object otherwise.
+			RE::TESWeather* GetCurrentMapWeather();
+
+			RE::TESWeather* m_defaultMapWeather;
+			std::unordered_map<RE::FormID, RE::TESWeather*> m_uniqueWeathers;  // nullptr: worldspace has no unique weather
 		};
 
 		static inline MapMenuCellLoadedEventHandler mapMenuCellLoadedEventHandler;

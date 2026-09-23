@@ -120,6 +120,7 @@ namespace SkyrimSoulsRE
 	// Map Menu
 	constexpr bool MAP_MENU_AMBIENT_SOUND_LOOP_DEFAULT_VALUE = false;
 	constexpr bool MAP_MENU_CUSTOM_SKY_DEFAULT_VALUE = true;
+	constexpr bool MAP_MENU_UNIQUE_MAP_WEATHER_DEFAULT_VALUE = true;
 
 	class Settings
 	{
@@ -182,10 +183,12 @@ namespace SkyrimSoulsRE
 		// Map Menu
 		bool mapMenuAmbientSoundLoop;
 		bool mapMenuCustomSky;
+		bool mapMenuUniqueMapWeather;
 
 		// Internal
 		bool isUsingDialogueMovementEnabler = false;
 		bool isUsingGoToBed = false;
+		bool isUsingUniqueMapWeather = false;
 
 	private:
 		Settings() {};
