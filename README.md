@@ -1,7 +1,7 @@
 # Skyrim Souls RE
 [![Nexus Mods](https://img.shields.io/badge/NexusMods-Download-orange)](https://www.nexusmods.com/skyrimspecialedition/mods/27859)
 [![GitHub release](https://img.shields.io/github/v/release/Vermunds/SkyrimSoulsRE)](https://github.com/Vermunds/SkyrimSoulsRE/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 A mod for The Elder Scrolls V: Skyrim - Special Edition.
 
@@ -15,21 +15,14 @@ This mod unpauses all of Skyrim's in-game menus.
 - Combat alert overlay for warning the user for dangers.
 - Optionally disable background blur of menus.
 - Optionally also unpause only if not in combat.
-- Fully customizable through an included .ini file.
+- Fully customizable in-game or through an included .ini file.
 - Fixed crashes and race conditions from earlier versions of similar mods.
 
 ## Download
 Available on [Nexusmods](https://www.nexusmods.com/skyrimspecialedition/mods/27859) or via Github Releases.
 
-## INI Configuration
-
-The configuration file is located at:
-
-`<Skyrim install folder>/Data/SKSE/Plugins/SkyrimSoulsRE.ini`
-
-The configuration file is fully commented for clarity. Lines starting with `#` are comments and have no effect in-game.  
-Delete the .ini file and launch the game once to regenerate the defaults in case you lost them.  
-Note that some mod managers may place this file in different locations than the one above. In this case, refer to the documentation of your mod manager of choice.
+## Configuration
+The settings can be changed in-game, in the settings menu of either SKSE Menu Framework or Fuzz's Legally Intelligible Core Kit, or in `Data/SKSE/Plugins/SkyrimSoulsRE.ini`. Changes made in the menu are saved to the same file.
 
 ## Information for mod creators
 ### Papyrus changes
@@ -79,4 +72,4 @@ If you're creating a custom menu, you may contact me in order to add support for
 To build this mod refer to my wrapper project [here](https://github.com/Vermunds/SkyrimSE-Mods).
 
 ## License
-This software is available under the MIT License. See LICENSE.md for details.
+This software is available under the MIT License. See LICENSE for details.
