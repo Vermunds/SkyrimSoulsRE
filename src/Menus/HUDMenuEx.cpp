@@ -9,10 +9,46 @@ namespace SkyrimSoulsRE
 		{
 		case RE::UI_MESSAGE_TYPE::kShow:
 			{
+				Settings* settings = Settings::GetSingleton();
+				if (settings->disableHUDModifications)
+				{
+					break;
+				}
+
+				if (!this->uiMovie)
+				{
+					logger::error("Broken HUD Menu! uiMovie is null, possibly because its SWF file failed to load. Skipping HUD modifications.");
+					break;
+				}
+
+				RE::GFxValue stealthMeter;
+				if (!this->uiMovie->GetVariable(&stealthMeter, "_root.HUDMovieBaseInstance.StealthMeterInstance") || !stealthMeter.IsObject())
+				{
+					settings->disableHUDModifications = true;
+					logger::error("Incompatible HUD Menu! StealthMeterInstance not found. Disabling HUD modifications for current session.");
+					break;
+				}
+
 				RE::GFxValue val = true;
 
 				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.InventoryMode", &val);
+
+				RE::GFxValue sneakTextClip;
+				if (!this->uiMovie->GetVariable(&sneakTextClip, "_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip") || !sneakTextClip.IsObject())
+				{
+					logger::warn("Incompatible HUD Menu! SneakTextClip not found. Skipping its modifications.");
+					break;
+				}
+
 				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.InventoryMode", &val);
+
+				RE::GFxValue sneakTextInstance;
+				if (!this->uiMovie->GetVariable(&sneakTextInstance, "_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance") || !sneakTextInstance.IsObject())
+				{
+					logger::warn("Incompatible HUD Menu! SneakTextInstance not found. Skipping its modifications.");
+					break;
+				}
+
 				this->uiMovie->SetVariable("_root.HUDMovieBaseInstance.StealthMeterInstance.SneakTextHolder.SneakTextClip.SneakTextInstance.InventoryMode", &val);
 			}
 			break;
@@ -45,7 +81,7 @@ namespace SkyrimSoulsRE
 			if (!hudMenu->uiMovie->GetVariable(&StealthMeterInstance, "_root.HUDMovieBaseInstance.StealthMeterInstance"))
 			{
 				settings->disableHUDModifications = true;
-				logger::error("Incompatible HUD Menu! Disabling HUD modifications for current session.");
+				logger::error("Incompatible HUD Menu! StealthMeterInstance not found. Disabling HUD modifications for current session.");
 				return result;
 			}
 
