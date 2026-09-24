@@ -115,7 +115,7 @@ $SSRE_SlowMotionCombatOnly_Tooltip	Slow motion is only applied while the player 
 $SSRE_CombatAlertOverlay_Description	Shows a blinking red overlay while your character is in combat, especially useful in full screen menus.
 
 $SSRE_DisableHUDModifications	Disable HUD modifications
-$SSRE_DisableHUDModifications_Tooltip	Stops Skyrim Souls RE from moving the sneak meter. Use it if you have a compatibility issue with a HUD mod.\nYou must restart the game for this to take into effect.
+$SSRE_DisableHUDModifications_Tooltip	Stops Skyrim Souls RE from moving the sneak meter. Use it if you have a compatibility issue with a HUD mod.
 $SSRE_SneakMeterPosX	Sneak meter X
 $SSRE_SneakMeterPosY	Sneak meter Y
 $SSRE_SneakMeterPos_Tooltip	Where the sneak meter is placed while a menu is open, so menu elements don't cover it (for example in the lockpicking menu).
