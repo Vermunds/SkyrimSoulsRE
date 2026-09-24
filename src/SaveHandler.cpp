@@ -86,7 +86,7 @@ namespace SkyrimSoulsRE
 		ProcessEvents_Code code{
 			std::uintptr_t(BGSSaveLoadManager_ProcessEvents_Hook),
 			Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x72A,
-			Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x5D1
+			Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x5E1
 		};
 		void* codeLoc = SKSE::GetTrampoline().allocate(code);
 
