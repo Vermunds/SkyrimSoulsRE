@@ -18,7 +18,7 @@ namespace SkyrimSoulsRE
 		if (!success)
 		{
 			// Game shouldn't be loaded at this point yet, so just exit
-			SKSE::stl::report_and_fail("Failed to load CombatAlertOverlayMenu");
+			REX::FAIL("Failed to load CombatAlertOverlayMenu");
 		}
 		_view = menu->uiMovie;
 		_view->SetMouseCursorCount(0);

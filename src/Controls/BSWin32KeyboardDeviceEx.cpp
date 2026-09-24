@@ -1,6 +1,9 @@
 #include "Controls/BSWin32KeyboardDeviceEx.h"
 #include "HookUtils.h"
 #include "Offsets.h"
+
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 
 namespace SkyrimSoulsRE

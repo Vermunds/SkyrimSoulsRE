@@ -22,7 +22,7 @@ namespace SkyrimSoulsRE
 			}
 			catch (const toml::parse_error& e)
 			{
-				SKSE::log::error("Error parsing file {}: {}", a_path, e.description());
+				logger::error("Error parsing file {}: {}", a_path, e.description());
 				return false;
 			}
 

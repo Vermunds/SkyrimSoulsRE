@@ -60,7 +60,7 @@ RE::TESWeather* WorldMapWeatherHandler::GetUniqueWeather(const std::string& worl
 	Json::Value root;
 	a_fileStream >> root;
 
-	SKSE::log::info("Reading file {}", fileName.string());
+	logger::info("Reading file {}", fileName.string());
 
 	Json::Value weathers = root["weathers"];
 	if (weathers.isArray())
@@ -69,7 +69,7 @@ RE::TESWeather* WorldMapWeatherHandler::GetUniqueWeather(const std::string& worl
 		{
 			if (!weather.isObject())
 			{
-				SKSE::log::warn("Failed to fetch weather from {}", fileName.string());
+				logger::warn("Failed to fetch weather from {}", fileName.string());
 				continue;
 			}
 
@@ -77,7 +77,7 @@ RE::TESWeather* WorldMapWeatherHandler::GetUniqueWeather(const std::string& worl
 
 			if (formID.empty())
 			{
-				SKSE::log::warn("Weather missing form ID in {}", fileName.string());
+				logger::warn("Weather missing form ID in {}", fileName.string());
 				continue;
 			}
 
@@ -85,7 +85,7 @@ RE::TESWeather* WorldMapWeatherHandler::GetUniqueWeather(const std::string& worl
 
 			if (!weatherRef)
 			{
-				SKSE::log::warn("'{}' did not correspond to a weather reference in {}", formID, fileName.string());
+				logger::warn("'{}' did not correspond to a weather reference in {}", formID, fileName.string());
 				continue;
 			}
 

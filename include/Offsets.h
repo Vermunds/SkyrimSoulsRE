@@ -16,12 +16,12 @@ namespace Offsets
 
 	namespace BGSTerrainManager
 	{
-		static constexpr REL::ID TerrainManager_UpdateFunc(static_cast<std::uint64_t>(39102));  // + 0x5D
+		static constexpr REL::ID TerrainManager_UpdateFunc(static_cast<std::uint64_t>(39102));  // + 0x6E
 	}
 
 	namespace BSAudioManager
 	{
-		static constexpr REL::ID Hook(static_cast<std::uint64_t>(40449));  // + 0xC6; + 0x12E
+		static constexpr REL::ID Hook(static_cast<std::uint64_t>(40449));  // + 0xD7; + 0x13F
 		static constexpr REL::ID SetListenerPosition(static_cast<std::uint64_t>(67708));
 		static constexpr REL::ID SetListenerRotation(static_cast<std::uint64_t>(67709));
 	}
@@ -70,7 +70,7 @@ namespace Offsets
 
 	namespace Main
 	{
-		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));        // + 0xADF
+		static constexpr REL::ID Update(static_cast<std::uint64_t>(36564));        // + 0xAF1
 		static constexpr REL::ID UpdatePlayer(static_cast<std::uint64_t>(36581));  // + 0x7A
 		static constexpr REL::ID Render(static_cast<std::uint64_t>(36555));        // + 0x5CA
 		static constexpr REL::ID InitData(static_cast<std::uint64_t>(36553));
@@ -159,7 +159,7 @@ namespace Offsets
 
 	namespace Misc
 	{
-		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(42338));  // + 0x6D8
+		static constexpr REL::ID ScreenEdgeCameraMoveHook(static_cast<std::uint64_t>(42338));  // + 0x574
 
 		static constexpr REL::ID GetExecuteConsoleCommandsSingleton(static_cast<std::uint64_t>(52950));
 		static constexpr REL::ID ExecuteConsoleCommands(static_cast<std::uint64_t>(52952));

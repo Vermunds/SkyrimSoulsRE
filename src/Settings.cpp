@@ -13,14 +13,14 @@ namespace
 	void IniSection(CSimpleIniA& a_ini, const char* a_section, const char* a_comment = nullptr)
 	{
 		a_ini.SetValue(a_section, nullptr, nullptr, a_comment);
-		SKSE::log::info("[{}]", a_section);
+		logger::info("[{}]", a_section);
 	}
 
 	bool IniGetBool(CSimpleIniA& a_ini, const char* a_section, const char* a_key, bool a_default, const char* a_comment = nullptr)
 	{
 		bool val = a_ini.GetBoolValue(a_section, a_key, a_default);
 		a_ini.SetBoolValue(a_section, a_key, val, a_comment, true);
-		SKSE::log::info("  {}: {}", a_key, val);
+		logger::info("  {}: {}", a_key, val);
 		return val;
 	}
 
@@ -28,7 +28,7 @@ namespace
 	{
 		float val = static_cast<float>(a_ini.GetDoubleValue(a_section, a_key, a_default));
 		a_ini.SetDoubleValue(a_section, a_key, val, a_comment, true);
-		SKSE::log::info("  {}: {}", a_key, val);
+		logger::info("  {}: {}", a_key, val);
 		return val;
 	}
 
@@ -36,7 +36,7 @@ namespace
 	{
 		std::uint32_t val = static_cast<std::uint32_t>(a_ini.GetLongValue(a_section, a_key, a_default));
 		a_ini.SetLongValue(a_section, a_key, val, a_comment, false, true);
-		SKSE::log::info("  {}: {}", a_key, val);
+		logger::info("  {}: {}", a_key, val);
 		return val;
 	}
 }
@@ -57,7 +57,7 @@ namespace SkyrimSoulsRE
 		ini.SetUnicode();
 		ini.LoadFile(INI_PATH);
 
-		SKSE::log::info("Loading settings from: {}", std::filesystem::absolute(INI_PATH).string());
+		logger::info("Loading settings from: {}", std::filesystem::absolute(INI_PATH).string());
 
 		IniSection(ini, "UNPAUSED_MENUS", "# DELETE THIS FILE AND RUN THE GAME IF YOU WANT TO REGENERATE THE DEFAULT SETTINGS\n\n#  Here you can set which menus you want to be paused or unpaused.");
 		settings->unpausedMenus[RE::BarterMenu::MENU_NAME.data()] = IniGetBool(ini, "UNPAUSED_MENUS", "bBarterMenu", UNPAUSED_BARTER_MENU_DEFAULT_VALUE);
@@ -179,7 +179,7 @@ namespace SkyrimSoulsRE
 		settings->mapMenuCustomSky = IniGetBool(ini, "MAP_MENU", "bMapMenuCustomSky", MAP_MENU_CUSTOM_SKY_DEFAULT_VALUE, "# If enabled, the map menu will use a separate sky/weather state decoupled from the real world weather.\n# This prevents the map from affecting gameplay (e.g. weather changes, precipitation), but it can be invasive.\n# Highly recommended to keep it enabled, but can be disabled if it conflicts with something.");
 		settings->mapMenuUniqueMapWeather = IniGetBool(ini, "MAP_MENU", "bMapMenuUniqueMapWeather", MAP_MENU_UNIQUE_MAP_WEATHER_DEFAULT_VALUE, "# Adds support for Unique Map Weather by doodlum when decoupled map weather is enabled.\n# Does nothing if the mod is not installed.");
 
-		SKSE::log::info("Settings loaded.");
+		logger::info("Settings loaded.");
 
 		ini.SaveFile(INI_PATH);
 	}
@@ -304,7 +304,7 @@ namespace SkyrimSoulsRE
 
 		ini.SaveFile(INI_PATH);
 
-		SKSE::log::info("Settings saved.");
+		logger::info("Settings saved.");
 	}
 
 	void RestoreDefaults()

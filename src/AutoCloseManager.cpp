@@ -119,7 +119,7 @@ namespace SkyrimSoulsRE
 		// Container -> Book
 		if (a_menuName == RE::BookMenu::MENU_NAME && !target && ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME))
 		{
-			SKSE::log::info("Detected BookMenu opened from ContainerMenu. Using ContainerMenu data for auto-close.");
+			logger::info("Detected BookMenu opened from ContainerMenu. Using ContainerMenu data for auto-close.");
 
 			//This can fail if the player somehow opens a book that is NOT opened from the current container menu
 			AutoCloseData& containerData = _autoCloseDataMap.at(RE::ContainerMenu::MENU_NAME);
@@ -154,7 +154,7 @@ namespace SkyrimSoulsRE
 
 	void AutoCloseManager::CloseMenu(AutoCloseData& data, std::string_view a_menuName, const std::string& a_reason)
 	{
-		SKSE::log::info("Closing {}: {}", a_menuName, a_reason);
+		logger::info("Closing {}: {}", a_menuName, a_reason);
 
 		RE::UIMessageQueue* uiMessageQueue = RE::UIMessageQueue::GetSingleton();
 		uiMessageQueue->AddMessage(a_menuName, RE::UI_MESSAGE_TYPE::kHide, nullptr);
@@ -200,13 +200,13 @@ namespace SkyrimSoulsRE
 
 		if (dialogueMode)
 		{
-			SKSE::log::info(
+			logger::info(
 				"Auto-close data for {} | Target: {} | Dialogue mode: {}",
 				a_menuName, Util::GetRefDebugString(target), dialogueMode);
 		}
 		else
 		{
-			SKSE::log::info(
+			logger::info(
 				"Auto-close data for {} | Target: {} | Initial distance: {} | Initially disabled: {} | Initially dead: {} | Check for death: {} | Dialogue mode: {}",
 				a_menuName, Util::GetRefDebugString(target), initialDistance, initiallyDisabled, initiallyDead, checkForDeath, dialogueMode);
 		}

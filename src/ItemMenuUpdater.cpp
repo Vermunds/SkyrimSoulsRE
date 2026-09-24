@@ -110,7 +110,7 @@ namespace SkyrimSoulsRE::ItemMenuUpdater
 		};
 
 		TESObjectREFR_ResetInventory_Code code{ std::uintptr_t(ResetInventory_TESObjectREFR_Hook) };
-		void* codeLoc = SKSE::GetTrampoline().allocate(code);
+		void* codeLoc = REL::GetTrampoline().allocate(code);
 
 		HookUtils::WriteBranch<5>(Offsets::ItemMenuUpdater::ResetInventory_TESObjectREFR_Hook.address() + 0x204, codeLoc);
 	}

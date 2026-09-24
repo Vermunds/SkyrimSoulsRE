@@ -149,7 +149,7 @@ namespace SkyrimSoulsRE
 		};
 
 		SleepCheck_Code code{ std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFC9), std::uintptr_t(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0x102D) };
-		void* codeLoc = SKSE::GetTrampoline().allocate(code);
+		void* codeLoc = REL::GetTrampoline().allocate(code);
 		HookUtils::WriteBranch<5>(Offsets::Menus::StatsMenu::ProcessMessage.address() + 0xFC0, codeLoc);
 
 		// Prevent setting kFreezeFrameBackground flag
@@ -159,7 +159,7 @@ namespace SkyrimSoulsRE
 		HookUtils::SafeFill(Offsets::Menus::StatsMenu::CanProcess.address() + 0x46, std::uint8_t(0x90), 6);
 
 		// Prevent muting of certain sounds
-		HookUtils::SafeWrite(Offsets::Menus::StatsMenu::Ctor.address() + 0x4C0, std::uint8_t(0xEB));
+		HookUtils::SafeWrite(Offsets::Menus::StatsMenu::Ctor.address() + 0x530, std::uint8_t(0xEB));
 		HookUtils::SafeWrite(Offsets::Menus::StatsMenu::Dtor.address() + 0x1B3, std::uint8_t(0xEB));
 	}
 }

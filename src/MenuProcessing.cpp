@@ -56,6 +56,6 @@ namespace SkyrimSoulsRE::MenuProcessing
 		HookUtils::SafeWrite(Offsets::Job::UI.address() + 0xB, std::uint8_t(0xEB));
 
 		// Hook UI processing
-		HookUtils::WriteCall<5>(Offsets::Main::Update.address() + 0xADF, (uintptr_t)MainThread_Hook);
+		HookUtils::WriteCall<5>(Offsets::Main::Update.address() + 0xAF1, (uintptr_t)MainThread_Hook);
 	}
 }

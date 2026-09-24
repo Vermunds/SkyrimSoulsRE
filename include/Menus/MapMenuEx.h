@@ -45,13 +45,13 @@ namespace SkyrimSoulsRE
 				RE::TESRegion* region;
 				float currentGameHour;
 				float currentWeatherPct;
-				REX::EnumSet<RE::Sky::Flags> flags;
+				REX::TEnumSet<RE::Sky::Flags> flags;
 				std::uint32_t lastMoonPhaseUpdate;
 				std::uint32_t unk174;
 				std::uint32_t unk178;
 				std::uint32_t unk17C;
 				float fogPower;
-				REX::EnumSet<RE::Sky::Mode> mode;
+				REX::TEnumSet<RE::Sky::Mode> mode;
 				float flash;
 				std::uint32_t flashTime;
 				RE::ObjectRefHandle currentRoom;

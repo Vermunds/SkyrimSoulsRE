@@ -29,7 +29,7 @@ namespace SkyrimSoulsRE
 		RE::GPtr<RE::HUDMenu> hudMenu = ui->GetMenu<RE::HUDMenu>(RE::HUDMenu::MENU_NAME);
 		if (!hudMenu)
 		{
-			SKSE::log::error("Failed to intercept SetMode in HUDMenu. Instance not found.");
+			logger::error("Failed to intercept SetMode in HUDMenu. Instance not found.");
 			return result;
 		}
 
@@ -45,7 +45,7 @@ namespace SkyrimSoulsRE
 			if (!hudMenu->uiMovie->GetVariable(&StealthMeterInstance, "_root.HUDMovieBaseInstance.StealthMeterInstance"))
 			{
 				settings->disableHUDModifications = true;
-				SKSE::log::error("Incompatible HUD Menu! Disabling HUD modifications for current session.");
+				logger::error("Incompatible HUD Menu! Disabling HUD modifications for current session.");
 				return result;
 			}
 

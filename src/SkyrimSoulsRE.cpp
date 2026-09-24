@@ -63,7 +63,7 @@ namespace SkyrimSoulsRE
 
 	RE::IMenu* CreateMenu(std::string_view a_menuName)
 	{
-		SKSE::log::info("Creating menu {}", a_menuName);
+		logger::info("Creating menu {}", a_menuName);
 
 		RE::IMenu* menu = menuCreatorMap.find(a_menuName.data())->second();
 

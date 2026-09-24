@@ -171,8 +171,8 @@ namespace SkyrimSoulsRE
 		RE::TESWeather* mapWeather = GetCurrentMapWeather();
 
 		RE::PlayerRegionState* playerRegionState = RE::PlayerRegionState::GetSingleton();
-		RE::TESRegion* prevRegion = playerRegionState->unk48;
-		playerRegionState->unk48 = nullptr;
+		RE::TESRegion* prevRegion = playerRegionState->lastKnownWeatherRegion;
+		playerRegionState->lastKnownWeatherRegion = nullptr;
 
 		SkyState state;
 		state.SaveState(a_sky);
@@ -229,7 +229,7 @@ namespace SkyrimSoulsRE
 
 		state.RestoreState(a_sky);
 
-		playerRegionState->unk48 = prevRegion;
+		playerRegionState->lastKnownWeatherRegion = prevRegion;
 	}
 
 	void MapMenuEx::MapSky::Finish(RE::Sky* a_sky)
@@ -315,7 +315,7 @@ namespace SkyrimSoulsRE
 				// This has the side-effect that LOD trees will disappear, so re-enable them again (they still won't appear in Map Menu)
 				if (this->worldSpace && this->worldSpace->terrainManager)
 				{
-					this->worldSpace->terrainManager->lodTreesHidden = false;
+					this->worldSpace->terrainManager->cachedCullState.cullTrees = false;
 				}
 
 				cellRenderingUpdateNeeded = false;
@@ -452,7 +452,7 @@ namespace SkyrimSoulsRE
 
 		// Prevent TerrainManager from updating while the menu is open.
 		// This prevents child worldspaces from rendering on top of their parents. Possibly avoids other issues as well.
-		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*>(HookUtils::WriteCall<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x5D, (std::uintptr_t)BGSTerrainManager_Update_Hook));
+		_TerrainManagerUpdate = *reinterpret_cast<TerrainManagerUpdate_t*>(HookUtils::WriteCall<5>(Offsets::BGSTerrainManager::TerrainManager_UpdateFunc.address() + 0x6E, (std::uintptr_t)BGSTerrainManager_Update_Hook));
 
 		// Fix for flickering/non-moving clouds
 		_UpdateClouds = *reinterpret_cast<UpdateClouds_t*>(HookUtils::WriteCall<5>(Offsets::Menus::MapMenu::UpdateClouds_Hook.address() + 0x10E, (std::uintptr_t)UpdateClouds_Hook));
@@ -460,8 +460,8 @@ namespace SkyrimSoulsRE
 		// By default if the menu is unpaused and the player opens the map, audio will stop working.
 		// This is because the listener position is linked to the camera, which is now far up in the sky.
 		// These functions set position and rotation back to its expected values manually.
-		HookUtils::WriteCall<5>(Offsets::BSAudioManager::Hook.address() + 0xC6, (std::uintptr_t)MapMenuAudioHooks::SetListenerPosition_Hook);
-		HookUtils::WriteCall<5>(Offsets::BSAudioManager::Hook.address() + 0x12E, (std::uintptr_t)MapMenuAudioHooks::SetListenerRotation_Hook);
+		HookUtils::WriteCall<5>(Offsets::BSAudioManager::Hook.address() + 0xD7, (std::uintptr_t)MapMenuAudioHooks::SetListenerPosition_Hook);
+		HookUtils::WriteCall<5>(Offsets::BSAudioManager::Hook.address() + 0x13F, (std::uintptr_t)MapMenuAudioHooks::SetListenerRotation_Hook);
 
 		// Fix player not updating while the menu is open, causing various issues
 		HookUtils::WriteCall<6>(Offsets::Main::UpdatePlayer.address() + 0x7A, (std::uintptr_t)UpdatePlayer_Hook);

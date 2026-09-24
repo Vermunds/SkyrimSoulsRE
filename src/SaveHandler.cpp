@@ -88,7 +88,7 @@ namespace SkyrimSoulsRE
 			Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x72A,
 			Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x5E1
 		};
-		void* codeLoc = SKSE::GetTrampoline().allocate(code);
+		void* codeLoc = REL::GetTrampoline().allocate(code);
 
 		HookUtils::WriteBranch<6>(Offsets::BGSSaveLoadManager::ProcessEvents.address() + 0x5D5, codeLoc);
 	}

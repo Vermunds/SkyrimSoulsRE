@@ -62,14 +62,12 @@ target_precompile_headers(
 )
 
 # Find and link dependencies
-find_package(spdlog REQUIRED CONFIG)
 find_package(jsoncpp REQUIRED CONFIG)
 
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
-		spdlog::spdlog
 		JsonCpp::JsonCpp
 		ModConfigUI
 )

@@ -185,7 +185,7 @@ namespace
 			{
 				result += ' ';
 			}
-			result += fmt::format("{:02X}", byte);
+			result += std::format("{:02X}", byte);
 		}
 		return result;
 	}
@@ -216,35 +216,35 @@ namespace SkyrimSoulsRE::HookUtils
 		g_dbgHelp.Init();
 		std::lock_guard lock(g_hooksMutex);
 
-		SKSE::log::info("--- Vtable hooks ({}) ---", g_vtableHooks.size());
+		logger::info("--- Vtable hooks ({}) ---", g_vtableHooks.size());
 		for (const VtableHookEntry& entry : g_vtableHooks)
 		{
 			std::uintptr_t slotAddr = entry.vtableAddress + entry.index * sizeof(void*);
 			std::uintptr_t current = *reinterpret_cast<std::uintptr_t*>(slotAddr);
 			if (current != entry.hookFunc)
 			{
-				SKSE::log::warn("  [OVERWRITTEN] vtable=0x{:016X} slot={} | original= {} | hook= {} | current= {} | from: {}",
+				logger::warn("  [OVERWRITTEN] vtable=0x{:016X} slot={} | original= {} | hook= {} | current= {} | from: {}",
 					entry.vtableAddress, entry.index,
 					ResolveSymbol(entry.originalFunc), ResolveSymbol(entry.hookFunc), ResolveSymbol(current),
 					entry.callsite);
 			}
 			else
 			{
-				SKSE::log::info("  vtable=0x{:016X} slot={} | original= {} | hook= {} | current= {} | from: {}",
+				logger::info("  vtable=0x{:016X} slot={} | original= {} | hook= {} | current= {} | from: {}",
 					entry.vtableAddress, entry.index,
 					ResolveSymbol(entry.originalFunc), ResolveSymbol(entry.hookFunc), ResolveSymbol(current),
 					entry.callsite);
 			}
 		}
 
-		SKSE::log::info("--- Call/branch hooks ({}) ---", g_callHooks.size());
+		logger::info("--- Call/branch hooks ({}) ---", g_callHooks.size());
 		for (const CallHookEntry& entry : g_callHooks)
 		{
 			std::int32_t disp = *reinterpret_cast<std::int32_t*>(entry.src + entry.size - 4);
 			std::uintptr_t currentStub = static_cast<std::uintptr_t>(static_cast<std::int64_t>(entry.src + entry.size) + disp);
 			if (currentStub != entry.stub)
 			{
-				SKSE::log::warn("  [OVERWRITTEN] loc= {} | original= {} | hook= {} | current= {} | from: {}",
+				logger::warn("  [OVERWRITTEN] loc= {} | original= {} | hook= {} | current= {} | from: {}",
 					ResolveSymbol(entry.src),
 					ResolveSymbol(entry.originalDst), ResolveSymbol(entry.hookFunc), ResolveSymbol(currentStub),
 					entry.callsite);
@@ -252,28 +252,28 @@ namespace SkyrimSoulsRE::HookUtils
 			else
 			{
 				// currentStub is an anonymous trampoline thunk — resolve hookFunc instead since that's where it leads.
-				SKSE::log::info("  loc= {} | original= {} | hook= {} | current= {} | from: {}",
+				logger::info("  loc= {} | original= {} | hook= {} | current= {} | from: {}",
 					ResolveSymbol(entry.src),
 					ResolveSymbol(entry.originalDst), ResolveSymbol(entry.hookFunc), ResolveSymbol(entry.hookFunc),
 					entry.callsite);
 			}
 		}
 
-		SKSE::log::info("--- Byte patches ({}) ---", g_patches.size());
+		logger::info("--- Byte patches ({}) ---", g_patches.size());
 		for (const PatchEntry& entry : g_patches)
 		{
 			std::vector<std::uint8_t> current(entry.after.size());
 			std::memcpy(current.data(), reinterpret_cast<void*>(entry.address), current.size());
 			if (current != entry.after)
 			{
-				SKSE::log::warn("  [OVERWRITTEN] loc= {} | original= [{}] | hook= [{}] | current= [{}] | from: {}",
+				logger::warn("  [OVERWRITTEN] loc= {} | original= [{}] | hook= [{}] | current= [{}] | from: {}",
 					ResolveSymbol(entry.address),
 					FormatBytes(entry.before), FormatBytes(entry.after), FormatBytes(current),
 					entry.callsite);
 			}
 			else
 			{
-				SKSE::log::info("  loc= {} | original= [{}] | hook= [{}] | current= [{}] | from: {}",
+				logger::info("  loc= {} | original= [{}] | hook= [{}] | current= [{}] | from: {}",
 					ResolveSymbol(entry.address),
 					FormatBytes(entry.before), FormatBytes(entry.after), FormatBytes(current),
 					entry.callsite);

@@ -24,7 +24,7 @@ namespace SkyrimSoulsRE::HookUtils
 	std::uintptr_t WriteVFunc(REL::Relocation<std::uintptr_t>& a_vtable, std::size_t a_idx, F a_newFunc, std::source_location a_loc = std::source_location::current())
 	{
 		std::uintptr_t original = a_vtable.write_vfunc(a_idx, a_newFunc);
-		std::uintptr_t newFuncAddr = SKSE::stl::unrestricted_cast<std::uintptr_t>(a_newFunc);
+		std::uintptr_t newFuncAddr = REX::UNRESTRICTED_CAST<std::uintptr_t>(a_newFunc);
 		RecordVtableHook(a_vtable.address(), a_idx, original, newFuncAddr, Detail::FormatCallsite(a_loc));
 		return original;
 	}
@@ -32,8 +32,8 @@ namespace SkyrimSoulsRE::HookUtils
 	template <std::size_t N, class F>
 	std::uintptr_t WriteCall(std::uintptr_t a_src, F a_newDst, std::source_location a_loc = std::source_location::current())
 	{
-		std::uintptr_t newDst = SKSE::stl::unrestricted_cast<std::uintptr_t>(a_newDst);
-		std::uintptr_t original = SKSE::GetTrampoline().write_call<N>(a_src, newDst);
+		std::uintptr_t newDst = REX::UNRESTRICTED_CAST<std::uintptr_t>(a_newDst);
+		std::uintptr_t original = REL::GetTrampoline().write_call<N>(a_src, newDst);
 		std::int32_t disp = *reinterpret_cast<std::int32_t*>(a_src + N - 4);
 		std::uintptr_t stub = static_cast<std::uintptr_t>(static_cast<std::int64_t>(a_src + N) + disp);
 		RecordCallHook(a_src, N, original, stub, newDst, Detail::FormatCallsite(a_loc));
@@ -43,8 +43,8 @@ namespace SkyrimSoulsRE::HookUtils
 	template <std::size_t N, class F>
 	std::uintptr_t WriteBranch(std::uintptr_t a_src, F a_newDst, std::source_location a_loc = std::source_location::current())
 	{
-		std::uintptr_t newDst = SKSE::stl::unrestricted_cast<std::uintptr_t>(a_newDst);
-		std::uintptr_t original = SKSE::GetTrampoline().write_branch<N>(a_src, newDst);
+		std::uintptr_t newDst = REX::UNRESTRICTED_CAST<std::uintptr_t>(a_newDst);
+		std::uintptr_t original = REL::GetTrampoline().write_jmp<N>(a_src, newDst);
 		std::int32_t disp = *reinterpret_cast<std::int32_t*>(a_src + N - 4);
 		std::uintptr_t stub = static_cast<std::uintptr_t>(static_cast<std::int64_t>(a_src + N) + disp);
 		RecordCallHook(a_src, N, original, stub, newDst, Detail::FormatCallsite(a_loc));
@@ -57,7 +57,7 @@ namespace SkyrimSoulsRE::HookUtils
 		constexpr std::size_t size = sizeof(T);
 		std::vector<std::uint8_t> before(size), after(size);
 		std::memcpy(before.data(), reinterpret_cast<void*>(a_address), size);
-		REL::safe_write(a_address, a_value);
+		REL::WriteSafeData(a_address, a_value);
 		std::memcpy(after.data(), reinterpret_cast<void*>(a_address), size);
 		RecordPatchBytes(a_address, std::move(before), std::move(after), Detail::FormatCallsite(a_loc));
 	}
@@ -66,7 +66,7 @@ namespace SkyrimSoulsRE::HookUtils
 	{
 		std::vector<std::uint8_t> before(a_size), after(a_size);
 		std::memcpy(before.data(), reinterpret_cast<void*>(a_address), a_size);
-		REL::safe_write(a_address, a_data, a_size);
+		REL::WriteSafe(a_address, a_data, a_size);
 		std::memcpy(after.data(), reinterpret_cast<void*>(a_address), a_size);
 		RecordPatchBytes(a_address, std::move(before), std::move(after), Detail::FormatCallsite(a_loc));
 	}
@@ -75,7 +75,7 @@ namespace SkyrimSoulsRE::HookUtils
 	{
 		std::vector<std::uint8_t> before(a_size), after(a_size, a_value);
 		std::memcpy(before.data(), reinterpret_cast<void*>(a_address), a_size);
-		REL::safe_fill(a_address, a_value, a_size);
+		REL::WriteSafeFill(a_address, a_value, a_size);
 		RecordPatchBytes(a_address, std::move(before), std::move(after), Detail::FormatCallsite(a_loc));
 	}
 }
