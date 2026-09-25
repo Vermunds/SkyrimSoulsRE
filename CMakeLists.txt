@@ -7,7 +7,7 @@ project(
 	LANGUAGES CXX
 )
 set(FORMATTED_NAME "Skyrim Souls RE")
-set(LICENSE "MIT License")
+set(LICENSE "GPL-3.0-or-later WITH Modding Exception")
 set(AUTHOR "Vermunds")
 
 # Configure files
