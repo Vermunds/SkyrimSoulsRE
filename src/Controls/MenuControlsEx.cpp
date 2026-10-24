@@ -1,5 +1,6 @@
 #include "Controls/MenuControlsEx.h"
 #include "Controls/InputHandlerEx.h"
+#include "Menus/ModMenus/Enderal/HeroMenu.h"
 #include "HookUtils.h"
 #include "Util.h"
 
@@ -132,6 +133,11 @@ namespace SkyrimSoulsRE
 					}
 				}
 			}
+		}
+
+		if (settings->isUsingEnderal)
+		{
+			HeroMenu::ProcessInput(a_event);
 		}
 
 		return _ProcessEvent(this, a_event, a_source);

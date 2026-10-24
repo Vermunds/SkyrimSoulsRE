@@ -44,6 +44,17 @@ namespace
 			a_settings->isUsingDialogueMovementEnabler = false;
 		}
 
+		if (REX::W32::GetModuleHandleA("EnderalSE.dll"))
+		{
+			logger::info("Enderal SE detected. Enabling compatibility.");
+			a_settings->isUsingEnderal = true;
+		}
+		else
+		{
+			logger::info("Enderal SE not detected. Disabling compatibility.");
+			a_settings->isUsingEnderal = false;
+		}
+
 		if (REX::W32::GetModuleHandleA("gotobed.dll"))
 		{
 			logger::info("Go To Bed detected. Enabling compatibility.");
