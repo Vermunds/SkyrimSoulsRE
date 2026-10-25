@@ -187,6 +187,7 @@ namespace SkyrimSoulsRE
 
 		// Internal
 		bool isUsingDialogueMovementEnabler = false;
+		bool isUsingEnderal = false;
 		bool isUsingGoToBed = false;
 		bool isUsingUniqueMapWeather = false;
 
